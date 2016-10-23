@@ -20,7 +20,7 @@ from django.core import serializers
 import datetime
 
 # middleware
-from middleware.djangoeasyaudit import DjangoEasyAuditMiddleware
+from middleware.easyaudit import EasyAuditMiddleware
 
 # unregistered classes
 UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, Migration, LogEntry, Session, Permission, ContentType]
@@ -43,7 +43,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
         # usuario
         try:
-            user = DjangoEasyAuditMiddleware.request.user
+            user = EasyAuditMiddleware.request.user
         except Exception, e:
             user = None
 
@@ -75,7 +75,7 @@ def post_delete(sender, instance, using, **kwargs):
         object_json_repr = serializers.serialize("json", [instance])
         
         # user
-        user = DjangoEasyAuditMiddleware.request.user
+        user = EasyAuditMiddleware.request.user
         if isinstance(user, AnonymousUser):
             user = None
 
