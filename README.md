@@ -44,7 +44,7 @@ a registry. This applies to every model of every app in your project.
 When any of these events takes place, django-easy-audit will log it in the model `CRUDEvent`.
 You can query this information in the Django Admin app.
 
-Besides logging CRUD events, django-easy-audit will log every time your users log in, out,
+Besides logging CRUD events, django-easy-audit will log every time a user logs in, out,
 or fails to log in. This information is stored in the model `LoginEvent`.
 
 ## Why should I use it
@@ -55,7 +55,7 @@ them inherit from a certain class. Other apps create a mirror for each of your m
 duplicate migrations. Etc.
 
 It is not that they don't work or that they are not great apps. But in case you need something
-easier, and you don't want your project to depend so much on a third party app, django-easy-audit
+easier, and you don't want your project to depend so much on a third-party app, django-easy-audit
 may be your best choice.
 
 The good thing about this app is that it is easy and quick to install, and it begins logging

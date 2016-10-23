@@ -1,5 +1,5 @@
 # django-easy-audit classes
-from models import CRUDEvent, LoginEvent
+from .models import CRUDEvent, LoginEvent
 
 # django unregistered classes
 from django.db.migrations import Migration
@@ -20,7 +20,7 @@ from django.core import serializers
 import datetime
 
 # middleware
-from middleware.easyaudit import EasyAuditMiddleware
+from .middleware.easyaudit import EasyAuditMiddleware
 
 # unregistered classes
 UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, Migration, LogEntry, Session, Permission, ContentType]
@@ -44,7 +44,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
         # usuario
         try:
             user = EasyAuditMiddleware.request.user
-        except Exception, e:
+        except:
             user = None
 
         if isinstance(user, AnonymousUser):
@@ -62,7 +62,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
             )
 
         crud_event.save()
-    except Exception, e:
+    except:
         pass
 
 def post_delete(sender, instance, using, **kwargs):
@@ -98,21 +98,21 @@ def user_logged_in(sender, request, user, **kwargs):
     try:
         login_event = LoginEvent(login_type=LoginEvent.LOGIN, username=user.username, user=user)
         login_event.save()
-    except Exception, e:
+    except:
         pass
 
 def user_logged_out(sender, request, user, **kwargs):
     try:
         login_event = LoginEvent(login_type=LoginEvent.LOGOUT, username=user.username, user=user)
         login_event.save()
-    except Exception, e:
+    except:
         pass
 
 def user_login_failed(sender, credentials, **kwargs):
     try:
         login_event = LoginEvent(login_type=LoginEvent.FAILED, username=credentials['username'])
         login_event.save()
-    except Exception, e:
+    except:
         pass
 
 models_signals.post_save.connect(post_save)
