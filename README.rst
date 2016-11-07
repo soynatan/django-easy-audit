@@ -14,9 +14,9 @@ Quick start
         'easyaudit',
     ]
 
-2. Add django-easy-audit's middleware to your MIDDLEWARE_CLASSES setting like this::
+2. Add django-easy-audit's middleware to your MIDDLEWARE (or MIDDLEWARE_CLASSES in Django <= 1.9) setting like this::
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         ...
         'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
     )

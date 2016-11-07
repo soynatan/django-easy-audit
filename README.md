@@ -20,10 +20,10 @@ This app allows you to keep track of every action taken by your users.
   ]
   ```
 
-3. Add django-easy-audit's middleware to your MIDDLEWARE_CLASSES setting like this:
+3. Add django-easy-audit's middleware to your MIDDLEWARE (or MIDDLEWARE_CLASSES) setting like this:
 
   ```
-  MIDDLEWARE_CLASSES = (
+  MIDDLEWARE = (
       ...
       'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
   )
