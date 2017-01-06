@@ -1,6 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+
+from django.conf import settings
+
 
 # Create your models here.
 class CRUDEvent(models.Model):
@@ -18,7 +20,7 @@ class CRUDEvent(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_repr = models.CharField(max_length=255, null=True, blank=True)
     object_json_repr = models.TextField(null=True, blank=True)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     datetime = models.DateTimeField(auto_now_add=True)
 
     def is_create(self):
@@ -46,7 +48,7 @@ class LoginEvent(models.Model):
     )
     login_type = models.SmallIntegerField(choices=TYPES)
     username = models.CharField(max_length=255, null=True, blank=True)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
