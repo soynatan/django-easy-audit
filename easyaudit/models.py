@@ -1,6 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
+
 
 # Create your models here.
 class CRUDEvent(models.Model):
@@ -26,7 +27,7 @@ class CRUDEvent(models.Model):
 
     def is_update(self):
         return self.MODIFICACION == self.tipo
-    
+
     def is_delete(self):
         return self.ELIMINACION == self.tipo
 
@@ -34,6 +35,7 @@ class CRUDEvent(models.Model):
         verbose_name = 'CRUD event'
         verbose_name_plural = 'CRUD events'
         ordering = ['-datetime']
+
 
 class LoginEvent(models.Model):
     LOGIN = 0
