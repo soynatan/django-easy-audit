@@ -1,29 +1,20 @@
-# django-easy-audit classes
-from .models import CRUDEvent, LoginEvent
-
-# django unregistered classes
-from django.db.migrations import Migration
 from django.contrib.admin.models import LogEntry
-from django.contrib.sessions.models import Session
+from django.contrib.auth import signals as auth_signals
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-
-# user classes
-from django.contrib.auth.models import User, AnonymousUser
-
-# signals
-from django.db.models import signals as models_signals
-from django.contrib.auth import signals as auth_signals
-
-# utils
+from django.contrib.sessions.models import Session
 from django.core import serializers
-import datetime
+from django.db.migrations import Migration
+from django.db.models import signals as models_signals
+from django.utils import timezone
 
-# middleware
 from .middleware.easyaudit import EasyAuditMiddleware
+from .models import CRUDEvent, LoginEvent
 
 # unregistered classes
 UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, Migration, LogEntry, Session, Permission, ContentType]
+
 
 # signals
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
@@ -58,12 +49,13 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
             content_type=ContentType.objects.get_for_model(instance),
             object_id=instance.id,
             user=user,
-            datetime=datetime.datetime.now()
-            )
+            datetime=timezone.now()
+        )
 
         crud_event.save()
     except:
         pass
+
 
 def post_delete(sender, instance, using, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-delete"""
@@ -73,7 +65,7 @@ def post_delete(sender, instance, using, **kwargs):
                 return False
 
         object_json_repr = serializers.serialize("json", [instance])
-        
+
         # user
         user = EasyAuditMiddleware.request.user
         if isinstance(user, AnonymousUser):
@@ -87,12 +79,13 @@ def post_delete(sender, instance, using, **kwargs):
             content_type=ContentType.objects.get_for_model(instance),
             object_id=instance.id,
             user=user,
-            datetime=datetime.datetime.now()
-            )
+            datetime=timezone.now()
+        )
 
         crud_event.save()
     except:
         pass
+
 
 def user_logged_in(sender, request, user, **kwargs):
     try:
@@ -101,6 +94,7 @@ def user_logged_in(sender, request, user, **kwargs):
     except:
         pass
 
+
 def user_logged_out(sender, request, user, **kwargs):
     try:
         login_event = LoginEvent(login_type=LoginEvent.LOGOUT, username=user.username, user=user)
@@ -108,12 +102,14 @@ def user_logged_out(sender, request, user, **kwargs):
     except:
         pass
 
+
 def user_login_failed(sender, credentials, **kwargs):
     try:
         login_event = LoginEvent(login_type=LoginEvent.FAILED, username=credentials['username'])
         login_event.save()
     except:
         pass
+
 
 models_signals.post_save.connect(post_save)
 models_signals.post_delete.connect(post_delete)
