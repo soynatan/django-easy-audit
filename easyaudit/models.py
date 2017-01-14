@@ -22,13 +22,13 @@ class CRUDEvent(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
 
     def is_create(self):
-        return self.CREACION == self.tipo
+        return self.CREATE == self.event_type
 
     def is_update(self):
-        return self.MODIFICACION == self.tipo
+        return self.UPDATE == self.event_type
     
     def is_delete(self):
-        return self.ELIMINACION == self.tipo
+        return self.DELETE == self.event_type
 
     class Meta:
         verbose_name = 'CRUD event'
@@ -42,7 +42,7 @@ class LoginEvent(models.Model):
     TYPES = (
         (LOGIN, 'Login'),
         (LOGOUT, 'Logout'),
-        (FAILED, 'Login fallido'),
+        (FAILED, 'Failed login'),
     )
     login_type = models.SmallIntegerField(choices=TYPES)
     username = models.CharField(max_length=255, null=True, blank=True)

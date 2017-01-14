@@ -1,7 +1,7 @@
 try:
     from django.utils.deprecation import MiddlewareMixin
 except:
-    # no requerido en Django <= 1.9
+    # not required in <= 1.9
     MiddlewareMixin = object
 
 class EasyAuditMiddleware(MiddlewareMixin):
