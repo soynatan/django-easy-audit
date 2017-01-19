@@ -1,29 +1,16 @@
 # django-easy-audit classes
-from .models import CRUDEvent, LoginEvent
-
-# django unregistered classes
-from django.db.migrations import Migration
-from django.contrib.admin.models import LogEntry
-from django.contrib.sessions.models import Session
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
-
-# user classes
-from django.contrib.auth.models import User, AnonymousUser
-
-# signals
-from django.db.models import signals as models_signals
-from django.contrib.auth import signals as auth_signals
-
-# utils
-from django.core import serializers
 import datetime
 
-# middleware
-from .middleware.easyaudit import EasyAuditMiddleware
+from django.contrib.auth import signals as auth_signals
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
+from django.db.models import signals as models_signals
 
-# unregistered classes
-UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, Migration, LogEntry, Session, Permission, ContentType]
+from easyaudit.settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS
+from .middleware.easyaudit import EasyAuditMiddleware
+from .models import CRUDEvent, LoginEvent
+
 
 # signals
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
@@ -117,6 +104,7 @@ def user_login_failed(sender, credentials, **kwargs):
 
 models_signals.post_save.connect(post_save)
 models_signals.post_delete.connect(post_delete)
-auth_signals.user_logged_in.connect(user_logged_in)
-auth_signals.user_logged_out.connect(user_logged_out)
-auth_signals.user_login_failed.connect(user_login_failed)
+if WATCH_LOGIN_EVENTS:
+    auth_signals.user_logged_in.connect(user_logged_in)
+    auth_signals.user_logged_out.connect(user_logged_out)
+    auth_signals.user_login_failed.connect(user_login_failed)
