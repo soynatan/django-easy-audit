@@ -1,7 +1,6 @@
-from django.db import models
-from django.contrib.contenttypes.models import ContentType
-
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 
 
 # Create your models here.
@@ -28,7 +27,7 @@ class CRUDEvent(models.Model):
 
     def is_update(self):
         return self.UPDATE == self.event_type
-    
+
     def is_delete(self):
         return self.DELETE == self.event_type
 
@@ -36,6 +35,7 @@ class CRUDEvent(models.Model):
         verbose_name = 'CRUD event'
         verbose_name_plural = 'CRUD events'
         ordering = ['-datetime']
+
 
 class LoginEvent(models.Model):
     LOGIN = 0

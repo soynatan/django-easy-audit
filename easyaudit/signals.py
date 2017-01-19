@@ -1,15 +1,14 @@
-# django-easy-audit classes
-import datetime
-
 from django.contrib.auth import signals as auth_signals
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import signals as models_signals
 
-from easyaudit.settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS
 from .middleware.easyaudit import EasyAuditMiddleware
 from .models import CRUDEvent, LoginEvent
+from .settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS
+
+from django.utils import timezone
 
 
 # signals
@@ -45,12 +44,13 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
             content_type=ContentType.objects.get_for_model(instance),
             object_id=instance.id,
             user=user,
-            datetime=datetime.datetime.now()
-            )
+            datetime=timezone.now()
+        )
 
         crud_event.save()
     except:
         pass
+
 
 def post_delete(sender, instance, using, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-delete"""
@@ -60,7 +60,7 @@ def post_delete(sender, instance, using, **kwargs):
                 return False
 
         object_json_repr = serializers.serialize("json", [instance])
-        
+
         # user
         user = EasyAuditMiddleware.request.user
         if isinstance(user, AnonymousUser):
@@ -74,12 +74,13 @@ def post_delete(sender, instance, using, **kwargs):
             content_type=ContentType.objects.get_for_model(instance),
             object_id=instance.id,
             user=user,
-            datetime=datetime.datetime.now()
-            )
+            datetime=timezone.now()
+        )
 
         crud_event.save()
     except:
         pass
+
 
 def user_logged_in(sender, request, user, **kwargs):
     try:
@@ -88,12 +89,14 @@ def user_logged_in(sender, request, user, **kwargs):
     except:
         pass
 
+
 def user_logged_out(sender, request, user, **kwargs):
     try:
         login_event = LoginEvent(login_type=LoginEvent.LOGOUT, username=user.username, user=user)
         login_event.save()
     except:
         pass
+
 
 def user_login_failed(sender, credentials, **kwargs):
     try:
@@ -102,8 +105,10 @@ def user_login_failed(sender, credentials, **kwargs):
     except:
         pass
 
+
 models_signals.post_save.connect(post_save)
 models_signals.post_delete.connect(post_delete)
+
 if WATCH_LOGIN_EVENTS:
     auth_signals.user_logged_in.connect(user_logged_in)
     auth_signals.user_logged_out.connect(user_logged_out)
