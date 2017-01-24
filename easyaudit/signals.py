@@ -3,6 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import signals as models_signals
+from django.utils import timezone
 
 from .middleware.easyaudit import EasyAuditMiddleware
 from .models import CRUDEvent, LoginEvent
