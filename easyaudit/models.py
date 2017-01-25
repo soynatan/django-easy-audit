@@ -15,11 +15,12 @@ class CRUDEvent(models.Model):
     )
 
     event_type = models.SmallIntegerField(choices=TYPES)
-    object_id = models.IntegerField()
+    object_id = models.IntegerField()  # we should try to allow other ID types
     content_type = models.ForeignKey(ContentType)
     object_repr = models.CharField(max_length=255, null=True, blank=True)
     object_json_repr = models.TextField(null=True, blank=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    # let the PK for the user remain, but do not assume the user still exists in the database
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.DO_NOTHING)
     datetime = models.DateTimeField(auto_now_add=True)
 
     def is_create(self):
