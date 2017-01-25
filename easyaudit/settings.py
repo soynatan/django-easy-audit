@@ -17,13 +17,14 @@ from easyaudit.models import CRUDEvent, LoginEvent
 
 # unregistered classes
 UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, Migration, LogEntry, Session, Permission, ContentType, MigrationRecorder.Migration]
+
 # see if the project settings differ
-UNREGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES', UNREGISTERED_CLASSES)
-UNREGISTERED_CLASSES.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_APPEND', []))
+UNREGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_DEFAULT_UNREGISTERED_CLASSES', UNREGISTERED_CLASSES)
+UNREGISTERED_CLASSES.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES', []))
 
 for idx, item in enumerate(UNREGISTERED_CLASSES):
     if isinstance(item, six.string_types):
         model_class = apps.get_model(item)
         UNREGISTERED_CLASSES[idx] = model_class
-WATCH_LOGIN_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_LOGIN_EVENTS', True)
 
+WATCH_LOGIN_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_LOGIN_EVENTS', True)
