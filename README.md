@@ -35,6 +35,27 @@ This app allows you to keep track of every action taken by your users.
 which you will be able to query from the Django admin app. Additionally, this app will also log
 everytime a user logs in, out or fails to login.
 
+## Settings
+
+django-easy-audit allows some level of configuration. In your project's settings.py file,
+you can define the following settings:
+
+* `DJANGO_EASY_AUDIT_WATCH_LOGIN_EVENTS`
+
+  Set to `False` it won't log your project's login events (log in, log out, and failed logins). Defaults to `True`.
+
+* `DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES`
+
+  A list of classes django-easy-audit will ignore. Use it to avoid logging some of your
+  project's models if necessary. It can be a class or a string with `app_name.model_name`
+  format. Defaults to `[]`.
+
+* `DJANGO_EASY_AUDIT_DEFAULT_UNREGISTERED_CLASSES`
+
+  The default list of classes django-easy-audit will ignore. Don't override this setting
+  unless you know what you are doing; it may create an infinite loop and break your project.
+  If you want django-easy-audit to stop logging one of your models please use previous setting.
+
 ## What does it do
 
 django-easy-audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)
