@@ -36,6 +36,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
         if isinstance(user, AnonymousUser):
             user = None
+        kwargs['request'] = getattr(EasyAuditMiddleware, 'request', None)  # the callbacks may want the request
         # if one of them is False, then we do not create
         create_crud_event = all(callback(instance, object_json_repr, created, raw, using, update_fields, **kwargs)
                                 for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
