@@ -44,17 +44,17 @@ you can define the following settings:
 
   Set to `False` it won't log your project's login events (log in, log out, and failed logins). Defaults to `True`.
 
-* `DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES`
+* `DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_DEFAULT`
+
+  The default list of classes django-easy-audit will ignore. Don't override this setting
+  unless you know what you are doing; it may create an infinite loop and break your project.
+  If you want django-easy-audit to stop logging one of your models please use the following setting.
+
+* `DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA`
 
   A list of classes django-easy-audit will ignore. Use it to avoid logging some of your
   project's models if necessary. It can be a class or a string with `app_name.model_name`
   format. Defaults to `[]`.
-
-* `DJANGO_EASY_AUDIT_DEFAULT_UNREGISTERED_CLASSES`
-
-  The default list of classes django-easy-audit will ignore. Don't override this setting
-  unless you know what you are doing; it may create an infinite loop and break your project.
-  If you want django-easy-audit to stop logging one of your models please use previous setting.
 
 ## What does it do
 
