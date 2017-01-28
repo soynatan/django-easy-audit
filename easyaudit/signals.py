@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from .middleware.easyaudit import EasyAuditMiddleware
 from .models import CRUDEvent, LoginEvent
-from .settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS
+from .settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
 
 from django.utils import timezone
 
@@ -22,13 +22,13 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
         object_json_repr = serializers.serialize("json", [instance])
 
-        # creacion o actualizacion?
+        # created or updated?
         if created:
             event_type = CRUDEvent.CREATE
         else:
             event_type = CRUDEvent.UPDATE
 
-        # usuario
+        # user
         try:
             user = EasyAuditMiddleware.request.user
         except:
@@ -36,19 +36,23 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
         if isinstance(user, AnonymousUser):
             user = None
+        kwargs['request'] = getattr(EasyAuditMiddleware, 'request', None)  # the callbacks may want the request
+        # if one of them is False, then we do not create
+        create_crud_event = all(callback(instance, object_json_repr, created, raw, using, update_fields, **kwargs)
+                                for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
+        if create_crud_event:
+            # crud event
+            crud_event = CRUDEvent.objects.create(
+                event_type=event_type,
+                object_repr=str(instance),
+                object_json_repr=object_json_repr,
+                content_type=ContentType.objects.get_for_model(instance),
+                object_id=instance.id,
+                user=user,
+                datetime=timezone.now()
+            )
 
-        # crud event
-        crud_event = CRUDEvent(
-            event_type=event_type,
-            object_repr=str(instance),
-            object_json_repr=object_json_repr,
-            content_type=ContentType.objects.get_for_model(instance),
-            object_id=instance.id,
-            user=user,
-            datetime=timezone.now()
-        )
-
-        crud_event.save()
+            crud_event.save()
     except:
         pass
 
@@ -68,7 +72,7 @@ def post_delete(sender, instance, using, **kwargs):
             user = None
 
         # crud event
-        crud_event = CRUDEvent(
+        crud_event = CRUDEvent.objects.create(
             event_type=CRUDEvent.DELETE,
             object_repr=str(instance),
             object_json_repr=object_json_repr,
@@ -107,10 +111,10 @@ def user_login_failed(sender, credentials, **kwargs):
         pass
 
 
-models_signals.post_save.connect(post_save)
-models_signals.post_delete.connect(post_delete)
+models_signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
+models_signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
 
 if WATCH_LOGIN_EVENTS:
-    auth_signals.user_logged_in.connect(user_logged_in)
-    auth_signals.user_logged_out.connect(user_logged_out)
-    auth_signals.user_login_failed.connect(user_login_failed)
+    auth_signals.user_logged_in.connect(user_logged_in, dispatch_uid='easy_audit_signals_logged_in')
+    auth_signals.user_logged_out.connect(user_logged_out, dispatch_uid='easy_audit_signals_logged_out')
+    auth_signals.user_login_failed.connect(user_login_failed, dispatch_uid='easy_audit_signals_login_failed')
