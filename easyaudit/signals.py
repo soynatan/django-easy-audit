@@ -69,7 +69,11 @@ def post_delete(sender, instance, using, **kwargs):
         object_json_repr = serializers.serialize("json", [instance])
 
         # user
-        user = EasyAuditMiddleware.request.user
+        try:
+            user = EasyAuditMiddleware.request.user
+        except:
+            user = None
+
         if isinstance(user, AnonymousUser):
             user = None
 
