@@ -92,3 +92,8 @@ events right away, without you having to inject code anywhere in your project.
 Find me on Twitter at [@soynatan](https://twitter.com/soynatan),
 or send me an email to [natancalzolari@gmail.com](mailto:natancalzolari@gmail.com).
 
+## Thanks
+
+* [@jheld](https://github.com/jheld)
+
+* [@sergeibershadsky](https://github.com/sergeibershadsky)
