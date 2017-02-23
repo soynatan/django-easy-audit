@@ -1,4 +1,4 @@
-from django.contrib.auth import signals as auth_signals
+from django.contrib.auth import signals as auth_signals, get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
@@ -8,8 +8,6 @@ from django.utils import timezone
 from .middleware.easyaudit import EasyAuditMiddleware
 from .models import CRUDEvent, LoginEvent
 from .settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
-
-from django.utils import timezone
 
 
 # signals
@@ -95,7 +93,8 @@ def post_delete(sender, instance, using, **kwargs):
 
 def user_logged_in(sender, request, user, **kwargs):
     try:
-        login_event = LoginEvent(login_type=LoginEvent.LOGIN, username=user.username, user=user)
+
+        login_event = LoginEvent(login_type=LoginEvent.LOGIN, username=getattr(user, user.USERNAME_FIELD), user=user)
         login_event.save()
     except:
         pass
@@ -103,7 +102,7 @@ def user_logged_in(sender, request, user, **kwargs):
 
 def user_logged_out(sender, request, user, **kwargs):
     try:
-        login_event = LoginEvent(login_type=LoginEvent.LOGOUT, username=user.username, user=user)
+        login_event = LoginEvent(login_type=LoginEvent.LOGOUT, username=getattr(user, user.USERNAME_FIELD), user=user)
         login_event.save()
     except:
         pass
@@ -111,7 +110,8 @@ def user_logged_out(sender, request, user, **kwargs):
 
 def user_login_failed(sender, credentials, **kwargs):
     try:
-        login_event = LoginEvent(login_type=LoginEvent.FAILED, username=credentials['username'])
+        user_model = get_user_model()
+        login_event = LoginEvent(login_type=LoginEvent.FAILED, username=credentials[user_model.USERNAME_FIELD])
         login_event.save()
     except:
         pass
