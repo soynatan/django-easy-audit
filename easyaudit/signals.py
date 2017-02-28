@@ -49,7 +49,8 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                 content_type=ContentType.objects.get_for_model(instance),
                 object_id=instance.id,
                 user=user,
-                datetime=timezone.now()
+                datetime=timezone.now(),
+                user_pk_as_string=str(user.pk) if user else user
             )
 
             crud_event.save()
@@ -83,7 +84,8 @@ def post_delete(sender, instance, using, **kwargs):
             content_type=ContentType.objects.get_for_model(instance),
             object_id=instance.id,
             user=user,
-            datetime=timezone.now()
+            datetime=timezone.now(),
+            user_pk_as_string=str(user.pk) if user else user
         )
 
         crud_event.save()

@@ -19,8 +19,9 @@ class CRUDEvent(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_repr = models.CharField(max_length=255, null=True, blank=True)
     object_json_repr = models.TextField(null=True, blank=True)
-    # let the PK for the user remain, but do not assume the user still exists in the database
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    user_pk_as_string = models.CharField(max_length=255, null=True, blank=True,
+                                         help_text='String version of the user pk')
     datetime = models.DateTimeField(auto_now_add=True)
 
     def is_create(self):
