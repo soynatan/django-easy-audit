@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import signals as auth_signals, get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
@@ -8,6 +10,9 @@ from django.utils import timezone
 from .middleware.easyaudit import EasyAuditMiddleware
 from .models import CRUDEvent, LoginEvent
 from .settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+
+
+logger = logging.getLogger(__name__)
 
 
 # signals
@@ -54,8 +59,8 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
             )
 
             crud_event.save()
-    except:
-        pass
+    except Exception:
+        logger.exception('easy audit had a post-save exception.')
 
 
 def post_delete(sender, instance, using, **kwargs):
@@ -89,8 +94,8 @@ def post_delete(sender, instance, using, **kwargs):
         )
 
         crud_event.save()
-    except:
-        pass
+    except Exception:
+        logger.exception('easy audit had a post-delete exception.')
 
 
 def user_logged_in(sender, request, user, **kwargs):
