@@ -7,7 +7,7 @@ from django.core import serializers
 from django.db.models import signals as models_signals
 from django.utils import timezone
 
-from .middleware.easyaudit import EasyAuditMiddleware
+from .middleware.easyaudit import get_current_request, get_current_user
 from .models import CRUDEvent, LoginEvent
 from .settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
 
@@ -33,7 +33,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
         # user
         try:
-            user = EasyAuditMiddleware.request.user
+            user = get_current_user()
         except:
             user = None
 
@@ -41,7 +41,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
             user = None
 
         # callbacks
-        kwargs['request'] = getattr(EasyAuditMiddleware, 'request', None)  # make request available for callbacks
+        kwargs['request'] = get_current_request()  # make request available for callbacks
         create_crud_event = all(callback(instance, object_json_repr, created, raw, using, update_fields, **kwargs)
                                 for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
 
@@ -74,7 +74,7 @@ def post_delete(sender, instance, using, **kwargs):
 
         # user
         try:
-            user = EasyAuditMiddleware.request.user
+            user = get_current_user()
         except:
             user = None
 
