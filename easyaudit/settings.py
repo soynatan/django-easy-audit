@@ -12,6 +12,18 @@ from django.utils import six
 
 from easyaudit.models import CRUDEvent, LoginEvent
 
+def get_model_list(class_list):
+    """
+    Receives a list of strings with app_name.model_name format
+    and turns them into classes. If an item is already a class
+    it ignores it.
+    """
+    for idx, item in enumerate(class_list):
+        if isinstance(item, six.string_types):
+            model_class = apps.get_model(item)
+            class_list[idx] = model_class
+
+
 # default unregistered classes
 UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, Migration, LogEntry, Session, Permission, ContentType,
                         MigrationRecorder.Migration]
@@ -21,11 +33,11 @@ UNREGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES
 
 # extra unregistered classes
 UNREGISTERED_CLASSES.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA', []))
+get_model_list(UNREGISTERED_CLASSES)
 
-for idx, item in enumerate(UNREGISTERED_CLASSES):
-    if isinstance(item, six.string_types):
-        model_class = apps.get_model(item)
-        UNREGISTERED_CLASSES[idx] = model_class
+# register only the specified classes, excepting UNREGISTERED_CLASSES
+REGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_REGISTERED_CLASSES', [])
+get_model_list(REGISTERED_CLASSES)
 
 # should login events be registered?
 WATCH_LOGIN_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_LOGIN_EVENTS', True)
