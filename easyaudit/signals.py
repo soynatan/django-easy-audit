@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .middleware.easyaudit import get_current_request, get_current_user
 from .models import CRUDEvent, LoginEvent
-from .settings import UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+from .settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
 
 
 logger = logging.getLogger(__name__)
@@ -19,8 +19,17 @@ logger = logging.getLogger(__name__)
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     try:
+        # do not audit any model listed in UNREGISTERED_CLASSES
         for unregistered_class in UNREGISTERED_CLASSES:
             if isinstance(instance, unregistered_class):
+                return False
+
+        # only audit models listed in REGISTERED_CLASSES (if it's set)
+        if len(REGISTERED_CLASSES) > 0:
+            for registered_class in REGISTERED_CLASSES:
+                if isinstance(instance, registered_class):
+                    break
+            else:
                 return False
 
         object_json_repr = serializers.serialize("json", [instance])
