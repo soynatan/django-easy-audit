@@ -56,6 +56,13 @@ you can define the following settings:
   project's models if necessary. It can be a class or a string with `app_name.model_name`
   format. Defaults to `[]`.
 
+* `DJANGO_EASY_AUDIT_REGISTERED_CLASSES`
+
+  A list of classes django-easy-audit will log. If is set, only these models will be logged.
+  If it is not set, every model in your project will by logged. If a model is listed both in
+  this setting and in any of the unregistered classes settings, it won't be logged. Defaults
+  to `[]` (every model is logged by default).
+
 ## What does it do
 
 django-easy-audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)
