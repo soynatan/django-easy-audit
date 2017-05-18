@@ -58,7 +58,7 @@ you can define the following settings:
 
 * `DJANGO_EASY_AUDIT_REGISTERED_CLASSES`
 
-  A list of classes django-easy-audit will log. If is set, only these models will be logged.
+  A list of classes django-easy-audit will log. If it's set, only these models will be logged.
   If it is not set, every model in your project will by logged. If a model is listed both in
   this setting and in any of the unregistered classes settings, it won't be logged. Defaults
   to `[]` (every model is logged by default).
@@ -89,14 +89,9 @@ may be your best choice.
 The good thing about this app is that it is easy and quick to install, and it begins logging
 events right away, without you having to inject code anywhere in your project.
 
-## To-Do
-
-* Admin columns need to be polished, to display more meaningful information.
-* Admin needs better filters.
-
 ## Contributors
 
-[@jheld](https://github.com/jheld) [@sergeibershadsky](https://github.com/sergeibershadsky)
+[@jheld](https://github.com/jheld)
 
 ## Contact
 
