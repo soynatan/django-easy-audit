@@ -28,3 +28,7 @@ class EasyAuditMiddleware(MiddlewareMixin):
     def __call__(self, request):
         _thread_locals.request = request
         return self.get_response(request)
+
+    def process_request(self, request):
+        _thread_locals.request = request
+        return None
