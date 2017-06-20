@@ -37,6 +37,7 @@ class CRUDEvent(models.Model):
         verbose_name = 'CRUD event'
         verbose_name_plural = 'CRUD events'
         ordering = ['-datetime']
+        index_together = ['object_id', 'content_type', ]
 
 
 class LoginEvent(models.Model):
