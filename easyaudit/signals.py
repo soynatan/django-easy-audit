@@ -83,6 +83,14 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
 
 def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+
+    try:
+        if reverse:
+            event_type = CRUDEvent.M2M_CHANGE_REV
+        else:
+            event_type = CRUDEvent.M2M_CHANGE
+    except Exception:
+        logger.exception('easy audit had an m2m-changed exception.')
     pass
 
 
