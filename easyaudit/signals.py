@@ -82,6 +82,10 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
         logger.exception('easy audit had a post-save exception.')
 
 
+def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+    pass
+
+
 def post_delete(sender, instance, using, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-delete"""
     try:
@@ -143,6 +147,7 @@ def user_login_failed(sender, credentials, **kwargs):
 
 
 models_signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
+models_signals.m2m_changed.connect(m2m_changed, dispatch_uid='easy_audit_signals_m2m_changed')
 models_signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
 
 if WATCH_LOGIN_EVENTS:
