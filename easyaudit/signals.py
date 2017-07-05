@@ -94,6 +94,16 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
             event_type = CRUDEvent.M2M_CHANGE_REV
         else:
             event_type = CRUDEvent.M2M_CHANGE
+
+        # user
+        try:
+            user = get_current_user()
+        except:
+            user = None
+
+        if isinstance(user, AnonymousUser):
+            user = None
+
     except Exception:
         logger.exception('easy audit had an m2m-changed exception.')
     pass
