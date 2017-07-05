@@ -88,6 +88,8 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
         if not should_audit(instance):
             return False
 
+        object_json_repr = serializers.serialize("json", [instance])
+
         if reverse:
             event_type = CRUDEvent.M2M_CHANGE_REV
         else:
