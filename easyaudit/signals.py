@@ -88,6 +88,9 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
         if not should_audit(instance):
             return False
 
+        if action not in ("post_add", "post_remove", "post_clear"):
+            return False
+
         object_json_repr = serializers.serialize("json", [instance])
 
         if reverse:
