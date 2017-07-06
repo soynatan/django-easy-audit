@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.contrib.auth import signals as auth_signals, get_user_model
@@ -6,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import signals as models_signals
 from django.utils import timezone
+from django.utils.encoding import force_text
 
 from .middleware.easyaudit import get_current_request, get_current_user
 from .models import CRUDEvent, LoginEvent
@@ -95,6 +97,12 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
         if reverse:
             event_type = CRUDEvent.M2M_CHANGE_REV
+            # add reverse M2M changes to event. must use json lib because
+            # django serializers ignore extra fields.
+            tmp_repr = json.loads(object_json_repr)
+            tmp_repr[0]['m2m_rev_model'] = force_text(model._meta)
+            tmp_repr[0]['m2m_rev_changed_pks'] = list(pk_set)
+            object_json_repr = json.dumps(tmp_repr)
         else:
             event_type = CRUDEvent.M2M_CHANGE
 
