@@ -118,7 +118,6 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
         crud_event.save()
     except Exception:
         logger.exception('easy audit had an m2m-changed exception.')
-    pass
 
 
 def post_delete(sender, instance, using, **kwargs):
