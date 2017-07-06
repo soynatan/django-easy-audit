@@ -82,6 +82,45 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
         logger.exception('easy audit had a post-save exception.')
 
 
+def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+
+    try:
+        if not should_audit(instance):
+            return False
+
+        object_json_repr = serializers.serialize("json", [instance])
+
+        if reverse:
+            event_type = CRUDEvent.M2M_CHANGE_REV
+        else:
+            event_type = CRUDEvent.M2M_CHANGE
+
+        # user
+        try:
+            user = get_current_user()
+        except:
+            user = None
+
+        if isinstance(user, AnonymousUser):
+            user = None
+
+        crud_event = CRUDEvent.objects.create(
+            event_type=event_type,
+            object_repr=str(instance),
+            object_json_repr=object_json_repr,
+            content_type=ContentType.objects.get_for_model(instance),
+            object_id=instance.id,
+            user=user,
+            datetime=timezone.now(),
+            user_pk_as_string=str(user.pk) if user else user
+        )
+
+        crud_event.save()
+    except Exception:
+        logger.exception('easy audit had an m2m-changed exception.')
+    pass
+
+
 def post_delete(sender, instance, using, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-delete"""
     try:
@@ -143,6 +182,7 @@ def user_login_failed(sender, credentials, **kwargs):
 
 
 models_signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
+models_signals.m2m_changed.connect(m2m_changed, dispatch_uid='easy_audit_signals_m2m_changed')
 models_signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
 
 if WATCH_LOGIN_EVENTS:
