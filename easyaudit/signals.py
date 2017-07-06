@@ -83,7 +83,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
 
 def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
-
+    """https://docs.djangoproject.com/es/1.10/ref/signals/#m2m-changed"""
     try:
         if not should_audit(instance):
             return False
