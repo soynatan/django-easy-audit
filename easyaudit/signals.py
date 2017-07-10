@@ -84,6 +84,23 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
         logger.exception('easy audit had a post-save exception.')
 
 
+def _m2m_rev_field_name(model1, model2):
+    """Gets the name of the reverse m2m accessor from `model1` to `model2`
+
+    For example, if User has a ManyToManyField connected to Group,
+    `_m2m_rev_field_name(Group, User)` retrieves the name of the field on
+    Group that lists a group's Users. (By default, this field is called
+    `user_set`, but the name can be overridden).
+    """
+    m2m_field_names = [
+        rel.get_accessor_name() for rel in model1._meta.get_fields()
+        if rel.many_to_many
+        and rel.auto_created
+        and rel.related_model == model2
+    ]
+    return m2m_field_names[0]
+
+
 def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#m2m-changed"""
     try:
@@ -100,8 +117,13 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
             # add reverse M2M changes to event. must use json lib because
             # django serializers ignore extra fields.
             tmp_repr = json.loads(object_json_repr)
+
+            m2m_rev_field = _m2m_rev_field_name(instance._meta.concrete_model, model)
+            related_instances = getattr(instance, m2m_rev_field).all()
+            related_ids = [r.id for r in related_instances]
+
             tmp_repr[0]['m2m_rev_model'] = force_text(model._meta)
-            tmp_repr[0]['m2m_rev_changed_pks'] = list(pk_set)
+            tmp_repr[0]['m2m_rev_pks'] = related_ids
             object_json_repr = json.dumps(tmp_repr)
         else:
             event_type = CRUDEvent.M2M_CHANGE
