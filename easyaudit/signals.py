@@ -124,6 +124,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             tmp_repr[0]['m2m_rev_model'] = force_text(model._meta)
             tmp_repr[0]['m2m_rev_pks'] = related_ids
+            tmp_repr[0]['m2m_rev_action'] = action
             object_json_repr = json.dumps(tmp_repr)
         else:
             event_type = CRUDEvent.M2M_CHANGE
