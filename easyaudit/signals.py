@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.contrib.auth import signals as auth_signals, get_user_model
@@ -6,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import signals as models_signals
 from django.utils import timezone
+from django.utils.encoding import force_text
 
 from .middleware.easyaudit import get_current_request, get_current_user
 from .models import CRUDEvent, LoginEvent
@@ -82,16 +84,48 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
         logger.exception('easy audit had a post-save exception.')
 
 
-def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+def _m2m_rev_field_name(model1, model2):
+    """Gets the name of the reverse m2m accessor from `model1` to `model2`
 
+    For example, if User has a ManyToManyField connected to Group,
+    `_m2m_rev_field_name(Group, User)` retrieves the name of the field on
+    Group that lists a group's Users. (By default, this field is called
+    `user_set`, but the name can be overridden).
+    """
+    m2m_field_names = [
+        rel.get_accessor_name() for rel in model1._meta.get_fields()
+        if rel.many_to_many
+        and rel.auto_created
+        and rel.related_model == model2
+    ]
+    return m2m_field_names[0]
+
+
+def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
+    """https://docs.djangoproject.com/es/1.10/ref/signals/#m2m-changed"""
     try:
         if not should_audit(instance):
+            return False
+
+        if action not in ("post_add", "post_remove", "post_clear"):
             return False
 
         object_json_repr = serializers.serialize("json", [instance])
 
         if reverse:
             event_type = CRUDEvent.M2M_CHANGE_REV
+            # add reverse M2M changes to event. must use json lib because
+            # django serializers ignore extra fields.
+            tmp_repr = json.loads(object_json_repr)
+
+            m2m_rev_field = _m2m_rev_field_name(instance._meta.concrete_model, model)
+            related_instances = getattr(instance, m2m_rev_field).all()
+            related_ids = [r.id for r in related_instances]
+
+            tmp_repr[0]['m2m_rev_model'] = force_text(model._meta)
+            tmp_repr[0]['m2m_rev_pks'] = related_ids
+            tmp_repr[0]['m2m_rev_action'] = action
+            object_json_repr = json.dumps(tmp_repr)
         else:
             event_type = CRUDEvent.M2M_CHANGE
 
@@ -118,7 +152,6 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
         crud_event.save()
     except Exception:
         logger.exception('easy audit had an m2m-changed exception.')
-    pass
 
 
 def post_delete(sender, instance, using, **kwargs):
