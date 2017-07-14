@@ -32,3 +32,17 @@ class EasyAuditMiddleware(MiddlewareMixin):
     def process_request(self, request):
         _thread_locals.request = request
         return None
+
+    def process_response(self, request, response):
+        try:
+            del _thread_locals.request
+        except AttributeError:
+            pass
+        return response
+
+    def process_exception(self, request, exception):
+        try:
+            del _thread_locals.request
+        except AttributeError:
+            pass
+        return None
