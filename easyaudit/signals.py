@@ -73,12 +73,11 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                 object_repr=str(instance),
                 object_json_repr=object_json_repr,
                 content_type=ContentType.objects.get_for_model(instance),
-                object_id=instance.id,
+                object_id=instance.pk,
                 user=user,
                 datetime=timezone.now(),
                 user_pk_as_string=str(user.pk) if user else user
             )
-
             crud_event.save()
     except Exception:
         logger.exception('easy audit had a post-save exception.')
@@ -120,7 +119,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             m2m_rev_field = _m2m_rev_field_name(instance._meta.concrete_model, model)
             related_instances = getattr(instance, m2m_rev_field).all()
-            related_ids = [r.id for r in related_instances]
+            related_ids = [r.pk for r in related_instances]
 
             tmp_repr[0]['m2m_rev_model'] = force_text(model._meta)
             tmp_repr[0]['m2m_rev_pks'] = related_ids
@@ -143,7 +142,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
             object_repr=str(instance),
             object_json_repr=object_json_repr,
             content_type=ContentType.objects.get_for_model(instance),
-            object_id=instance.id,
+            object_id=instance.pk,
             user=user,
             datetime=timezone.now(),
             user_pk_as_string=str(user.pk) if user else user
@@ -177,7 +176,7 @@ def post_delete(sender, instance, using, **kwargs):
             object_repr=str(instance),
             object_json_repr=object_json_repr,
             content_type=ContentType.objects.get_for_model(instance),
-            object_id=instance.id,
+            object_id=instance.pk,
             user=user,
             datetime=timezone.now(),
             user_pk_as_string=str(user.pk) if user else user
