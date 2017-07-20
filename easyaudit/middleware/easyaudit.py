@@ -10,6 +10,9 @@ try:
 except ImportError:
     from django.utils._threading_local import local
 
+class DummyRequest(object):
+    user = None
+
 _thread_locals = local()
 
 def get_current_request():
@@ -19,6 +22,20 @@ def get_current_user():
     request = get_current_request()
     if request:
         return getattr(request, 'user', None)
+
+def set_current_user(user):
+    if _thread_locals.request:
+        _thread_locals.request.user = user
+    else:
+        request = DummyRequest()
+        request.user = user
+        _thread_locals.request = request
+
+def clear_request():
+    try:
+        del _thread_locals.request
+    except AttributeError:
+        pass
 
 class EasyAuditMiddleware(MiddlewareMixin):
     """Makes request available to this app signals."""
