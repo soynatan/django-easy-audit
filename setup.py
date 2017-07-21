@@ -16,7 +16,7 @@ setup(
     license='GPL3',
     description='Yet another Django audit log app, hopefully the simplest one.',
     long_description=README,
-    url='https://github.com/bondstreet/django-easy-audit',
+    url='https://github.com/soynatan/django-easy-audit',
     author='Natán Calzolari',
     author_email='natancalzolari@gmail.com',
     classifiers=[
