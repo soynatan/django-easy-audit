@@ -24,9 +24,9 @@ def get_current_user():
         return getattr(request, 'user', None)
 
 def set_current_user(user):
-    if _thread_locals.request:
+    try:
         _thread_locals.request.user = user
-    else:
+    except AttributeError:
         request = DummyRequest()
         request.user = user
         _thread_locals.request = request
