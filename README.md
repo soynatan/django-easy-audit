@@ -89,6 +89,20 @@ may be your best choice.
 The good thing about this app is that it is easy and quick to install, and it begins logging
 events right away, without you having to inject code anywhere in your project.
 
+## Tests
+
+Tests are located in `easyaudit/tests`. In order to run the tests install virtualenv and run the
+following:
+
+```
+$~ > cd django-easy-audit
+$~/django-easy-audit > virtualenv .pyenv
+$~/django-easy-audit > source .pyenv/bin/activate
+$~/django-easy-audit > pip install --editable ./
+$~/django-easy-audit > cd easyaudit/tests/
+$~/django-easy-audit/easyaudit/tests > python manage.py test test_app
+```
+
 ## Contributors
 
 [@jheld](https://github.com/jheld)
