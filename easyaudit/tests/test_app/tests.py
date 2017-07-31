@@ -62,6 +62,14 @@ class TestMiddleware(TestCase):
         crud_event = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))[0]
         self.assertEqual(crud_event.user, user)
 
+    def test_middleware_not_logged_in(self):
+        create_obj_url = reverse("test_app:create-obj")
+        self.client.post(create_obj_url)
+        self.assertEqual(TestModel.objects.count(), 1)
+        obj = TestModel.objects.all()[0]
+        crud_event = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))[0]
+        self.assertEqual(crud_event.user, None)
+
     def test_manual_set_user(self):
         user = self._setup_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
 
