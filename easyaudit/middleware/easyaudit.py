@@ -10,8 +10,11 @@ try:
 except ImportError:
     from django.utils._threading_local import local
 
-class DummyRequest(object):
-    user = None
+class MockRequest(object):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        self.user = user
+        super(MockRequest, self).__init__(*args, **kwargs)
 
 _thread_locals = local()
 
@@ -27,8 +30,7 @@ def set_current_user(user):
     try:
         _thread_locals.request.user = user
     except AttributeError:
-        request = DummyRequest()
-        request.user = user
+        request = MockRequest(user=user)
         _thread_locals.request = request
 
 def clear_request():
