@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from test_app.models import TestModel, TestForeignKey, TestM2M
 from easyaudit.models import CRUDEvent
+from easyaudit.middleware.easyaudit import set_current_user, clear_request
 
 
 TEST_USER_EMAIL = 'joe@example.com'
@@ -60,3 +61,24 @@ class TestMiddleware(TestCase):
         obj = TestModel.objects.all()[0]
         crud_event = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))[0]
         self.assertEqual(crud_event.user, user)
+
+    def test_manual_set_user(self):
+        user = self._setup_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+
+        # set user/request
+        set_current_user(user)
+        obj = TestModel.objects.create()
+        self.assertEqual(obj.id, 1)
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(crud_event_qs.count(), 1)
+        crud_event = crud_event_qs[0]
+        self.assertEqual(crud_event.user, user)
+
+        # clear request
+        clear_request()
+        obj = TestModel.objects.create()
+        self.assertEqual(obj.id, 2)
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(crud_event_qs.count(), 1)
+        crud_event = crud_event_qs[0]
+        self.assertEqual(crud_event.user, None)
