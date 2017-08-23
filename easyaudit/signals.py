@@ -147,8 +147,6 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
             datetime=timezone.now(),
             user_pk_as_string=str(user.pk) if user else user
         )
-
-        crud_event.save()
     except Exception:
         logger.exception('easy audit had an m2m-changed exception.')
 
@@ -181,8 +179,6 @@ def post_delete(sender, instance, using, **kwargs):
             datetime=timezone.now(),
             user_pk_as_string=str(user.pk) if user else user
         )
-
-        crud_event.save()
     except Exception:
         logger.exception('easy audit had a post-delete exception.')
 
