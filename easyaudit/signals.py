@@ -78,7 +78,6 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                 datetime=timezone.now(),
                 user_pk_as_string=str(user.pk) if user else user
             )
-            crud_event.save()
     except Exception:
         logger.exception('easy audit had a post-save exception.')
 
