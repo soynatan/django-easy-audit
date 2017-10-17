@@ -39,6 +39,17 @@ get_model_list(UNREGISTERED_CLASSES)
 REGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_REGISTERED_CLASSES', [])
 get_model_list(REGISTERED_CLASSES)
 
+
+# default unregistered urls
+UNREGISTERED_URLS = [r'^/admin/', r'^/static/']
+
+# override default unregistered urls if defined in project settings
+UNREGISTERED_URLS = getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_URLS_DEFAULT', UNREGISTERED_URLS)
+
+# extra unregistered urls
+UNREGISTERED_URLS.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_URLS_EXTRA', []))
+
+
 # should login events be registered?
 WATCH_LOGIN_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_LOGIN_EVENTS', True)
 
@@ -47,6 +58,7 @@ WATCH_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS', T
 
 # should request events be registered?
 WATCH_REQUEST_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS', True)
+
 
 # project defined callbacks
 CRUD_DIFFERENCE_CALLBACKS = []

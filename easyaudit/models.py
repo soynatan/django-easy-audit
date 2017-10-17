@@ -66,7 +66,7 @@ class LoginEvent(models.Model):
 
 
 class RequestEvent(models.Model):
-    uri = models.CharField(max_length=255, null=False, db_index=True)
+    url = models.CharField(max_length=255, null=False, db_index=True)
     method = models.CharField(max_length=20, null=False, db_index=True)
     query_string = models.CharField(max_length=255, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)

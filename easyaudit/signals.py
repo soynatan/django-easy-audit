@@ -187,7 +187,14 @@ def post_delete(sender, instance, using, **kwargs):
         logger.exception('easy audit had a post-delete exception.')
 
 
+def should_log_url(url):
+    return True
+
+
 def request_started_handler(sender, environ, **kwargs):
+    if not should_log_url(environ['PATH_INFO']):
+        return
+
     if 'HTTP_COOKIE' not in environ:
         return
 
@@ -211,7 +218,7 @@ def request_started_handler(sender, environ, **kwargs):
                 user = None
 
     request_event = RequestEvent.objects.create(
-        uri=environ['PATH_INFO'],
+        url=environ['PATH_INFO'],
         method=environ['REQUEST_METHOD'],
         query_string=environ['QUERY_STRING'],
         user=user,

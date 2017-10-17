@@ -20,7 +20,7 @@ admin.site.register(models.LoginEvent, LoginEventAdmin)
 
 # Request events
 class RequestEventAdmin(admin.ModelAdmin):
-    list_display = ['datetime', 'method', 'user', 'uri']
+    list_display = ['datetime', 'method', 'user', 'url']
 
 
 admin.site.register(models.RequestEvent, RequestEventAdmin)
