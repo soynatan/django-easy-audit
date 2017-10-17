@@ -1,17 +1,22 @@
 import json
 import logging
 
+from Cookie import SimpleCookie
 from django.contrib.auth import signals as auth_signals, get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.models import Session
 from django.core import serializers
+from django.core.signals import request_started
 from django.db.models import signals as models_signals
 from django.utils import timezone
 from django.utils.encoding import force_text
 
 from .middleware.easyaudit import get_current_request, get_current_user
-from .models import CRUDEvent, LoginEvent
-from .settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+from .models import CRUDEvent, LoginEvent, RequestEvent
+from .settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
+    WATCH_LOGIN_EVENTS, WATCH_MODEL_EVENTS, WATCH_REQUEST_EVENTS, \
+    CRUD_DIFFERENCE_CALLBACKS
 
 
 logger = logging.getLogger(__name__)
@@ -182,9 +187,40 @@ def post_delete(sender, instance, using, **kwargs):
         logger.exception('easy audit had a post-delete exception.')
 
 
+def request_started_handler(sender, environ, **kwargs):
+    if 'HTTP_COOKIE' not in environ:
+        return
+
+    cookie = SimpleCookie()
+    cookie.load(environ['HTTP_COOKIE'])
+    user = None
+
+    if 'sessionid' in cookie:
+        session_id = cookie['sessionid'].value
+
+        try:
+            session = Session.objects.get(session_key=session_id)
+        except Session.DoesNotExist:
+            session = None
+
+        if session:
+            user_id = session.get_decoded()['_auth_user_id']
+            try:
+                user = get_user_model().objects.get(id=user_id)
+            except:
+                user = None
+
+    request_event = RequestEvent.objects.create(
+        uri=environ['PATH_INFO'],
+        method=environ['REQUEST_METHOD'],
+        query_string=environ['QUERY_STRING'],
+        user=user,
+        datetime=timezone.now()
+    )
+
+
 def user_logged_in(sender, request, user, **kwargs):
     try:
-
         login_event = LoginEvent(login_type=LoginEvent.LOGIN, username=getattr(user, user.USERNAME_FIELD), user=user)
         login_event.save()
     except:
@@ -208,9 +244,13 @@ def user_login_failed(sender, credentials, **kwargs):
         pass
 
 
-models_signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
-models_signals.m2m_changed.connect(m2m_changed, dispatch_uid='easy_audit_signals_m2m_changed')
-models_signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
+if WATCH_MODEL_EVENTS:
+    models_signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
+    models_signals.m2m_changed.connect(m2m_changed, dispatch_uid='easy_audit_signals_m2m_changed')
+    models_signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
+
+if WATCH_REQUEST_EVENTS:
+    request_started.connect(request_started_handler, dispatch_uid='easy_audit_signals_request_started')
 
 if WATCH_LOGIN_EVENTS:
     auth_signals.user_logged_in.connect(user_logged_in, dispatch_uid='easy_audit_signals_logged_in')
