@@ -10,7 +10,7 @@ from django.db.migrations import Migration
 from django.db.migrations.recorder import MigrationRecorder
 from django.utils import six
 
-from easyaudit.models import CRUDEvent, LoginEvent
+from easyaudit.models import CRUDEvent, LoginEvent, RequestEvent
 
 def get_model_list(class_list):
     """
@@ -24,40 +24,38 @@ def get_model_list(class_list):
             class_list[idx] = model_class
 
 
-# default unregistered classes
-UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, Migration, LogEntry, Session, Permission, ContentType,
-                        MigrationRecorder.Migration]
+# Should Django Easy Audit log model/auth/request events?
+WATCH_AUTH_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS', True)
+WATCH_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS', True)
+WATCH_REQUEST_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS', True)
 
-# override default unregistered classes if defined in project settings
+
+# Models which Django Easy Audit will not log.
+# By default, all but some models will be audited.
+# The list of excluded models can be overwritten or extended
+# by defining the following settings in the project.
+UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, RequestEvent, Migration, LogEntry, Session, Permission, ContentType, MigrationRecorder.Migration]
 UNREGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_DEFAULT', UNREGISTERED_CLASSES)
-
-# extra unregistered classes
 UNREGISTERED_CLASSES.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA', []))
 get_model_list(UNREGISTERED_CLASSES)
 
-# register only the specified classes, excepting UNREGISTERED_CLASSES
+
+# Models which Django Easy Audit WILL log.
+# If the following setting is defined in the project,
+# only the listed models will be audited, and every other
+# model will be excluded.
 REGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_REGISTERED_CLASSES', [])
 get_model_list(REGISTERED_CLASSES)
 
 
-# default unregistered urls
-UNREGISTERED_URLS = [r'^/admin/', r'^/static/']
-
-# override default unregistered urls if defined in project settings
+# URLs which Django Easy Audit will not log.
+# By default, all but some URL requests will be logged.
+# The list of excluded URLs can be overwritten or extended
+# by defining the following settings in the project.
+# Note: it is a list of regular expressions.
+UNREGISTERED_URLS = [r'^/admin/', r'^/static/', r'^/favicon.ico$']
 UNREGISTERED_URLS = getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_URLS_DEFAULT', UNREGISTERED_URLS)
-
-# extra unregistered urls
 UNREGISTERED_URLS.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_URLS_EXTRA', []))
-
-
-# should login events be registered?
-WATCH_AUTH_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS', True)
-
-# should model events be registered?
-WATCH_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS', True)
-
-# should request events be registered?
-WATCH_REQUEST_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS', True)
 
 
 # project defined callbacks
