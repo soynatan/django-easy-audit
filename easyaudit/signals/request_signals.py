@@ -1,13 +1,20 @@
 from Cookie import SimpleCookie
+from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
 from django.core.signals import request_started
 from django.utils import timezone
 
 from easyaudit.models import RequestEvent
-from easyaudit.settings import WATCH_REQUEST_EVENTS
+from easyaudit.settings import UNREGISTERED_URLS, WATCH_REQUEST_EVENTS
 
+import re
 
 def should_log_url(url):
+    # check if current url is blacklisted
+    for unregistered_url in UNREGISTERED_URLS:
+        pattern = re.compile(unregistered_url)
+        if pattern.match(url):
+            return False
     return True
 
 
