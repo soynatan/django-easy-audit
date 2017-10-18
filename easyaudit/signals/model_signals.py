@@ -1,17 +1,16 @@
 import json
 import logging
 
-from django.contrib.auth import signals as auth_signals, get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
-from django.db.models import signals as models_signals
+from django.db.models import signals
 from django.utils import timezone
 from django.utils.encoding import force_text
 
-from .middleware.easyaudit import get_current_request, get_current_user
-from .models import CRUDEvent, LoginEvent
-from .settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, WATCH_LOGIN_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+from easyaudit.middleware.easyaudit import get_current_request, get_current_user
+from easyaudit.models import CRUDEvent
+from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
 
 
 logger = logging.getLogger(__name__)
@@ -182,37 +181,7 @@ def post_delete(sender, instance, using, **kwargs):
         logger.exception('easy audit had a post-delete exception.')
 
 
-def user_logged_in(sender, request, user, **kwargs):
-    try:
-
-        login_event = LoginEvent(login_type=LoginEvent.LOGIN, username=getattr(user, user.USERNAME_FIELD), user=user)
-        login_event.save()
-    except:
-        pass
-
-
-def user_logged_out(sender, request, user, **kwargs):
-    try:
-        login_event = LoginEvent(login_type=LoginEvent.LOGOUT, username=getattr(user, user.USERNAME_FIELD), user=user)
-        login_event.save()
-    except:
-        pass
-
-
-def user_login_failed(sender, credentials, **kwargs):
-    try:
-        user_model = get_user_model()
-        login_event = LoginEvent(login_type=LoginEvent.FAILED, username=credentials[user_model.USERNAME_FIELD])
-        login_event.save()
-    except:
-        pass
-
-
-models_signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
-models_signals.m2m_changed.connect(m2m_changed, dispatch_uid='easy_audit_signals_m2m_changed')
-models_signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
-
-if WATCH_LOGIN_EVENTS:
-    auth_signals.user_logged_in.connect(user_logged_in, dispatch_uid='easy_audit_signals_logged_in')
-    auth_signals.user_logged_out.connect(user_logged_out, dispatch_uid='easy_audit_signals_logged_out')
-    auth_signals.user_login_failed.connect(user_login_failed, dispatch_uid='easy_audit_signals_login_failed')
+if WATCH_MODEL_EVENTS:
+    signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
+    signals.m2m_changed.connect(m2m_changed, dispatch_uid='easy_audit_signals_m2m_changed')
+    signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
