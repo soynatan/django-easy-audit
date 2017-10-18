@@ -12,7 +12,7 @@ admin.site.register(models.CRUDEvent, CRUDEventAdmin)
 
 # Login events
 class LoginEventAdmin(admin.ModelAdmin):
-    list_display = ['datetime', 'get_login_type_display', 'username', 'user']
+    list_display = ['datetime', 'get_login_type_display', 'user', 'username', 'remote_ip']
 
 
 admin.site.register(models.LoginEvent, LoginEventAdmin)
@@ -20,7 +20,7 @@ admin.site.register(models.LoginEvent, LoginEventAdmin)
 
 # Request events
 class RequestEventAdmin(admin.ModelAdmin):
-    list_display = ['datetime', 'method', 'user', 'url']
+    list_display = ['datetime', 'user', 'method', 'url', 'remote_ip']
 
 
 admin.site.register(models.RequestEvent, RequestEventAdmin)

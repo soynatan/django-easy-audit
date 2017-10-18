@@ -1,29 +1,35 @@
 from django.contrib.auth import signals, get_user_model
+from easyaudit.middleware.easyaudit import get_current_request
 from easyaudit.models import LoginEvent
 from easyaudit.settings import WATCH_AUTH_EVENTS
 
-
 def user_logged_in(sender, request, user, **kwargs):
     try:
-        login_event = LoginEvent(login_type=LoginEvent.LOGIN, username=getattr(user, user.USERNAME_FIELD), user=user)
-        login_event.save()
+        login_event = LoginEvent.objects.create(login_type=LoginEvent.LOGIN,
+                                 username=getattr(user, user.USERNAME_FIELD),
+                                 user=user,
+                                 remote_ip=request.META['REMOTE_ADDR'])
     except:
         pass
 
 
 def user_logged_out(sender, request, user, **kwargs):
     try:
-        login_event = LoginEvent(login_type=LoginEvent.LOGOUT, username=getattr(user, user.USERNAME_FIELD), user=user)
-        login_event.save()
+        login_event = LoginEvent.objects.create(login_type=LoginEvent.LOGOUT,
+                                                username=getattr(user, user.USERNAME_FIELD),
+                                                user=user,
+                                                remote_ip=request.META['REMOTE_ADDR'])
     except:
         pass
 
 
 def user_login_failed(sender, credentials, **kwargs):
     try:
+        request = get_current_request() # request argument not available in django < 1.11
         user_model = get_user_model()
-        login_event = LoginEvent(login_type=LoginEvent.FAILED, username=credentials[user_model.USERNAME_FIELD])
-        login_event.save()
+        login_event = LoginEvent.objects.create(login_type=LoginEvent.FAILED,
+                                                username=credentials[user_model.USERNAME_FIELD],
+                                                remote_ip=request.META['REMOTE_ADDR'])
     except:
         pass
 

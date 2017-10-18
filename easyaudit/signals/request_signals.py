@@ -9,6 +9,7 @@ from easyaudit.settings import UNREGISTERED_URLS, WATCH_REQUEST_EVENTS
 
 import re
 
+
 def should_log_url(url):
     # check if current url is blacklisted
     for unregistered_url in UNREGISTERED_URLS:
@@ -49,6 +50,7 @@ def request_started_handler(sender, environ, **kwargs):
         method=environ['REQUEST_METHOD'],
         query_string=environ['QUERY_STRING'],
         user=user,
+        remote_ip=environ['REMOTE_ADDR'],
         datetime=timezone.now()
     )
 
