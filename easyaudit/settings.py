@@ -51,7 +51,7 @@ UNREGISTERED_URLS.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_URLS_
 
 
 # should login events be registered?
-WATCH_LOGIN_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_LOGIN_EVENTS', True)
+WATCH_AUTH_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS', True)
 
 # should model events be registered?
 WATCH_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS', True)

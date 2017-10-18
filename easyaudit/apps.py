@@ -5,4 +5,4 @@ class EasyAuditConfig(AppConfig):
     verbose_name = 'Easy Audit Application'
 
     def ready(self):
-        import easyaudit.signals
+        from easyaudit.signals import auth_signals, model_signals, request_signals
