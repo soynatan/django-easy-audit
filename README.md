@@ -6,12 +6,11 @@ This app allows you to keep track of every action taken by your users.
 
 ## Quickstart
 
-1. Install django-easy-audit by running: `pip install django-easy-audit`
+1. Install Django Easy Audit by running `pip install django-easy-audit`.
 
-   *Alternatively, you can download the code from Github,
-   and place the folder 'easyaudit' in the root of your project.*
+   *Alternatively, you can download the [latest release](https://github.com/soynatan/django-easy-audit/releases) from GitHub, unzip it, and place the folder 'easyaudit' in the root of your project.*
 
-2. Add "easyaudit" to your INSTALLED_APPS setting like this:
+2. Add 'easyaudit' to your `INSTALLED_APPS` like this:
 
   ```
   INSTALLED_APPS = [
@@ -20,7 +19,7 @@ This app allows you to keep track of every action taken by your users.
   ]
   ```
 
-3. Add django-easy-audit's middleware to your MIDDLEWARE (or MIDDLEWARE_CLASSES) setting like this:
+3. Add Easy Audit's middleware to your `MIDDLEWARE` (or `MIDDLEWARE_CLASSES`) setting like this:
 
   ```
   MIDDLEWARE = (
@@ -31,81 +30,60 @@ This app allows you to keep track of every action taken by your users.
 
 4. Run `python manage.py migrate easyaudit` to create the app's models.
 
-5. That's it! Now every CRUD event on your whole project will be registered in the audit models,
-which you will be able to query from the Django admin app. Additionally, this app will also log
-everytime a user logs in, out or fails to login.
+5. That's it! Now every CRUD event on your whole project will be registered in the audit models, which you will be able to query from the Django admin app. Additionally, this app will also log all authentication events and all URLs requested.
 
 ## Settings
 
-django-easy-audit allows some level of configuration. In your project's settings.py file,
-you can define the following settings:
+For an exhaustive list of available settings, please [check our wiki](https://github.com/soynatan/django-easy-audit/wiki/Settings).
 
-* `DJANGO_EASY_AUDIT_WATCH_LOGIN_EVENTS`
+Below are some of the settings you may want to use. These should be defined in your project's `settings.py` file:
 
-  Set to `False` it won't log your project's login events (log in, log out, and failed logins). Defaults to `True`.
+* `DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS`
 
-* `DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_DEFAULT`
+* `DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS`
 
-  The default list of classes django-easy-audit will ignore. Don't override this setting
-  unless you know what you are doing; it may create an infinite loop and break your project.
-  If you want django-easy-audit to stop logging one of your models please use the following setting.
+* `DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS`
+
+  Set these to `False` to stop logging model, authentication, and/or request events.
 
 * `DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA`
 
-  A list of classes django-easy-audit will ignore. Use it to avoid logging some of your
-  project's models if necessary. It can be a class or a string with `app_name.model_name`
-  format. Defaults to `[]`.
+  A list of Django models which will be ignored by Django Easy Audit.
+  Use it to prevent logging one or more of your project's models.
+  List items can be classes or strings with `app_name.model_name` format.
 
-* `DJANGO_EASY_AUDIT_REGISTERED_CLASSES`
+* `DJANGO_EASY_AUDIT_UNREGISTERED_URLS_EXTRA`
 
-  A list of classes django-easy-audit will log. If it's set, only these models will be logged.
-  If it is not set, every model in your project will by logged. If a model is listed both in
-  this setting and in any of the unregistered classes settings, it won't be logged. Defaults
-  to `[]` (every model is logged by default).
+  A list of URLs which will be ignored by Django Easy Audit.
+  List items are expected to be regular expressions that
+  will be matched against the URL path.
+  [Check our wiki](https://github.com/soynatan/django-easy-audit/wiki/Settings#request-auditing)
+  for more details on how to use it.
 
 ## What does it do
 
-django-easy-audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)
-to listen to the events going on in your project, such as when a user creates, updates or deletes
+Django Easy Audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)
+to listen to the events happenning in your project, such as when a user creates, updates or deletes
 a registry. This applies to every model of every app in your project.
 
-When any of these events takes place, django-easy-audit will log it in the model `CRUDEvent`.
+When any of these events takes place, Django Easy Audit will log it in the model `CRUDEvent`.
 You can query this information in the Django Admin app.
 
-Besides logging CRUD events, django-easy-audit will log every time a user logs in, out,
-or fails to log in. This information is stored in the model `LoginEvent`.
+Besides logging CRUD events, Django Easy Audit will log all authentication events (such as when a user logs in, out, or fails to log in) and all the URLs requested in the project. This information is stored in models `LoginEvent` and `RequestEvent`.
 
-## Why should I use it
+## Why you should use it
 
 There are many Django auditing apps out there, but most them require you to change very important
 parts of your project's code. For example, they require you to add fields to your models, or make
-them inherit from a certain class. Other apps create a mirror for each of your models, which means
-duplicate migrations. Etc.
+them inherit from a certain class. Some of them create a mirror for each of your models, which means
+duplicate migrations.
 
 It is not that they don't work or that they are not great apps. But in case you need something
-easier, and you don't want your project to depend so much on a third-party app, django-easy-audit
+easier to set up, and you don't want your code to depend so much on a third-party app, Django Easy Audit
 may be your best choice.
 
-The good thing about this app is that it is easy and quick to install, and it begins logging
-events right away, without you having to inject code anywhere in your project.
-
-## Tests
-
-Tests are located in `easyaudit/tests`. In order to run the tests install virtualenv and run the
-following:
-
-```
-$~ > cd django-easy-audit
-$~/django-easy-audit > virtualenv .pyenv
-$~/django-easy-audit > source .pyenv/bin/activate
-$~/django-easy-audit > pip install --editable ./
-$~/django-easy-audit > cd easyaudit/tests/
-$~/django-easy-audit/easyaudit/tests > python manage.py test test_app
-```
-
-## Contributors
-
-[@jheld](https://github.com/jheld)
+The good thing about this app is that it doesn't get in the way. It is [easy and quick to install](https://github.com/soynatan/django-easy-audit/wiki/Installation), and it
+begins logging everything right away, without you having to inject code anywhere in your project.
 
 ## Contact
 

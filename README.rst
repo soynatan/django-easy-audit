@@ -14,7 +14,7 @@ Quick start
         'easyaudit',
     ]
 
-2. Add django-easy-audit's middleware to your MIDDLEWARE (or MIDDLEWARE_CLASSES in Django <= 1.9) setting like this::
+2. Add django-easy-audit's middleware to your MIDDLEWARE (or MIDDLEWARE_CLASSES) setting like this::
 
     MIDDLEWARE = (
         ...
@@ -23,4 +23,4 @@ Quick start
 
 3. Run 'python manage.py migrate easyaudit' to create the audit models.
 
-4. That's it! Now every CRUD event on your whole project will be registered in the audit logs, which you will be able to query from the Django admin app. Additionally, this app will also log everytime a user logs in, out or fails to login.
+4. That's it! Now every CRUD event on your whole project will be registered in the audit models, which you will be able to query from the Django admin app. Additionally, this app will also log all authentication events and all URLs requested.
