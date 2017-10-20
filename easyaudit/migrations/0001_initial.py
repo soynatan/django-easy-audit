@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('object_repr', models.CharField(max_length=255, null=True, blank=True)),
                 ('object_json_repr', models.TextField(null=True, blank=True)),
                 ('datetime', models.DateTimeField(auto_now_add=True)),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
