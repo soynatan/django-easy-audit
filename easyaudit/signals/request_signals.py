@@ -22,27 +22,26 @@ def request_started_handler(sender, environ, **kwargs):
     if not should_log_url(environ['PATH_INFO']):
         return
 
-    if 'HTTP_COOKIE' not in environ:
-        return
-
-    cookie = six.moves.http_cookies.SimpleCookie() # python3 compatibility
-    cookie.load(environ['HTTP_COOKIE'])
+    # get the user from cookies
     user = None
+    if 'HTTP_COOKIE' in environ:
+        cookie = six.moves.http_cookies.SimpleCookie() # python3 compatibility
+        cookie.load(environ['HTTP_COOKIE'])
 
-    if 'sessionid' in cookie:
-        session_id = cookie['sessionid'].value
+        if 'sessionid' in cookie:
+            session_id = cookie['sessionid'].value
 
-        try:
-            session = Session.objects.get(session_key=session_id)
-        except Session.DoesNotExist:
-            session = None
-
-        if session:
-            user_id = session.get_decoded()['_auth_user_id']
             try:
-                user = get_user_model().objects.get(id=user_id)
-            except:
-                user = None
+                session = Session.objects.get(session_key=session_id)
+            except Session.DoesNotExist:
+                session = None
+
+            if session:
+                user_id = session.get_decoded()['_auth_user_id']
+                try:
+                    user = get_user_model().objects.get(id=user_id)
+                except:
+                    user = None
 
     request_event = RequestEvent.objects.create(
         url=environ['PATH_INFO'],
