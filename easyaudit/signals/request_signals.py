@@ -1,8 +1,7 @@
-from Cookie import SimpleCookie
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
 from django.core.signals import request_started
-from django.utils import timezone
+from django.utils import six, timezone
 
 from easyaudit.models import RequestEvent
 from easyaudit.settings import UNREGISTERED_URLS, WATCH_REQUEST_EVENTS
@@ -26,7 +25,7 @@ def request_started_handler(sender, environ, **kwargs):
     if 'HTTP_COOKIE' not in environ:
         return
 
-    cookie = SimpleCookie()
+    cookie = six.moves.http_cookies.SimpleCookie() # python3 compatibility
     cookie.load(environ['HTTP_COOKIE'])
     user = None
 
