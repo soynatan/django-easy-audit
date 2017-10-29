@@ -37,7 +37,7 @@ def request_started_handler(sender, environ, **kwargs):
                 session = None
 
             if session:
-                user_id = session.get_decoded()['_auth_user_id']
+                user_id = session.get_decoded().get('_auth_user_id')
                 try:
                     user = get_user_model().objects.get(id=user_id)
                 except:
