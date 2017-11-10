@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
 from django.core.signals import request_started
+from django.http.cookie import SimpleCookie
 from django.utils import six, timezone
 
 from easyaudit.models import RequestEvent
@@ -24,8 +25,8 @@ def request_started_handler(sender, environ, **kwargs):
 
     # get the user from cookies
     user = None
-    if 'HTTP_COOKIE' in environ:
-        cookie = six.moves.http_cookies.SimpleCookie() # python3 compatibility
+    if environ.get('HTTP_COOKIE'):
+        cookie = SimpleCookie() # python3 compatibility
         cookie.load(environ['HTTP_COOKIE'])
 
         if 'sessionid' in cookie:
