@@ -1,3 +1,4 @@
+import json
 from django.contrib import admin
 from django.core import urlresolvers
 from django.contrib.auth import get_user_model
@@ -29,6 +30,8 @@ class CRUDEventAdmin(admin.ModelAdmin):
     date_hierarchy = 'datetime'
     list_filter = ['event_type', 'content_type', 'user', 'datetime', ]
     search_fields = ['=object_id', 'object_json_repr', ]
+    readonly_fields = ['event_type', 'object_id', 'content_type', 'object_repr',
+        'object_json_repr_prettified', 'object_json_repr', 'user', 'user_pk_as_string', 'datetime', ]
 
     def object_repr_link(self, obj):
         try:
@@ -46,6 +49,16 @@ class CRUDEventAdmin(admin.ModelAdmin):
         return mark_safe(get_user_link(obj.user))
     user_link.short_description = 'user'
 
+    def object_json_repr_prettified(self, obj):
+        try:
+            data = json.loads(obj.object_json_repr)
+            html = '<pre>' + json.dumps(data, sort_keys=True, indent=4) + '</pre>'
+        except:
+            html = obj.object_json_repr
+        return mark_safe(html)
+    object_json_repr_prettified.short_description = 'object json repr'
+
+
 if settings.ADMIN_SHOW_MODEL_EVENTS:
     admin.site.register(models.CRUDEvent, CRUDEventAdmin)
 
@@ -56,6 +69,7 @@ class LoginEventAdmin(admin.ModelAdmin):
     date_hierarchy = 'datetime'
     list_filter = ['login_type', 'user', 'datetime', ]
     search_fields = ['=remote_ip', 'username', ]
+    readonly_fields = ['login_type', 'username', 'user', 'remote_ip', 'datetime', ]
 
     def user_link(self, obj):
         return mark_safe(get_user_link(obj.user))
@@ -72,6 +86,7 @@ class RequestEventAdmin(admin.ModelAdmin):
     date_hierarchy = 'datetime'
     list_filter = ['method', 'user', 'datetime', ]
     search_fields = ['=remote_ip', 'username', 'url', 'query_string', ]
+    readonly_fields = ['url', 'method', 'query_string', 'user', 'remote_ip', 'datetime', ]
 
     def user_link(self, obj):
         return mark_safe(get_user_link(obj.user))
