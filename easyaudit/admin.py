@@ -34,14 +34,17 @@ class CRUDEventAdmin(admin.ModelAdmin):
         'object_json_repr_prettified', 'object_json_repr', 'user', 'user_pk_as_string', 'datetime', ]
 
     def object_repr_link(self, obj):
-        try:
-            url = urlresolvers.reverse("admin:%s_%s_change" % (
-                obj.content_type.app_label,
-                obj.content_type.model,
-            ), args=(obj.object_id,))
-            html = '<a href="%s">%s</a>' % (url, obj.object_repr)
-        except:
+        if obj.event_type == models.CRUDEvent.DELETE:
             html = obj.object_repr
+        else:
+            try:
+                url = urlresolvers.reverse("admin:%s_%s_change" % (
+                    obj.content_type.app_label,
+                    obj.content_type.model,
+                ), args=(obj.object_id,))
+                html = '<a href="%s">%s</a>' % (url, obj.object_repr)
+            except:
+                html = obj.object_repr
         return mark_safe(html)
     object_repr_link.short_description = 'object repr'
 
