@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.conf.urls import url
 from django.utils.safestring import mark_safe
+from . import settings
 
 
 class EasyAuditModelAdmin(admin.ModelAdmin):
@@ -51,6 +52,16 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         This action first displays a confirmation page;
         next, it deletes all objects and redirects back to the change list.
         """
+
+        def truncate_table(model):
+            if settings.TRUNCATE_TABLE_SQL_STATEMENT:
+                from django.db import connection
+                sql = settings.TRUNCATE_TABLE_SQL_STATEMENT.format(db_table=model._meta.db_table)
+                cursor = connection.cursor()
+                cursor.execute(sql)
+            else:
+                model.objects.all().delete()
+
         modeladmin = self
         opts = modeladmin.model._meta
 
@@ -65,8 +76,9 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         if request.method == 'POST':
             if 'btn-confirm' in request.POST:
                 try:
-                    modeladmin.model.objects.all().delete()
-                    modeladmin.message_user(request, _("Successfully removed all objects"), messages.SUCCESS);
+                    n = modeladmin.model.objects.count()
+                    truncate_table(modeladmin.model)
+                    modeladmin.message_user(request, _("Successfully removed %d rows" % n), messages.SUCCESS);
                 except Exception as e:
                     modeladmin.message_user(request, _(u'ERROR') + ': %r' % e, messages.ERROR)
             else:
