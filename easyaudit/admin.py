@@ -1,31 +1,16 @@
 import json
 from django.contrib import admin
 from django.core import urlresolvers
-from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
-from . import models, settings
-
-
-def get_user_link(user):
-    """
-    Helper to get admin url for given user
-    """
-    if user is None:
-        return '-'
-    try:
-        user_model = get_user_model()
-        url = urlresolvers.reverse("admin:%s_%s_change" % (
-            user_model._meta.app_label,
-            user_model._meta.model_name,
-        ), args=(user.id,))
-        html = '<a href="%s">%s</a>' % (url, str(user))
-    except:
-        html = str(user)
-    return html
+from . import settings
+from .models import CRUDEvent
+from .models import LoginEvent
+from .models import RequestEvent
+from .admin_helpers import EasyAuditModelAdmin
 
 
 # CRUD events
-class CRUDEventAdmin(admin.ModelAdmin):
+class CRUDEventAdmin(EasyAuditModelAdmin):
     list_display = ['get_event_type_display', 'content_type', 'object_id', 'object_repr_link', 'user_link', 'datetime']
     date_hierarchy = 'datetime'
     list_filter = ['event_type', 'content_type', 'user', 'datetime', ]
@@ -34,7 +19,7 @@ class CRUDEventAdmin(admin.ModelAdmin):
         'object_json_repr_prettified', 'object_json_repr', 'user', 'user_pk_as_string', 'datetime', ]
 
     def object_repr_link(self, obj):
-        if obj.event_type == models.CRUDEvent.DELETE:
+        if obj.event_type == CRUDEvent.DELETE:
             html = obj.object_repr
         else:
             try:
@@ -48,10 +33,6 @@ class CRUDEventAdmin(admin.ModelAdmin):
         return mark_safe(html)
     object_repr_link.short_description = 'object repr'
 
-    def user_link(self, obj):
-        return mark_safe(get_user_link(obj.user))
-    user_link.short_description = 'user'
-
     def object_json_repr_prettified(self, obj):
         try:
             data = json.loads(obj.object_json_repr)
@@ -63,38 +44,30 @@ class CRUDEventAdmin(admin.ModelAdmin):
 
 
 if settings.ADMIN_SHOW_MODEL_EVENTS:
-    admin.site.register(models.CRUDEvent, CRUDEventAdmin)
+    admin.site.register(CRUDEvent, CRUDEventAdmin)
 
 
 # Login events
-class LoginEventAdmin(admin.ModelAdmin):
+class LoginEventAdmin(EasyAuditModelAdmin):
     list_display = ['datetime', 'get_login_type_display', 'user_link', 'username', 'remote_ip']
     date_hierarchy = 'datetime'
     list_filter = ['login_type', 'user', 'datetime', ]
     search_fields = ['=remote_ip', 'username', ]
     readonly_fields = ['login_type', 'username', 'user', 'remote_ip', 'datetime', ]
 
-    def user_link(self, obj):
-        return mark_safe(get_user_link(obj.user))
-    user_link.short_description = 'user'
-
 
 if settings.ADMIN_SHOW_AUTH_EVENTS:
-    admin.site.register(models.LoginEvent, LoginEventAdmin)
+    admin.site.register(LoginEvent, LoginEventAdmin)
 
 
 # Request events
-class RequestEventAdmin(admin.ModelAdmin):
+class RequestEventAdmin(EasyAuditModelAdmin):
     list_display = ['datetime', 'user_link', 'method', 'url', 'remote_ip']
     date_hierarchy = 'datetime'
     list_filter = ['method', 'user', 'datetime', ]
     search_fields = ['=remote_ip', 'username', 'url', 'query_string', ]
     readonly_fields = ['url', 'method', 'query_string', 'user', 'remote_ip', 'datetime', ]
 
-    def user_link(self, obj):
-        return mark_safe(get_user_link(obj.user))
-    user_link.short_description = 'user'
-
 
 if settings.ADMIN_SHOW_REQUEST_EVENTS:
-    admin.site.register(models.RequestEvent, RequestEventAdmin)
+    admin.site.register(RequestEvent, RequestEventAdmin)

@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_label|capfirst|escape }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; {% trans 'Purge' %}
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+<form method="post" action="">{% csrf_token %}
+    <div class="alert alert-block alert-error">
+        <h4 class="alert-heading">{% trans 'Please confirm deletion' %}.</h4>
+        <p>{% blocktrans %}This operation is destructive, cannot be undone and may require some minutes.{% endblocktrans %}</p>
+        <p>{% blocktrans %}Are you sure you want to permanently remove all objects ?{% endblocktrans %}</p>
+        <br>
+
+        <div class="submit-row">
+            <input type="submit" class="btn btn-danger deletelink" name="btn-confirm" value="{% trans 'Yes, I\'m sure' %}" />
+            <input type="submit" class="btn" name="btn-cancel" value="{% trans 'Cancel' %}" />
+        </div>
+    </div>
+</form>
+
+{% endblock %}
