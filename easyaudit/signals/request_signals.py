@@ -3,6 +3,7 @@ from django.contrib.sessions.models import Session
 from django.core.signals import request_started
 from django.http.cookie import SimpleCookie
 from django.utils import six, timezone
+from django.conf import settings
 
 from easyaudit.models import RequestEvent
 from easyaudit.settings import UNREGISTERED_URLS, WATCH_REQUEST_EVENTS
@@ -29,8 +30,9 @@ def request_started_handler(sender, environ, **kwargs):
         cookie = SimpleCookie() # python3 compatibility
         cookie.load(environ['HTTP_COOKIE'])
 
-        if 'sessionid' in cookie:
-            session_id = cookie['sessionid'].value
+        session_cookie_name = settings.SESSION_COOKIE_NAME
+        if session_cookie_name in cookie:
+            session_id = cookie[session_cookie_name].value
 
             try:
                 session = Session.objects.get(session_key=session_id)

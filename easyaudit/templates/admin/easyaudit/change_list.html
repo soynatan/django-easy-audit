@@ -1,0 +1,15 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% if request.user.is_superuser %}
+    <li>
+        {% with purge_url='admin:'|add:cl.opts.app_label|add:'_'|add:cl.opts.model_name|add:'_purge' %}
+            <a href="{% url purge_url %}" class="deletelink">
+            {% blocktrans with cl.opts.verbose_name_plural as name %}Purge {{ name }}{% endblocktrans %}
+            </a>
+        {% endwith %}
+    </li>
+    {% endif %}
+{% endblock %}
