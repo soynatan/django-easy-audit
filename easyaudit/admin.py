@@ -3,9 +3,7 @@ from django.contrib import admin
 from django.core import urlresolvers
 from django.utils.safestring import mark_safe
 from . import settings
-from .models import CRUDEvent
-from .models import LoginEvent
-from .models import RequestEvent
+from .models import CRUDEvent, LoginEvent, RequestEvent
 from .admin_helpers import EasyAuditModelAdmin
 
 
@@ -16,7 +14,8 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     list_filter = ['event_type', 'content_type', 'user', 'datetime', ]
     search_fields = ['=object_id', 'object_json_repr', ]
     readonly_fields = ['event_type', 'object_id', 'content_type', 'object_repr',
-        'object_json_repr_prettified', 'object_json_repr', 'user', 'user_pk_as_string', 'datetime', ]
+        'object_json_repr_prettified', 'user', 'user_pk_as_string', 'datetime', ]
+    exclude = ['object_json_repr']
 
     def object_repr_link(self, obj):
         if obj.event_type == CRUDEvent.DELETE:
@@ -31,6 +30,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
             except:
                 html = obj.object_repr
         return mark_safe(html)
+
     object_repr_link.short_description = 'object repr'
 
     def object_json_repr_prettified(self, obj):
@@ -40,6 +40,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
         except:
             html = obj.object_json_repr
         return mark_safe(html)
+
     object_json_repr_prettified.short_description = 'object json repr'
 
 
