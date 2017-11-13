@@ -77,7 +77,7 @@ for idx, callback in enumerate(CRUD_DIFFERENCE_CALLBACKS):
 # Purge table optimization:
 # If TRUNCATE_TABLE_SQL_STATEMENT is not empty, we use it as custom sql statement
 # to speed up table truncation bypassing ORM, i.e.:
-#   DJANGO_EASY_AUDIT_TRUNCATE_TABLE_SQL_STATEMENT = "TRUNCATE TABLE `{db_table}`"  # for Postgresql
+#   DJANGO_EASY_AUDIT_TRUNCATE_TABLE_SQL_STATEMENT = 'TRUNCATE TABLE "{db_table}"'  # for Postgresql
 # Else we use Django Orm as follows:
 #   model.objects.all().delete()
 # which is however much costly when many rows are involved
