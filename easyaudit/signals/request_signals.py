@@ -6,7 +6,7 @@ from django.utils import six, timezone
 from django.conf import settings
 
 from easyaudit.models import RequestEvent
-from easyaudit.settings import UNREGISTERED_URLS, WATCH_REQUEST_EVENTS
+from easyaudit.settings import REMOTE_ADDR_HEADER, UNREGISTERED_URLS, WATCH_REQUEST_EVENTS
 
 import re
 
@@ -51,7 +51,7 @@ def request_started_handler(sender, environ, **kwargs):
         method=environ['REQUEST_METHOD'],
         query_string=environ['QUERY_STRING'],
         user=user,
-        remote_ip=environ['REMOTE_ADDR'],
+        remote_ip=environ[REMOTE_ADDR_HEADER],
         datetime=timezone.now()
     )
 
