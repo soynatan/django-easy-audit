@@ -28,6 +28,7 @@ def get_model_list(class_list):
 WATCH_AUTH_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS', True)
 WATCH_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS', True)
 WATCH_REQUEST_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS', True)
+REMOTE_ADDR_HEADER = getattr(settings, 'DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER', 'REMOTE_ADDR')
 
 
 # Models which Django Easy Audit will not log.
