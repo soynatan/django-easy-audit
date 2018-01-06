@@ -1,9 +1,13 @@
 from django.contrib import admin
-from django.core import urlresolvers
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
+
+try: # Django 2.0
+    from django.urls import reverse
+except: # Django < 2.0
+    from django.core.urlresolvers import reverse
+
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
@@ -21,7 +25,7 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
             return '-'
         try:
             user_model = get_user_model()
-            url = urlresolvers.reverse("admin:%s_%s_change" % (
+            url = reverse("admin:%s_%s_change" % (
                 user_model._meta.app_label,
                 user_model._meta.model_name,
             ), args=(user.id,))

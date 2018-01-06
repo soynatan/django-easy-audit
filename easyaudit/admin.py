@@ -1,6 +1,11 @@
 import json
 from django.contrib import admin
-from django.core import urlresolvers
+
+try: # Django 2.0
+    from django.urls import reverse
+except: # Django < 2.0
+    from django.core.urlresolvers import reverse
+
 from django.utils.safestring import mark_safe
 from . import settings
 from .models import CRUDEvent, LoginEvent, RequestEvent
@@ -22,7 +27,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
             html = obj.object_repr
         else:
             try:
-                url = urlresolvers.reverse("admin:%s_%s_change" % (
+                url = reverse("admin:%s_%s_change" % (
                     obj.content_type.app_label,
                     obj.content_type.model,
                 ), args=(obj.object_id,))
