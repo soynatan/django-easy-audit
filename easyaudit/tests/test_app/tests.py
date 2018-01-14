@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+try: # Django 2.0
+    from django.urls import reverse
+except: # Django < 2.0
+    from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from test_app.models import TestModel, TestForeignKey, TestM2M
@@ -13,7 +16,7 @@ TEST_USER_EMAIL = 'joe@example.com'
 TEST_USER_PASSWORD = 'password'
 
 class TestAuditModels(TestCase):
-    
+
     def test_create_model(self):
         obj = TestModel.objects.create()
         self.assertEqual(obj.id, 1)
