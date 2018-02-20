@@ -10,12 +10,15 @@ from django.db.models import signals
 from django.utils import timezone
 from django.utils.encoding import force_text
 
-from easyaudit.middleware.easyaudit import get_current_request, get_current_user
+from easyaudit.middleware.easyaudit import get_current_request,\
+                                           get_current_user
 from easyaudit.models import CRUDEvent
-from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES,\
+                               WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
 
 
 logger = logging.getLogger(__name__)
+
 
 def should_audit(instance):
     """Returns True or False to indicate whether the instance
@@ -76,6 +79,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                     event_type=event_type,
                     object_repr=str(instance),
                     object_json_repr=object_json_repr,
+                    changed_fields=update_fields,
                     content_type=ContentType.objects.get_for_model(instance),
                     object_id=instance.pk,
                     user=user,
