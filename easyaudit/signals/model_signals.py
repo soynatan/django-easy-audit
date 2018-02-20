@@ -15,6 +15,7 @@ from easyaudit.middleware.easyaudit import get_current_request,\
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES,\
                                WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+import pdb
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                 return False
 
             object_json_repr = serializers.serialize("json", [instance])
+            pdb.set_trace()
 
             # created or updated?
             if created:
