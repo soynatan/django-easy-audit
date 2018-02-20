@@ -12,6 +12,7 @@ from django.utils import six
 
 from easyaudit.models import CRUDEvent, LoginEvent, RequestEvent
 
+
 def get_model_list(class_list):
     """
     Receives a list of strings with app_name.model_name format
@@ -23,8 +24,8 @@ def get_model_list(class_list):
             model_class = apps.get_model(item)
             class_list[idx] = model_class
 
+
 # Secret Key needed for managed.py
-SECRET_KEY = os.environ.get('SECRET_KEY', 'd&k6jfbbp11_uxmf%s2o)e*9s7)i2od6)!l(-n$ye*20q!=sv#')
 
 # Should Django Easy Audit log model/auth/request events?
 WATCH_AUTH_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS', True)
