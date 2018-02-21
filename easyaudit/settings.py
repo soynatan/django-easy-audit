@@ -25,8 +25,6 @@ def get_model_list(class_list):
             class_list[idx] = model_class
 
 
-# Secret Key needed for managed.py
-
 # Should Django Easy Audit log model/auth/request events?
 WATCH_AUTH_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_AUTH_EVENTS', True)
 WATCH_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS', True)
