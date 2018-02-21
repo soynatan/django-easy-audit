@@ -16,7 +16,6 @@ from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES,\
                                WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
 from easyaudit.utils import model_delta
-import pdb
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +43,7 @@ def should_audit(instance):
 
 
 # signals
-def pre_save(sender, instance, created, raw, using, update_fields, **kwargs):
+def pre_save(sender, instance, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     try:
         with transaction.atomic():
@@ -52,10 +51,14 @@ def pre_save(sender, instance, created, raw, using, update_fields, **kwargs):
                 return False
             object_json_repr = serializers.serialize("json", [instance])
 
+            if instance.pk is None:
+                created = True
+            else:
+                created = False
+
             # created or updated?
             if not created:
                 old_model = sender.objects.get(pk=instance.pk)
-                pdb.set_trace()
                 changed_fields = model_delta(old_model, instance)
                 event_type = CRUDEvent.UPDATE
 
@@ -76,7 +79,7 @@ def pre_save(sender, instance, created, raw, using, update_fields, **kwargs):
                                     for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
 
             # create crud event only if all callbacks returned True
-            if create_crud_event:
+            if create_crud_event and not created:
                 crud_event = CRUDEvent.objects.create(
                     event_type=event_type,
                     object_repr=str(instance),
@@ -92,7 +95,6 @@ def pre_save(sender, instance, created, raw, using, update_fields, **kwargs):
         logger.exception('easy audit had a pre-save exception.')
 
 
-
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     try:
@@ -104,11 +106,6 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
             # created or updated?
             if created:
                 event_type = CRUDEvent.CREATE
-            else:
-                old_model = sender.objects.get(pk=instance.pk)
-                pdb.set_trace()
-                changed_fields = model_delta(old_model, instance)
-                event_type = CRUDEvent.UPDATE
 
             # user
             try:
@@ -123,16 +120,17 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
             # callbacks
             kwargs['request'] = get_current_request()  # make request available for callbacks
-            create_crud_event = all(callback(instance, object_json_repr, created, raw, using, update_fields, **kwargs)
-                                    for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
+            create_crud_event = all(callback(instance, object_json_repr,
+                                    created, raw, using, update_fields, **kwargs)
+                                    for callback in CRUD_DIFFERENCE_CALLBACKS
+                                    if callable(callback))
 
             # create crud event only if all callbacks returned True
-            if create_crud_event:
+            if create_crud_event and created:
                 crud_event = CRUDEvent.objects.create(
                     event_type=event_type,
                     object_repr=str(instance),
                     object_json_repr=object_json_repr,
-                    changed_fields=changed_fields,
                     content_type=ContentType.objects.get_for_model(instance),
                     object_id=instance.pk,
                     user=user,

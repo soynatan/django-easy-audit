@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from test_app.models import TestModel
-import pdb
 
 
 def create_obj_view(request):
