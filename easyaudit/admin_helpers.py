@@ -15,6 +15,19 @@ from django.conf.urls import url
 from django.utils.safestring import mark_safe
 from . import settings
 
+import json
+
+
+def prettify_json(json_string):
+    """Given a JSON string, it returns it as a
+    safe formatted HTML"""
+    try:
+        data = json.loads(json_string)
+        html = '<pre>' + json.dumps(data, sort_keys=True, indent=4) + '</pre>'
+    except:
+        html = json_string
+    return mark_safe(html)
+
 
 class EasyAuditModelAdmin(admin.ModelAdmin):
 

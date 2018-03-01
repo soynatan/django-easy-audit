@@ -12,6 +12,7 @@ from django.utils import six
 
 from easyaudit.models import CRUDEvent, LoginEvent, RequestEvent
 
+
 def get_model_list(class_list):
     """
     Receives a list of strings with app_name.model_name format
@@ -83,4 +84,3 @@ for idx, callback in enumerate(CRUD_DIFFERENCE_CALLBACKS):
 #   model.objects.all().delete()
 # which is however much costly when many rows are involved
 TRUNCATE_TABLE_SQL_STATEMENT = getattr(settings, 'DJANGO_EASY_AUDIT_TRUNCATE_TABLE_SQL_STATEMENT', '')
-
