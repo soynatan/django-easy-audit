@@ -10,12 +10,16 @@ from django.db.models import signals
 from django.utils import timezone
 from django.utils.encoding import force_text
 
-from easyaudit.middleware.easyaudit import get_current_request, get_current_user
+from easyaudit.middleware.easyaudit import get_current_request,\
+                                           get_current_user
 from easyaudit.models import CRUDEvent
-from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES,\
+                               WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+from easyaudit.utils import model_delta
 
 
 logger = logging.getLogger(__name__)
+
 
 def should_audit(instance):
     """Returns True or False to indicate whether the instance
@@ -39,19 +43,24 @@ def should_audit(instance):
 
 
 # signals
-def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
+def pre_save(sender, instance, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     try:
         with transaction.atomic():
             if not should_audit(instance):
                 return False
-
             object_json_repr = serializers.serialize("json", [instance])
 
-            # created or updated?
-            if created:
-                event_type = CRUDEvent.CREATE
+            if instance.pk is None:
+                created = True
             else:
+                created = False
+
+            # created or updated?
+            if not created:
+                old_model = sender.objects.get(pk=instance.pk)
+                delta = model_delta(old_model, instance)
+                changed_fields = json.dumps(delta)
                 event_type = CRUDEvent.UPDATE
 
             # user
@@ -71,7 +80,54 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                                     for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
 
             # create crud event only if all callbacks returned True
-            if create_crud_event:
+            if create_crud_event and not created:
+                crud_event = CRUDEvent.objects.create(
+                    event_type=event_type,
+                    object_repr=str(instance),
+                    object_json_repr=object_json_repr,
+                    changed_fields=changed_fields,
+                    content_type=ContentType.objects.get_for_model(instance),
+                    object_id=instance.pk,
+                    user=user,
+                    datetime=timezone.now(),
+                    user_pk_as_string=str(user.pk) if user else user
+                )
+    except Exception:
+        logger.exception('easy audit had a pre-save exception.')
+
+
+def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
+    """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
+    try:
+        with transaction.atomic():
+            if not should_audit(instance):
+                return False
+            object_json_repr = serializers.serialize("json", [instance])
+
+            # created or updated?
+            if created:
+                event_type = CRUDEvent.CREATE
+
+            # user
+            try:
+                user = get_current_user()
+                # validate that the user still exists
+                user = get_user_model().objects.get(pk=user.pk)
+            except:
+                user = None
+
+            if isinstance(user, AnonymousUser):
+                user = None
+
+            # callbacks
+            kwargs['request'] = get_current_request()  # make request available for callbacks
+            create_crud_event = all(callback(instance, object_json_repr,
+                                    created, raw, using, update_fields, **kwargs)
+                                    for callback in CRUD_DIFFERENCE_CALLBACKS
+                                    if callable(callback))
+
+            # create crud event only if all callbacks returned True
+            if create_crud_event and created:
                 crud_event = CRUDEvent.objects.create(
                     event_type=event_type,
                     object_repr=str(instance),
@@ -194,5 +250,6 @@ def post_delete(sender, instance, using, **kwargs):
 
 if WATCH_MODEL_EVENTS:
     signals.post_save.connect(post_save, dispatch_uid='easy_audit_signals_post_save')
+    signals.pre_save.connect(pre_save, dispatch_uid='easy_audit_signals_pre_save')
     signals.m2m_changed.connect(m2m_changed, dispatch_uid='easy_audit_signals_m2m_changed')
     signals.post_delete.connect(post_delete, dispatch_uid='easy_audit_signals_post_delete')
