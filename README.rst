@@ -24,3 +24,16 @@ Quick start
 3. Run 'python manage.py migrate easyaudit' to create the audit models.
 
 4. That's it! Now every CRUD event on your whole project will be registered in the audit models, which you will be able to query from the Django admin app. Additionally, this app will also log all authentication events and all URLs requested.
+
+
+App settings
+------------
+
+EASY_AUDIT_CRUD_EVENT_LIST_FILTER
+    list_filter for CRUDEventAdmin
+
+EASY_AUDIT_LOGIN_EVENT_LIST_FILTER
+    list_filter for LoginEventAdmin
+
+EASY_AUDIT_REQUEST_EVENT_LIST_FILTER
+    list_filter for RequestEventAdmin
