@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='crudevent',
             name='user_pk_as_string',
-            field=models.CharField(blank=True, help_text='String version of the user                                                    pk', max_length=255, null=True),
+            field=models.CharField(blank=True, help_text='String version of the user pk', max_length=255, null=True),
         ),
     ]
