@@ -60,6 +60,13 @@ UNREGISTERED_URLS = getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_URLS_DEFAU
 UNREGISTERED_URLS.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_URLS_EXTRA', []))
 
 
+# URLs which Django Easy Audit WILL log.
+# If the following setting is defined in the project,
+# only the listed URLs will be audited, and every other
+# URL will be excluded.
+REGISTERED_URLS = getattr(settings, 'DJANGO_EASY_AUDIT_REGISTERED_URLS', [])
+
+
 # By default all modules are listed in the admin.
 # This can be changed with the following settings.
 ADMIN_SHOW_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_ADMIN_SHOW_MODEL_EVENTS', True)
