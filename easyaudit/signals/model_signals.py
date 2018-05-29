@@ -45,6 +45,10 @@ def should_audit(instance):
 # signals
 def pre_save(sender, instance, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
+    if raw:
+      # Return if loading Fixtures      
+      return
+    
     try:
         with transaction.atomic():
             if not should_audit(instance):
@@ -98,6 +102,10 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
 
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
+    if raw:
+      # Return if loading Fixtures      
+      return
+    
     try:
         with transaction.atomic():
             if not should_audit(instance):
