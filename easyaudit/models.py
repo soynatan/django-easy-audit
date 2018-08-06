@@ -17,7 +17,7 @@ class CRUDEvent(models.Model):
         (UPDATE, _('Update')),
         (DELETE, _('Delete')),
         (M2M_CHANGE, _('Many-to-Many Change')),
-        (M2M_CHANGE_REV, -('Reverse Many-to-Many Change')),
+        (M2M_CHANGE_REV, _('Reverse Many-to-Many Change')),
     )
 
     event_type = models.SmallIntegerField(choices=TYPES)
@@ -29,7 +29,7 @@ class CRUDEvent(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                              blank=True, on_delete=models.SET_NULL)
     user_pk_as_string = models.CharField(max_length=255, null=True, blank=True,
-                                     help_text=_('String version of the user pk'-)
+                                     help_text=_('String version of the user pk'))
     datetime = models.DateTimeField(auto_now_add=True)
 
     def is_create(self):
