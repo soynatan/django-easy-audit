@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-08-06 04:32+0200\n"
-"PO-Revision-Date: 2018-08-06 04:42+0200\n"
+"POT-Creation-Date: 2018-08-06 05:00+0200\n"
+"PO-Revision-Date: 2018-08-06 05:09+0200\n"
 "Last-Translator: Thierry BOULOGNE <contact@tng-concepts.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -15,7 +15,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.1.1\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
+"X-Poedit-Basepath: ../../..\n"
+"X-Poedit-KeywordsList: trans\n"
+"X-Poedit-SearchPath-0: models.py\n"
+"X-Poedit-SearchPath-1: admin_helpers.py\n"
+"X-Poedit-SearchPath-2: apps.py\n"
+"X-Poedit-SearchPath-3: admin.py\n"
+"X-Poedit-SearchPath-4: views.py\n"
+"X-Poedit-SearchPath-5: utils.py\n"
+"X-Poedit-SearchPath-6: settings.py\n"
+"X-Poedit-SearchPath-7: templates\n"
+"X-Poedit-SearchPath-8: signals\n"
+"X-Poedit-SearchPath-9: middleware\n"
 
 #: admin.py:40
 msgid "object repr"
@@ -70,6 +81,10 @@ msgstr "Supprimé"
 #: models.py:19
 msgid "Many-to-Many Change"
 msgstr "Changement Plusieurs-à-Plusieurs (M2M)"
+
+#: models.py:20
+msgid "Reverse Many-to-Many Change"
+msgstr "Reverse Plusieurs-à-Plusieurs (M2M)"
 
 #: models.py:32
 msgid "String version of the user pk"
@@ -126,3 +141,27 @@ msgstr "easy audit a connu une exception après un changement m2m."
 #: signals/model_signals.py:255
 msgid "easy audit had a post-delete exception."
 msgstr "easy audit a connu une exception post-suppression."
+
+#: templates/admin/easyaudit/purge_confirmation.html:10
+msgid "Purge"
+msgstr "Vider"
+
+#: templates/admin/easyaudit/purge_confirmation.html:19
+msgid "Please confirm deletion"
+msgstr "Merci de confirmer la suppression"
+
+#: templates/admin/easyaudit/purge_confirmation.html:20
+msgid "This operation is destructive, cannot be undone and may require some minutes"
+msgstr "Cette opération ne pourra pas être annulée et demandera un peu de temps"
+
+#: templates/admin/easyaudit/purge_confirmation.html:21
+msgid "Are you sure you want to permanently remove all objects ?"
+msgstr "Etes-vous certain de vouloir effacer définitivement tous les éléments ?"
+
+#: templates/admin/easyaudit/purge_confirmation.html:25
+msgid "'Yes, I\'m sure"
+msgstr "Je confirme"
+
+#: templates/admin/easyaudit/purge_confirmation.html:26
+msgid "Cancel"
+msgstr "Annuler"
