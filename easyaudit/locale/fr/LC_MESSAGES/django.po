@@ -1,0 +1,128 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2018-08-06 04:32+0200\n"
+"PO-Revision-Date: 2018-08-06 04:42+0200\n"
+"Last-Translator: Thierry BOULOGNE <contact@tng-concepts.com>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.1.1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+
+#: admin.py:40
+msgid "object repr"
+msgstr "repr objet"
+
+#: admin.py:45
+msgid "object json repr"
+msgstr "repr json objet"
+
+#: admin.py:50
+msgid "changed fields"
+msgstr "champs modifiés"
+
+#: admin_helpers.py:49
+msgid "user"
+msgstr "utilisateur"
+
+#: admin_helpers.py:98
+#, python-format
+msgid "Successfully removed %d rows"
+msgstr "%d lignes supprimées"
+
+#: admin_helpers.py:100
+msgid "ERROR"
+msgstr "ERREUR"
+
+#: admin_helpers.py:102
+msgid "Action cancelled by user"
+msgstr "Annulée par l’utilisateur"
+
+#: admin_helpers.py:106
+#, python-format
+msgid "Purge all %s ... are you sure?"
+msgstr "Effacer tous les %s … merci de confirmer?"
+
+#: apps.py:7
+msgid "Easy Audit Application"
+msgstr "Application Easy Audit"
+
+#: models.py:16
+msgid "Create"
+msgstr "Créer"
+
+#: models.py:17
+msgid "Update"
+msgstr "Mise à jour"
+
+#: models.py:18
+msgid "Delete"
+msgstr "Supprimé"
+
+#: models.py:19
+msgid "Many-to-Many Change"
+msgstr "Changement Plusieurs-à-Plusieurs (M2M)"
+
+#: models.py:32
+msgid "String version of the user pk"
+msgstr "Version chaine du pk utilisateur"
+
+#: models.py:45
+msgid "CRUD event"
+msgstr "Evènement CRUD"
+
+#: models.py:46
+msgid "CRUD events"
+msgstr "Evènements CRUD"
+
+#: models.py:56
+msgid "Login"
+msgstr "Connexion"
+
+#: models.py:57
+msgid "Logout"
+msgstr "Déconnexion"
+
+#: models.py:58
+msgid "Failed login"
+msgstr "Tentative de connexion infructueuse"
+
+#: models.py:68
+msgid "login event"
+msgstr "evènement de connexion"
+
+#: models.py:69
+msgid "login events"
+msgstr "evènements de connexion"
+
+#: models.py:83
+msgid "request event"
+msgstr "evènement de requête"
+
+#: models.py:84
+msgid "request events"
+msgstr "evènement de requêtes"
+
+#: signals/model_signals.py:99
+msgid "easy audit had a pre-save exception."
+msgstr "easy audit a connu une exception pre-enregistrement."
+
+#: signals/model_signals.py:149
+msgid "easy audit had a post-save exception."
+msgstr "easy audit a connu une exception post-enregistrement."
+
+#: signals/model_signals.py:220
+msgid "easy audit had an m2m-changed exception."
+msgstr "easy audit a connu une exception après un changement m2m."
+
+#: signals/model_signals.py:255
+msgid "easy audit had a post-delete exception."
+msgstr "easy audit a connu une exception post-suppression."
