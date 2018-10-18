@@ -93,9 +93,9 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                             object_repr=str(instance),
                             object_json_repr=object_json_repr,
                             changed_fields=changed_fields,
-                            content_type=c_t,
+                            content_type_id=c_t.id,
                             object_id=instance.pk,
-                            user=user,
+                            user_id=getattr(user, 'id', None),
                             datetime=timezone.now(),
                             user_pk_as_string=str(user.pk) if user else user
                         )
@@ -152,9 +152,9 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                             event_type=event_type,
                             object_repr=str(instance),
                             object_json_repr=object_json_repr,
-                            content_type=c_t,
+                            content_type_id=c_t.id,
                             object_id=instance.pk,
-                            user=user,
+                            user_id=getattr(user, 'id', None),
                             datetime=timezone.now(),
                             user_pk_as_string=str(user.pk) if user else user
                         )
@@ -232,9 +232,9 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                         event_type=event_type,
                         object_repr=str(instance),
                         object_json_repr=object_json_repr,
-                        content_type=c_t,
+                        content_type_id=c_t.id,
                         object_id=instance.pk,
-                        user=user,
+                        user_id=getattr(user, 'id', None),
                         datetime=timezone.now(),
                         user_pk_as_string=str(user.pk) if user else user
                     )
@@ -275,9 +275,9 @@ def post_delete(sender, instance, using, **kwargs):
                         event_type=CRUDEvent.DELETE,
                         object_repr=str(instance),
                         object_json_repr=object_json_repr,
-                        content_type=c_t,
+                        content_type_id=c_t.id,
                         object_id=instance.pk,
-                        user=user,
+                        user_id=getattr(user, 'id', None),
                         datetime=timezone.now(),
                         user_pk_as_string=str(user.pk) if user else user
                     )

@@ -10,7 +10,7 @@ def user_logged_in(sender, request, user, **kwargs):
         with transaction.atomic():
             login_event = LoginEvent.objects.create(login_type=LoginEvent.LOGIN,
                                      username=getattr(user, user.USERNAME_FIELD),
-                                     user=user,
+                                     user_id=getattr(user, 'id', None),
                                      remote_ip=request.META[REMOTE_ADDR_HEADER])
     except:
         pass
@@ -20,8 +20,8 @@ def user_logged_out(sender, request, user, **kwargs):
     try:
         with transaction.atomic():
             login_event = LoginEvent.objects.create(login_type=LoginEvent.LOGOUT,
-                                                    username=getattr(user, user.USERNAME_FIELD),
-                                                    user=user,
+                                                    username=getattr(user, user.USERNAME_FIELD, None),
+                                                    user_id=getattr(user, 'id', None),
                                                     remote_ip=request.META[REMOTE_ADDR_HEADER])
     except:
         pass
