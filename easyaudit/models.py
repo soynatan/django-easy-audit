@@ -70,7 +70,7 @@ class LoginEvent(models.Model):
 
 
 class RequestEvent(models.Model):
-    url = models.TextField(null=False, db_index=True)
+    url = models.TextField(null=False, db_index=False)
     method = models.CharField(max_length=20, null=False, db_index=True)
     query_string = models.TextField(null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
