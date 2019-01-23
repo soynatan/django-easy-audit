@@ -5,6 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import NOT_PROVIDED, DateTimeField
 from django.utils import timezone
 
+from functools import wraps
+
 
 def get_field_value(obj, field):
     """
@@ -60,3 +62,12 @@ def model_delta(old_model, new_model):
         delta = None
 
     return delta
+
+
+def disable_for_loaddata(signal):
+    @wraps(signal)
+    def wrapper(*args, **kwargs):
+        if 'raw' in kwargs:
+            return
+        signal(*args, **kwargs)
+    return wrapper
