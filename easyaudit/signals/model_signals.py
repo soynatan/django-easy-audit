@@ -15,7 +15,7 @@ from easyaudit.middleware.easyaudit import get_current_request, \
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
-from easyaudit.utils import model_delta
+from easyaudit.utils import model_delta, disable_for_loaddata
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,7 @@ def should_audit(instance):
 
 
 # signals
+@disable_for_loaddata
 def pre_save(sender, instance, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     if raw:
@@ -112,6 +113,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
         logger.exception('easy audit had a pre-save exception.')
 
 
+@disable_for_loaddata
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     if raw:
