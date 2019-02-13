@@ -9,16 +9,20 @@ from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
 from django.utils.encoding import force_text
+from django.utils.module_loading import import_string
+
 
 from easyaudit.middleware.easyaudit import get_current_request,\
                                            get_current_user
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES,\
-                               WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+                               WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS,\
+                               LOGGING_BACKEND
 from easyaudit.utils import model_delta
 
 
 logger = logging.getLogger(__name__)
+audit_logger = import_string(LOGGING_BACKEND)()
 
 
 def should_audit(instance):
@@ -85,17 +89,17 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
 
             # create crud event only if all callbacks returned True
             if create_crud_event and not created:
-                crud_event = CRUDEvent.objects.create(
-                    event_type=event_type,
-                    object_repr=str(instance),
-                    object_json_repr=object_json_repr,
-                    changed_fields=changed_fields,
-                    content_type=ContentType.objects.get_for_model(instance),
-                    object_id=instance.pk,
-                    user=user,
-                    datetime=timezone.now(),
-                    user_pk_as_string=str(user.pk) if user else user
-                )
+                audit_logger.crud({
+                    'event_type': event_type,
+                    'object_repr': str(instance),
+                    'object_json_repr': object_json_repr,
+                    'changed_fields': changed_fields,
+                    'content_type': ContentType.objects.get_for_model(instance),
+                    'object_id': instance.pk,
+                    'user': user,
+                    'datetime': timezone.now(),
+                    'user_pk_as_string': str(user.pk) if user else user
+                })
     except Exception:
         logger.exception('easy audit had a pre-save exception.')
 
@@ -136,16 +140,16 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
             # create crud event only if all callbacks returned True
             if create_crud_event and created:
-                crud_event = CRUDEvent.objects.create(
-                    event_type=event_type,
-                    object_repr=str(instance),
-                    object_json_repr=object_json_repr,
-                    content_type=ContentType.objects.get_for_model(instance),
-                    object_id=instance.pk,
-                    user=user,
-                    datetime=timezone.now(),
-                    user_pk_as_string=str(user.pk) if user else user
-                )
+                audit_logger.crud({
+                    'event_type': event_type,
+                    'object_repr': str(instance),
+                    'object_json_repr': object_json_repr,
+                    'content_type': ContentType.objects.get_for_model(instance),
+                    'object_id': instance.pk,
+                    'user': user,
+                    'datetime': timezone.now(),
+                    'user_pk_as_string': str(user.pk) if user else user
+                })
     except Exception:
         logger.exception('easy audit had a post-save exception.')
 
@@ -206,17 +210,16 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             if isinstance(user, AnonymousUser):
                 user = None
-
-            crud_event = CRUDEvent.objects.create(
-                event_type=event_type,
-                object_repr=str(instance),
-                object_json_repr=object_json_repr,
-                content_type=ContentType.objects.get_for_model(instance),
-                object_id=instance.pk,
-                user=user,
-                datetime=timezone.now(),
-                user_pk_as_string=str(user.pk) if user else user
-            )
+            audit_logger.crud({
+                'event_type': event_type,
+                'object_repr': str(instance),
+                'object_json_repr': object_json_repr,
+                'content_type': ContentType.objects.get_for_model(instance),
+                'object_id': instance.pk,
+                'user': user,
+                'datetime': timezone.now(),
+                'user_pk_as_string': str(user.pk) if user else user
+            })
     except Exception:
         logger.exception('easy audit had an m2m-changed exception.')
 
@@ -242,16 +245,16 @@ def post_delete(sender, instance, using, **kwargs):
                 user = None
 
             # crud event
-            crud_event = CRUDEvent.objects.create(
-                event_type=CRUDEvent.DELETE,
-                object_repr=str(instance),
-                object_json_repr=object_json_repr,
-                content_type=ContentType.objects.get_for_model(instance),
-                object_id=instance.pk,
-                user=user,
-                datetime=timezone.now(),
-                user_pk_as_string=str(user.pk) if user else user
-            )
+            audit_logger.crud({
+                'event_type': CRUDEvent.DELETE,
+                'object_repr': str(instance),
+                'object_json_repr': object_json_repr,
+                'content_type': ContentType.objects.get_for_model(instance),
+                'object_id': instance.pk,
+                'user': user,
+                'datetime': timezone.now(),
+                'user_pk_as_string': str(user.pk) if user else user
+            })
     except Exception:
         logger.exception('easy audit had a post-delete exception.')
 
