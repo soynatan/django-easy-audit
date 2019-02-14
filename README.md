@@ -51,7 +51,7 @@ Below are some of the settings you may want to use. These should be defined in y
   A list of Django models which will be ignored by Django Easy Audit.
   Use it to prevent logging one or more of your project's models.
   List items can be classes or strings with `app_name.model_name` format.
-
+  
 * `DJANGO_EASY_AUDIT_UNREGISTERED_URLS_EXTRA`
 
   A list of URLs which will be ignored by Django Easy Audit.
@@ -59,6 +59,28 @@ Below are some of the settings you may want to use. These should be defined in y
   will be matched against the URL path.
   [Check our wiki](https://github.com/soynatan/django-easy-audit/wiki/Settings#request-auditing)
   for more details on how to use it.
+  
+* `DJANGO_EASY_AUDIT_LOGGING_BACKEND`
+
+  A pluggable backend option for logging. Defaults to `easyaudit.backends.ModelBackend`.
+  This class expects to have 3 methods: 
+  * `login(self, login_info_dict):`  
+  * `crud(self, crud_info_dict):`  
+  * `request(self, request_info_dict):`
+  
+  each of these methods accept a dictionary containing the info regarding the event.  
+  example overriding:
+  ```python
+    import logging
+    from easyaudit.backends import ModelBackend
+    
+    class AuditKibanaBackend(ModelBackend):
+      logger = logging.getLogger('your-kibana-logger')
+
+        def crud(self, crud_info):
+            self.logger.info(msg='your message', extra=crud_info)
+
+  ```
 
 ## What does it do
 
