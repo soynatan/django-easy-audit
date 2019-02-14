@@ -24,7 +24,7 @@ def user_logged_in(sender, request, user, **kwargs):
 def user_logged_out(sender, request, user, **kwargs):
     try:
         with transaction.atomic():
-            logger.login({
+            audit_logger.login({
                 'login_type': LoginEvent.LOGOUT,
                 'username': getattr(user, user.USERNAME_FIELD),
                 'user': user,
