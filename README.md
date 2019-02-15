@@ -72,11 +72,16 @@ Below are some of the settings you may want to use. These should be defined in y
   example overriding:
   ```python
     import logging
-    from easyaudit.backends import ModelBackend
     
-    class AuditKibanaBackend(ModelBackend):
-      logger = logging.getLogger('your-kibana-logger')
+    class PythonLoggerBackend:
+        logger = logging.getLogger('your-kibana-logger')
+        
+        def request(self, request_info):
+            pass  # if you don't need it
 
+        def login(self, login_info):
+            self.logger.info(msg='your message', extra=login_info)      
+            
         def crud(self, crud_info):
             self.logger.info(msg='your message', extra=crud_info)
 
