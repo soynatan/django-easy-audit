@@ -20,40 +20,46 @@ def should_log_url(url):
     return True
 
 
-def request_started_handler(sender, environ, **kwargs):
-    if not should_log_url(environ['PATH_INFO']):
-        return
+def request_started_handler(sender, **kwargs):
+    print(kwargs.get('scope'))
+    print(kwargs.get('scope').get('headers'), type(kwargs.get('scope').get('headers')))
+    # request_scope = kwargs.get('scope')
+    # if request_scope is None:
+    #     return
+    # headers = request_scope.get('headers')
+    # # if not should_log_url(environ['PATH_INFO']):
+    # #     return
 
-    # get the user from cookies
-    user = None
-    if environ.get('HTTP_COOKIE'):
-        cookie = SimpleCookie() # python3 compatibility
-        cookie.load(environ['HTTP_COOKIE'])
+    # # get the user from cookies
+    # user = None
+    # if environ.get('HTTP_COOKIE'):
+    #     cookie = SimpleCookie() # python3 compatibility
+    #     cookie.load(environ['HTTP_COOKIE'])
 
-        session_cookie_name = settings.SESSION_COOKIE_NAME
-        if session_cookie_name in cookie:
-            session_id = cookie[session_cookie_name].value
+    #     session_cookie_name = settings.SESSION_COOKIE_NAME
+    #     if session_cookie_name in cookie:
+    #         session_id = cookie[session_cookie_name].value
 
-            try:
-                session = Session.objects.get(session_key=session_id)
-            except Session.DoesNotExist:
-                session = None
+    #         try:
+    #             session = Session.objects.get(session_key=session_id)
+    #         except Session.DoesNotExist:
+    #             session = None
 
-            if session:
-                user_id = session.get_decoded().get('_auth_user_id')
-                try:
-                    user = get_user_model().objects.get(id=user_id)
-                except:
-                    user = None
+    #         if session:
+    #             user_id = session.get_decoded().get('_auth_user_id')
+    #             try:
+    #                 user = get_user_model().objects.get(id=user_id)
+    #             except:
+    #                 user = None
 
-    request_event = RequestEvent.objects.create(
-        url=environ['PATH_INFO'],
-        method=environ['REQUEST_METHOD'],
-        query_string=environ['QUERY_STRING'],
-        user=user,
-        remote_ip=environ[REMOTE_ADDR_HEADER],
-        datetime=timezone.now()
-    )
+    # request_event = RequestEvent.objects.create(
+    #     url=environ['PATH_INFO'],
+    #     method=environ['REQUEST_METHOD'],
+    #     query_string=environ['QUERY_STRING'],
+    #     user=user,
+    #     remote_ip=environ[REMOTE_ADDR_HEADER],
+    #     datetime=timezone.now()
+    # )
 
 
 if WATCH_REQUEST_EVENTS:
