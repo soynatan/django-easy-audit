@@ -27,7 +27,8 @@ def request_started_handler(sender, **kwargs):
     method = scope.get('method')
     path = scope.get('path')
     query_string = scope.get('query_string')
-    remote_ip = ':'.join(scope.get('server'))
+    server = scope.get('server')
+    remote_ip = f'{server[0]}:{server[1]}'
     
     if not should_log_url(path):
         return
