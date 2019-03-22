@@ -55,7 +55,6 @@ def request_started_handler(sender, **kwargs):
                 except:
                     user = None
 
-    print('about to save request')
     RequestEvent.objects.create(
         url=path,
         method=method,
