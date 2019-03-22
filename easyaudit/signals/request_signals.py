@@ -54,6 +54,7 @@ def request_started_handler(sender, **kwargs):
                 except:
                     user = None
 
+    print('about to save request')
     RequestEvent.objects.create(
         url=path,
         method=method,
@@ -61,7 +62,7 @@ def request_started_handler(sender, **kwargs):
         user=user,
         remote_ip=remote_ip,
         datetime=timezone.now()
-    )
+    ).save()
 
 
 if WATCH_REQUEST_EVENTS:
