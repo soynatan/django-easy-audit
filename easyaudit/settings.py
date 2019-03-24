@@ -1,8 +1,7 @@
 from importlib import import_module
 
-from django.apps.registry import apps
+from django.apps import apps
 from django.conf import settings
-from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
@@ -36,7 +35,13 @@ REMOTE_ADDR_HEADER = getattr(settings, 'DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER', '
 # By default, all but some models will be audited.
 # The list of excluded models can be overwritten or extended
 # by defining the following settings in the project.
-UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, RequestEvent, Migration, LogEntry, Session, Permission, ContentType, MigrationRecorder.Migration]
+UNREGISTERED_CLASSES = [CRUDEvent, LoginEvent, RequestEvent, Migration, Session, Permission, ContentType, MigrationRecorder.Migration]
+
+# Import and unregister LogEntry class only if Django Admin app is installed
+if apps.is_installed('django.contrib.admin'):
+    from django.contrib.admin.models import LogEntry
+    UNREGISTERED_CLASSES += [LogEntry]
+
 UNREGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_DEFAULT', UNREGISTERED_CLASSES)
 UNREGISTERED_CLASSES.extend(getattr(settings, 'DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA', []))
 get_model_list(UNREGISTERED_CLASSES)
