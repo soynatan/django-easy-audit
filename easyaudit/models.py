@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 # Create your models here.
@@ -12,11 +13,11 @@ class CRUDEvent(models.Model):
     M2M_CHANGE_REV = 5
 
     TYPES = (
-        (CREATE, 'Create'),
-        (UPDATE, 'Update'),
-        (DELETE, 'Delete'),
-        (M2M_CHANGE, 'Many-to-Many Change'),
-        (M2M_CHANGE_REV, 'Reverse Many-to-Many Change'),
+        (CREATE, _('Create')),
+        (UPDATE, _('Update')),
+        (DELETE, _('Delete')),
+        (M2M_CHANGE, _('Many-to-Many Change')),
+        (M2M_CHANGE_REV, _('Reverse Many-to-Many Change')),
     )
 
     event_type = models.SmallIntegerField(choices=TYPES)
@@ -28,7 +29,7 @@ class CRUDEvent(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                              blank=True, on_delete=models.SET_NULL)
     user_pk_as_string = models.CharField(max_length=255, null=True, blank=True,
-                                     help_text='String version of the user pk')
+                                     help_text=_('String version of the user pk'))
     datetime = models.DateTimeField(auto_now_add=True)
 
     def is_create(self):
@@ -41,8 +42,8 @@ class CRUDEvent(models.Model):
         return self.DELETE == self.event_type
 
     class Meta:
-        verbose_name = 'CRUD event'
-        verbose_name_plural = 'CRUD events'
+        verbose_name = _('CRUD event')
+        verbose_name_plural = _('CRUD events')
         ordering = ['-datetime']
         index_together = ['object_id', 'content_type', ]
 
@@ -52,9 +53,9 @@ class LoginEvent(models.Model):
     LOGOUT = 1
     FAILED = 2
     TYPES = (
-        (LOGIN, 'Login'),
-        (LOGOUT, 'Logout'),
-        (FAILED, 'Failed login'),
+        (LOGIN, _('Login')),
+        (LOGOUT, _('Logout')),
+        (FAILED, _('Failed login')),
     )
     login_type = models.SmallIntegerField(choices=TYPES)
     username = models.CharField(max_length=255, null=True, blank=True)
@@ -64,8 +65,8 @@ class LoginEvent(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'login event'
-        verbose_name_plural = 'login events'
+        verbose_name = _('login event')
+        verbose_name_plural = _('login events')
         ordering = ['-datetime']
 
 
@@ -79,6 +80,6 @@ class RequestEvent(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'request event'
-        verbose_name_plural = 'request events'
+        verbose_name = _('request event')
+        verbose_name_plural = _('request events')
         ordering = ['-datetime']

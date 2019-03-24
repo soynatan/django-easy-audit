@@ -9,14 +9,13 @@ from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
 from django.utils.encoding import force_text
-
-from easyaudit.middleware.easyaudit import get_current_request,\
-                                           get_current_user
+from django.utils.translation import ugettext_lazy as _
+from easyaudit.middleware.easyaudit import (get_current_request,
+                                            get_current_user)
 from easyaudit.models import CRUDEvent
-from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES,\
-                               WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+from easyaudit.settings import (CRUD_DIFFERENCE_CALLBACKS, REGISTERED_CLASSES,
+                                UNREGISTERED_CLASSES, WATCH_MODEL_EVENTS)
 from easyaudit.utils import model_delta
-
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +45,9 @@ def should_audit(instance):
 def pre_save(sender, instance, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     if raw:
-      # Return if loading Fixtures      
+      # Return if loading Fixtures
       return
-    
+
     try:
         with transaction.atomic():
             if not should_audit(instance):
@@ -97,15 +96,15 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                     user_pk_as_string=str(user.pk) if user else user
                 )
     except Exception:
-        logger.exception('easy audit had a pre-save exception.')
+        logger.exception(_('easy audit had a pre-save exception.'))
 
 
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-save"""
     if raw:
-      # Return if loading Fixtures      
+      # Return if loading Fixtures
       return
-    
+
     try:
         with transaction.atomic():
             if not should_audit(instance):
@@ -147,7 +146,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                     user_pk_as_string=str(user.pk) if user else user
                 )
     except Exception:
-        logger.exception('easy audit had a post-save exception.')
+        logger.exception(_('easy audit had a post-save exception.'))
 
 
 def _m2m_rev_field_name(model1, model2):
@@ -218,7 +217,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                 user_pk_as_string=str(user.pk) if user else user
             )
     except Exception:
-        logger.exception('easy audit had an m2m-changed exception.')
+        logger.exception(_('easy audit had an m2m-changed exception.'))
 
 
 def post_delete(sender, instance, using, **kwargs):
@@ -253,7 +252,7 @@ def post_delete(sender, instance, using, **kwargs):
                 user_pk_as_string=str(user.pk) if user else user
             )
     except Exception:
-        logger.exception('easy audit had a post-delete exception.')
+        logger.exception(_('easy audit had a post-delete exception.'))
 
 
 if WATCH_MODEL_EVENTS:

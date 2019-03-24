@@ -1,14 +1,15 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
+
+from . import settings
+from .admin_helpers import EasyAuditModelAdmin, prettify_json
+from .models import CRUDEvent, LoginEvent, RequestEvent
 
 try: # Django 2.0
     from django.urls import reverse
 except: # Django < 2.0
     from django.core.urlresolvers import reverse
-
-from django.utils.safestring import mark_safe
-from . import settings
-from .models import CRUDEvent, LoginEvent, RequestEvent
-from .admin_helpers import prettify_json, EasyAuditModelAdmin
 
 
 # CRUD events
@@ -36,17 +37,17 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
                 html = obj.object_repr
         return mark_safe(html)
 
-    object_repr_link.short_description = 'object repr'
+    object_repr_link.short_description = _('object repr')
 
     def object_json_repr_prettified(self, obj):
         return prettify_json(obj.object_json_repr)
 
-    object_json_repr_prettified.short_description = 'object json repr'
+    object_json_repr_prettified.short_description = _('object json repr')
 
     def changed_fields_prettified(self, obj):
         return prettify_json(obj.changed_fields)
 
-    changed_fields_prettified.short_description = 'changed fields'
+    changed_fields_prettified.short_description = _('changed fields')
 
 
 if settings.ADMIN_SHOW_MODEL_EVENTS:
