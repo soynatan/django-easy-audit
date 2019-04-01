@@ -49,7 +49,7 @@ def request_started_handler(sender, environ, **kwargs):
             except Session.DoesNotExist:
                 session = None
 
-            if session:
+            if session and session.get_decoded() and '_auth_user_id' in session.get_decoded():
                 user_id = session.get_decoded().get('_auth_user_id')
                 try:
                     user = get_user_model().objects.get(id=user_id)
