@@ -59,6 +59,23 @@ Below are some of the settings you may want to use. These should be defined in y
   will be matched against the URL path.
   [Check our wiki](https://github.com/soynatan/django-easy-audit/wiki/Settings#request-auditing)
   for more details on how to use it.
+  
+* `DJANGO_EASY_AUDIT_CRUD_DIFFERENCE_CALLBACKS`
+
+  May point to a list of callables/string-paths-to-functions-classes in which the application code can determine
+  on a per CRUDEvent whether or not the application chooses to create the CRUDEvent or not. This is different
+  from the registered/unregistered settings (e.g. `DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA`). 
+  This is meant to be for dynamic configurations where the application
+  may inspect the current save/create/delete and choose whether or not to save that into the database or ignore it.
+  
+* `DJANGO_EASY_AUDIT_USER_DB_CONSTRAINT`
+
+  Default is `True`. This is reserved for future use (does not do anything yet). The functionality provided by the 
+  setting (whether enabled or disabled) could be handled more explicitly in certain 
+  code paths (or even internally as custom model managers). For projects that separate the easyaudit database, such
+  that the tables are not on the same database as the user table, this could help with making certain queries easier.
+  Again, this doesn't do anything yet, and if it ever does, the version will be increased and the README will be
+  updated accordingly. If you keep your database together (the standard usage), you have nothing to worry about.
 
 ## What does it do
 

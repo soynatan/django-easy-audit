@@ -30,6 +30,8 @@ WATCH_MODEL_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_MODEL_EVENTS', T
 WATCH_REQUEST_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_WATCH_REQUEST_EVENTS', True)
 REMOTE_ADDR_HEADER = getattr(settings, 'DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER', 'REMOTE_ADDR')
 
+USER_DB_CONSTRAINT = bool(getattr(settings, 'DJANGO_EASY_AUDIT_USER_DB_CONSTRAINT', True))
+
 
 # Models which Django Easy Audit will not log.
 # By default, all but some models will be audited.
