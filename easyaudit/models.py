@@ -21,14 +21,15 @@ class CRUDEvent(models.Model):
 
     event_type = models.SmallIntegerField(choices=TYPES)
     object_id = models.IntegerField()  # we should try to allow other ID types
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_constraint=False)
     object_repr = models.TextField(null=True, blank=True)
     object_json_repr = models.TextField(null=True, blank=True)
     changed_fields = models.TextField(null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
-                             blank=True, on_delete=models.SET_NULL)
+                             blank=True, on_delete=models.SET_NULL,
+                             db_constraint=False)
     user_pk_as_string = models.CharField(max_length=255, null=True, blank=True,
-                                     help_text='String version of the user pk')
+                                         help_text='String version of the user pk')
     datetime = models.DateTimeField(auto_now_add=True)
 
     def is_create(self):
@@ -59,7 +60,7 @@ class LoginEvent(models.Model):
     login_type = models.SmallIntegerField(choices=TYPES)
     username = models.CharField(max_length=255, null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
-                             on_delete=models.SET_NULL)
+                             on_delete=models.SET_NULL, db_constraint=False)
     remote_ip = models.CharField(max_length=50, null=True, db_index=True)
     datetime = models.DateTimeField(auto_now_add=True)
 
@@ -70,11 +71,11 @@ class LoginEvent(models.Model):
 
 
 class RequestEvent(models.Model):
-    url = models.TextField(null=False, db_index=True)
+    url = models.TextField(null=False, db_index=False)
     method = models.CharField(max_length=20, null=False, db_index=True)
     query_string = models.TextField(null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
-                             on_delete=models.SET_NULL)
+                             on_delete=models.SET_NULL, db_constraint=False)
     remote_ip = models.CharField(max_length=50, null=True, db_index=True)
     datetime = models.DateTimeField(auto_now_add=True)
 
