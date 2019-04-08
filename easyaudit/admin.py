@@ -9,10 +9,8 @@ from django.utils.safestring import mark_safe
 from . import settings
 from .models import CRUDEvent, LoginEvent, RequestEvent
 from .admin_helpers import prettify_json, EasyAuditModelAdmin
+from .settings import CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_EVENT_LIST_FILTER
 
-from .app_settings import CRUD_EVENT_LIST_FILTER
-from .app_settings import LOGIN_EVENT_LIST_FILTER
-from .app_settings import REQUEST_EVENT_LIST_FILTER
 
 # CRUD events
 class CRUDEventAdmin(EasyAuditModelAdmin):
