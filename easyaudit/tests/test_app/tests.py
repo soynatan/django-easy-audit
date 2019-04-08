@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import re
 from django.test import TestCase
 try: # Django 2.0
     from django.urls import reverse
@@ -14,6 +15,9 @@ from easyaudit.middleware.easyaudit import set_current_user, clear_request
 
 TEST_USER_EMAIL = 'joe@example.com'
 TEST_USER_PASSWORD = 'password'
+TEST_ADMIN_EMAIL = 'admin@example.com'
+TEST_ADMIN_PASSWORD = 'password'
+
 
 class TestAuditModels(TestCase):
 
@@ -93,3 +97,43 @@ class TestMiddleware(TestCase):
         self.assertEqual(crud_event_qs.count(), 1)
         crud_event = crud_event_qs[0]
         self.assertEqual(crud_event.user, None)
+
+
+class TestAuditAdmin(TestCase):
+
+    def _setup_superuser(self, email, password):
+        admin = User.objects.create_superuser(email, email, TEST_ADMIN_PASSWORD)
+        admin.save()
+        return admin
+
+    def _log_in_user(self, email, password):
+        login = self.client.login(username=email, password=password)
+        self.assertTrue(login)
+
+    def _list_filters(self, content):
+        """
+        Extract filters from response content;
+        example:
+
+            <div id="changelist-filter">
+                <h2>Filter</h2>
+                <h3> By method </h3>
+                ...
+                <h3> By datetime </h3>
+                ...
+            </div>
+
+        returns:
+            ['method', 'datetime', ]
+        """
+        html = re.search('<div\s*id="changelist-filter">(.*?)</div>', str(content)).group(0)
+        filters = re.findall('<h3>\s*By\s*(.*?)\s*</h3>', html)
+        return filters
+
+    def test_request_event_admin_no_users(self):
+        self._setup_superuser(TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD)
+        self._log_in_user(TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD)
+        response = self.client.get(reverse('admin:easyaudit_requestevent_changelist'))
+        self.assertEqual(200, response.status_code)
+        filters = self._list_filters(response.content)
+        print(filters)

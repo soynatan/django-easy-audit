@@ -7,7 +7,8 @@ class TestModel(models.Model):
 
 class TestForeignKey(models.Model):
     name = models.CharField(max_length=50)
-    test_fk = models.ForeignKey(TestModel)
+    test_fk = models.ForeignKey(TestModel, on_delete=models.CASCADE)
+
 
 class TestM2M(models.Model):
     name = models.CharField(max_length=50)
