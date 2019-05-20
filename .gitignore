@@ -88,3 +88,6 @@ ENV/
 # Rope project settings
 .ropeproject
 .idea
+
+# vscode project settings
+.vscode/
