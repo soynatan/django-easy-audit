@@ -103,3 +103,6 @@ TRUNCATE_TABLE_SQL_STATEMENT = getattr(settings, 'DJANGO_EASY_AUDIT_TRUNCATE_TAB
 CRUD_EVENT_LIST_FILTER = getattr(settings, 'DJANGO_EASY_AUDIT_CRUD_EVENT_LIST_FILTER', ['event_type', 'content_type', 'user', 'datetime', ])
 LOGIN_EVENT_LIST_FILTER = getattr(settings, 'DJANGO_EASY_AUDIT_LOGIN_EVENT_LIST_FILTER', ['login_type', 'user', 'datetime', ])
 REQUEST_EVENT_LIST_FILTER = getattr(settings, 'DJANGO_EASY_AUDIT_REQUEST_EVENT_LIST_FILTER', ['method', 'user', 'datetime', ])
+
+# JSON object representation serializer override
+CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE = getattr(settings, 'DJANGO_EASY_AUDIT_CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE', None)
