@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='requestevent',
             name='url',
-            field=models.TextField(db_index=False),
+            field=models.CharField(max_length=254, db_index=False),
         ),
     ]
