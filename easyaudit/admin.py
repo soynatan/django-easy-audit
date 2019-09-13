@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from easyaudit.models import CRUDEventBigInteger, CRUDEventUUID
+
 try: # Django 2.0
     from django.urls import reverse
 except: # Django < 2.0
@@ -52,6 +54,8 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
 
 if settings.ADMIN_SHOW_MODEL_EVENTS:
     admin.site.register(CRUDEvent, CRUDEventAdmin)
+    admin.site.register(CRUDEventBigInteger, CRUDEventAdmin)
+    admin.site.register(CRUDEventUUID, CRUDEventAdmin)
 
 
 # Login events

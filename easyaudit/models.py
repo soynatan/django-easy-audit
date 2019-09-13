@@ -4,7 +4,7 @@ from django.db import models
 
 
 # Create your models here.
-class CRUDEvent(models.Model):
+class BaseEvent(models.Model):
     CREATE = 1
     UPDATE = 2
     DELETE = 3
@@ -20,7 +20,6 @@ class CRUDEvent(models.Model):
     )
 
     event_type = models.SmallIntegerField(choices=TYPES)
-    object_id = models.IntegerField()  # we should try to allow other ID types
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_constraint=False)
     object_repr = models.TextField(null=True, blank=True)
     object_json_repr = models.TextField(null=True, blank=True)
@@ -42,8 +41,33 @@ class CRUDEvent(models.Model):
         return self.DELETE == self.event_type
 
     class Meta:
+        abstract = True
+
+class CRUDEvent(BaseEvent):
+    object_id = models.IntegerField()
+
+    class Meta:
         verbose_name = 'CRUD event'
         verbose_name_plural = 'CRUD events'
+        ordering = ['-datetime']
+        index_together = ['object_id', 'content_type', ]
+
+class CRUDEventBigInteger(BaseEvent):
+    object_id = models.BigIntegerField()
+
+    class Meta:
+        verbose_name = 'CRUD event (BigInteger)'
+        verbose_name_plural = 'CRUD events (BigInteger)'
+        ordering = ['-datetime']
+        index_together = ['object_id', 'content_type', ]
+
+
+class CRUDEventUUID(BaseEvent):
+    object_id = models.UUIDField()
+
+    class Meta:
+        verbose_name = 'CRUD event (UUID)'
+        verbose_name_plural = 'CRUD events (UUID)'
         ordering = ['-datetime']
         index_together = ['object_id', 'content_type', ]
 

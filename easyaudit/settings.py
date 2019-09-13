@@ -56,6 +56,12 @@ get_model_list(UNREGISTERED_CLASSES)
 REGISTERED_CLASSES = getattr(settings, 'DJANGO_EASY_AUDIT_REGISTERED_CLASSES', [])
 get_model_list(REGISTERED_CLASSES)
 
+REGISTERED_CLASSES_BIGINTEGER = getattr(settings, 'DJANGO_EASY_AUDIT_REGISTERED_CLASSES_FOR_BIGINTEGER', [])
+get_model_list(REGISTERED_CLASSES_BIGINTEGER)
+
+REGISTERED_CLASSES_UUID = getattr(settings, 'DJANGO_EASY_AUDIT_REGISTERED_CLASSES_FOR_UUID', [])
+get_model_list(REGISTERED_CLASSES_UUID)
+
 
 # URLs which Django Easy Audit will not log.
 # By default, all but some URL requests will be logged.
