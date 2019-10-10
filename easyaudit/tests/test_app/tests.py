@@ -47,6 +47,22 @@ class TestAuditModels(TestCase):
         data = json.loads(crud_event.object_json_repr)[0]
         self.assertEqual(data['fields']['test_m2m'], [obj.id])
 
+    def test_update(self):
+        obj = TestModel.objects.create()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(1, crud_event_qs.count())
+        obj.name = 'changed name'
+        obj.save()
+        self.assertEqual(2, crud_event_qs.count())
+        last_change = crud_event_qs.first()
+        self.assertIn('name', last_change.changed_fields)
+
+    def test_fake_update(self):
+        obj = TestModel.objects.create()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        obj.save()
+        self.assertEqual(1, crud_event_qs.count())
+
 
 class TestMiddleware(TestCase):
     def _setup_user(self, email, password):
