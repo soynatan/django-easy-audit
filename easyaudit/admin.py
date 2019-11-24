@@ -9,7 +9,8 @@ from django.utils.safestring import mark_safe
 from . import settings
 from .models import CRUDEvent, LoginEvent, RequestEvent
 from .admin_helpers import prettify_json, EasyAuditModelAdmin
-from .settings import CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_EVENT_LIST_FILTER
+from .settings import (CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_EVENT_LIST_FILTER,
+                       CRUD_EVENT_SEARCH_FIELDS, LOGIN_EVENT_SEARCH_FIELDS, REQUEST_EVENT_SEARCH_FIELDS)
 
 
 # CRUD events
@@ -17,7 +18,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     list_display = ['get_event_type_display', 'content_type', 'object_id', 'object_repr_link', 'user_link', 'datetime']
     date_hierarchy = 'datetime'
     list_filter = CRUD_EVENT_LIST_FILTER
-    search_fields = ['=object_id', 'object_json_repr', ]
+    search_fields = CRUD_EVENT_SEARCH_FIELDS
     readonly_fields = ['event_type', 'object_id', 'content_type',
                        'object_repr', 'object_json_repr_prettified', 'user',
                        'user_pk_as_string', 'datetime', 'changed_fields_prettified']
@@ -59,7 +60,7 @@ class LoginEventAdmin(EasyAuditModelAdmin):
     list_display = ['datetime', 'get_login_type_display', 'user_link', 'username', 'remote_ip']
     date_hierarchy = 'datetime'
     list_filter = LOGIN_EVENT_LIST_FILTER
-    search_fields = ['=remote_ip', 'username', ]
+    search_fields = LOGIN_EVENT_SEARCH_FIELDS
     readonly_fields = ['login_type', 'username', 'user', 'remote_ip', 'datetime', ]
 
 
@@ -72,7 +73,7 @@ class RequestEventAdmin(EasyAuditModelAdmin):
     list_display = ['datetime', 'user_link', 'method', 'url', 'remote_ip']
     date_hierarchy = 'datetime'
     list_filter = REQUEST_EVENT_LIST_FILTER
-    search_fields = ['=remote_ip', 'username', 'url', 'query_string', ]
+    search_fields = REQUEST_EVENT_SEARCH_FIELDS
     readonly_fields = ['url', 'method', 'query_string', 'user', 'remote_ip', 'datetime', ]
 
 
