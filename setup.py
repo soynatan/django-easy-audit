@@ -13,6 +13,9 @@ setup(
     version='1.1.2rc2',
     packages=find_packages(),
     include_package_data=True,
+    install_requires=[
+        "beautifulsoup4",
+    ],
     license='GPL3',
     description='Yet another Django audit log app, hopefully the simplest one.',
     long_description=README,
