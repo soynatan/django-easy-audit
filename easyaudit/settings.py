@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
 from django.db.migrations import Migration
 from django.db.migrations.recorder import MigrationRecorder
-from django.utils import six
 
 from easyaudit.models import CRUDEvent, LoginEvent, RequestEvent
 
@@ -19,7 +18,7 @@ def get_model_list(class_list):
     it ignores it.
     """
     for idx, item in enumerate(class_list):
-        if isinstance(item, six.string_types):
+        if isinstance(item, (str,)):
             model_class = apps.get_model(item)
             class_list[idx] = model_class
 

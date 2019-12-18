@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
 from django.core.signals import request_started
 from django.http.cookie import SimpleCookie
-from django.utils import six, timezone
+from django.utils import timezone
 from django.conf import settings
 
 from easyaudit.models import RequestEvent
