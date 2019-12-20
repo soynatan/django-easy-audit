@@ -32,8 +32,8 @@ def prettify_json(json_string):
 class EasyAuditModelAdmin(admin.ModelAdmin):
 
     def user_link(self, obj):
-        #return mark_safe(get_user_link(obj.user))
-        user = obj.user
+        user = get_user_model().objects.filter(id=obj.user_id).first()
+        #return mark_safe(get_user_link(user))
         if user is None:
             return '-'
         try:
