@@ -8,6 +8,7 @@ except: # Django < 2.0
     from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+import bs4
 from test_app.models import TestModel, TestForeignKey, TestM2M
 from easyaudit.models import CRUDEvent
 from easyaudit.middleware.easyaudit import set_current_user, clear_request
@@ -126,7 +127,7 @@ class TestAuditAdmin(TestCase):
         returns:
             ['method', 'datetime', ]
         """
-        html = re.search('<div\s*id="changelist-filter">(.*?)</div>', str(content)).group(0)
+        html = str(bs4.BeautifulSoup(content, features="html.parser").find(id="changelist-filter"))
         filters = re.findall('<h3>\s*By\s*(.*?)\s*</h3>', html)
         return filters
 
