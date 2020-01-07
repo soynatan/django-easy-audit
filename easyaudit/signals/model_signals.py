@@ -14,7 +14,8 @@ from easyaudit.middleware.easyaudit import get_current_request, \
     get_current_user
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
-    WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS
+    WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS,\
+    CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE, CRUD_OBJECT_MODEL_DELTA_CALLBACK
 from easyaudit.utils import model_delta
 
 logger = logging.getLogger(__name__)
@@ -53,7 +54,10 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
             if not should_audit(instance):
                 return False
             try:
-                object_json_repr = serializers.serialize("json", [instance])
+                if CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE != None:
+                    object_json_repr = CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE(instance)
+                else:
+                    object_json_repr = serializers.serialize("json", [instance])
             except Exception:
                 # We need a better way for this to work. ManyToMany will fail on pre_save on create
                 return None
@@ -67,6 +71,8 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
             if not created:
                 old_model = sender.objects.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
+                if CRUD_OBJECT_MODEL_DELTA_CALLBACK != None:
+                    delta = CRUD_OBJECT_MODEL_DELTA_CALLBACK(old_model, instance, delta)
                 changed_fields = json.dumps(delta)
                 event_type = CRUDEvent.UPDATE
 
@@ -122,7 +128,11 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
         with transaction.atomic():
             if not should_audit(instance):
                 return False
-            object_json_repr = serializers.serialize("json", [instance])
+            
+            if CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE != None:
+                object_json_repr = CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE(instance)
+            else:
+                object_json_repr = serializers.serialize("json", [instance])
 
             # created or updated?
             if created:

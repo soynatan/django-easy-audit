@@ -107,3 +107,7 @@ REQUEST_EVENT_LIST_FILTER = getattr(settings, 'DJANGO_EASY_AUDIT_REQUEST_EVENT_L
 CRUD_EVENT_SEARCH_FIELDS = getattr(settings, 'DJANGO_EASY_AUDIT_CRUD_EVENT_SEARCH_FIELDS', ['=object_id', 'object_json_repr', ])
 LOGIN_EVENT_SEARCH_FIELDS = getattr(settings, 'DJANGO_EASY_AUDIT_LOGIN_EVENT_SEARCH_FIELDS', ['=remote_ip', 'username', ])
 REQUEST_EVENT_SEARCH_FIELDS = getattr(settings, 'DJANGO_EASY_AUDIT_REQUEST_EVENT_SEARCH_FIELDS', ['=remote_ip', 'user__username', 'url', 'query_string', ])
+
+# JSON object representation serializer override
+CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE = getattr(settings, 'DJANGO_EASY_AUDIT_CRUD_OBJECT_JSON_REPR_SERIALIZER_OVERRIDE', None)
+CRUD_OBJECT_MODEL_DELTA_CALLBACK = getattr(settings, 'DJANGO_EASY_AUDIT_CRUD_OBJECT_MODEL_DELTA_CALLBACK', None)
