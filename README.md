@@ -90,6 +90,35 @@ Below are some of the settings you may want to use. These should be defined in y
     - ['login_type', 'user', 'datetime', ] for LoginEventAdmin
     - ['method', 'user', 'datetime', ] for RequestEventAdmin
 
+* `DJANGO_EASY_AUDIT_LOGGING_BACKEND`
+
+  A pluggable backend option for logging. Defaults to `easyaudit.backends.ModelBackend`.
+  This class expects to have 3 methods: 
+  * `login(self, login_info_dict):`  
+  * `crud(self, crud_info_dict):`  
+  * `request(self, request_info_dict):`
+
+  each of these methods accept a dictionary containing the info regarding the event.  
+  example overriding:
+  ```python
+    import logging
+    
+    class PythonLoggerBackend:
+        logging.basicConfig()
+        logger = logging.getLogger('your-kibana-logger')
+        logger.setLevel(logging.DEBUG)
+        
+        def request(self, request_info):
+            return request_info # if you don't need it
+        
+        def login(self, login_info):
+            self.logger.info(msg='your message', extra=login_info)      
+            return login_info      
+              
+        def crud(self, crud_info):
+            self.logger.info(msg='your message', extra=crud_info)
+            return crud_info
+    ```
 ## What does it do
 
 Django Easy Audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)

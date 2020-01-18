@@ -4,11 +4,14 @@ from django.core.signals import request_started
 from django.http.cookie import SimpleCookie
 from django.utils import timezone
 from django.conf import settings
+from django.utils.module_loading import import_string
 
-from easyaudit.models import RequestEvent
-from easyaudit.settings import REMOTE_ADDR_HEADER, UNREGISTERED_URLS, REGISTERED_URLS, WATCH_REQUEST_EVENTS
+from easyaudit.settings import REMOTE_ADDR_HEADER, UNREGISTERED_URLS, REGISTERED_URLS, WATCH_REQUEST_EVENTS, \
+    LOGGING_BACKEND
 
 import re
+
+audit_logger = import_string(LOGGING_BACKEND)()
 
 
 def should_log_url(url):
@@ -56,14 +59,14 @@ def request_started_handler(sender, environ, **kwargs):
                 except:
                     user = None
 
-    request_event = RequestEvent.objects.create(
-        url=environ['PATH_INFO'],
-        method=environ['REQUEST_METHOD'],
-        query_string=environ['QUERY_STRING'],
-        user_id=getattr(user, 'id', None),
-        remote_ip=environ[REMOTE_ADDR_HEADER],
-        datetime=timezone.now()
-    )
+    request_event = audit_logger.request({
+        'url': environ['PATH_INFO'],
+        'method': environ['REQUEST_METHOD'],
+        'query_string': environ['QUERY_STRING'],
+        'user_id': getattr(user, 'id', None),
+        'remote_ip': environ[REMOTE_ADDR_HEADER],
+        'datetime': timezone.now()
+    })
 
 
 if WATCH_REQUEST_EVENTS:
