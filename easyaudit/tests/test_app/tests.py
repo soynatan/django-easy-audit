@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
 import re
-from django.test import TestCase
+from django.test import TestCase, override_settings
+
 try: # Django 2.0
     from django.urls import reverse
 except: # Django < 2.0
@@ -20,6 +21,7 @@ TEST_ADMIN_EMAIL = 'admin@example.com'
 TEST_ADMIN_PASSWORD = 'password'
 
 
+@override_settings(TEST=True)
 class TestAuditModels(TestCase):
 
     def test_create_model(self):
@@ -49,6 +51,7 @@ class TestAuditModels(TestCase):
         self.assertEqual(data['fields']['test_m2m'], [obj.id])
 
 
+@override_settings(TEST=True)
 class TestMiddleware(TestCase):
     def _setup_user(self, email, password):
         user = User(username=email)
@@ -100,6 +103,7 @@ class TestMiddleware(TestCase):
         self.assertEqual(crud_event.user, None)
 
 
+@override_settings(TEST=True)
 class TestAuditAdmin(TestCase):
 
     def _setup_superuser(self, email, password):
