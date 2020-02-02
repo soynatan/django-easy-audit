@@ -68,6 +68,8 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
             if not created:
                 old_model = sender.objects.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
+                if not delta:
+                    return False
                 changed_fields = json.dumps(delta)
                 event_type = CRUDEvent.UPDATE
 
