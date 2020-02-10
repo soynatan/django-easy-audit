@@ -8,7 +8,7 @@ try: # Django 2.0
 except: # Django < 2.0
     from django.core.urlresolvers import reverse
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.conf.urls import url
@@ -54,9 +54,11 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
     def get_urls(self):
         info = self.model._meta.app_label, self.model._meta.model_name
         urls = super(EasyAuditModelAdmin, self).get_urls()
-        my_urls = [
-            url(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
-        ]
+        my_urls = []
+        if not settings.READONLY_EVENTS
+            my_urls = [
+                url(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
+            ]
         return my_urls + urls
 
     def purge(self, request):
@@ -69,6 +71,9 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         This action first displays a confirmation page;
         next, it deletes all objects and redirects back to the change list.
         """
+
+        if settings.READONLY_EVENTS:
+            return HttpResponse('Unauthorized', status=401)
 
         def truncate_table(model):
             if settings.TRUNCATE_TABLE_SQL_STATEMENT:

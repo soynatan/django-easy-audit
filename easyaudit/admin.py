@@ -12,8 +12,15 @@ from . import settings
 from .models import CRUDEvent, LoginEvent, RequestEvent
 from .admin_helpers import prettify_json, EasyAuditModelAdmin
 from .settings import (CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_EVENT_LIST_FILTER,
-                       CRUD_EVENT_SEARCH_FIELDS, LOGIN_EVENT_SEARCH_FIELDS, REQUEST_EVENT_SEARCH_FIELDS)
+                       CRUD_EVENT_SEARCH_FIELDS, LOGIN_EVENT_SEARCH_FIELDS, REQUEST_EVENT_SEARCH_FIELDS,
+                       READONLY_EVENTS)
 
+
+readonly_fields = ['event_type', 'object_id', 'get_content_type',
+                   'object_repr', 'object_json_repr_prettified', 'get_user',
+                   'user_pk_as_string', 'datetime', 'changed_fields_prettified']
+if READONLY_EVENTS:
+    readonly_fields = readonly_fields + ['user', 'content_type']
 
 # CRUD events
 class CRUDEventAdmin(EasyAuditModelAdmin):
