@@ -28,9 +28,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     date_hierarchy = 'datetime'
     list_filter = CRUD_EVENT_LIST_FILTER
     search_fields = CRUD_EVENT_SEARCH_FIELDS
-    readonly_fields = ['event_type', 'object_id', 'get_content_type',
-                       'object_repr', 'object_json_repr_prettified', 'get_user',
-                       'user_pk_as_string', 'datetime', 'changed_fields_prettified']
+    readonly_fields = readonly_fields
     exclude = ['object_json_repr', 'changed_fields']
 
     def get_content_type(self, obj):
