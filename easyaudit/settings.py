@@ -1,5 +1,7 @@
+
 from importlib import import_module
 
+import django.db.utils
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Permission
@@ -85,6 +87,7 @@ ADMIN_SHOW_REQUEST_EVENTS = getattr(settings, 'DJANGO_EASY_AUDIT_ADMIN_SHOW_REQU
 # project defined callbacks
 CRUD_DIFFERENCE_CALLBACKS = []
 CRUD_DIFFERENCE_CALLBACKS = getattr(settings, 'DJANGO_EASY_AUDIT_CRUD_DIFFERENCE_CALLBACKS', CRUD_DIFFERENCE_CALLBACKS)
+DATABASE_ALIAS = getattr(settings, 'DJANGO_EASY_AUDIT_DATABASE_ALIAS', django.db.utils.DEFAULT_DB_ALIAS)
 # the callbacks could come in as an iterable of strings, where each string is the package.module.function
 for idx, callback in enumerate(CRUD_DIFFERENCE_CALLBACKS):
     if not callable(callback):  # keep as is if it is callable

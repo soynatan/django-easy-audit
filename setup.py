@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-easy-audit',
-    version='1.2rc1',
+    version='1.2.1',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[

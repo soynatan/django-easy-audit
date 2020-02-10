@@ -89,6 +89,13 @@ Below are some of the settings you may want to use. These should be defined in y
     - ['event_type', 'content_type', 'user', 'datetime', ] for CRUDEventAdmin
     - ['login_type', 'user', 'datetime', ] for LoginEventAdmin
     - ['method', 'user', 'datetime', ] for RequestEventAdmin
+    
+* `DJANGO_EASY_AUDIT_DATABASE_ALIAS`
+
+  By default it is the django `default` database alias. But for projects that have split databases,
+  this is necessary in order to keep database atomicity concerns in check during signal handlers.
+  
+  To clarify, this is only _truly_ necessary for the model signals.
 
 * `DJANGO_EASY_AUDIT_LOGGING_BACKEND`
 
