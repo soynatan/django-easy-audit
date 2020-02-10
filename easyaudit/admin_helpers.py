@@ -54,11 +54,9 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
     def get_urls(self):
         info = self.model._meta.app_label, self.model._meta.model_name
         urls = super(EasyAuditModelAdmin, self).get_urls()
-        my_urls = []
-        if not settings.READONLY_EVENTS:
-            my_urls = [
-                url(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
-            ]
+        my_urls = [
+            url(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
+        ]
         return my_urls + urls
 
     def purge(self, request):
@@ -73,7 +71,7 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         """
 
         if settings.READONLY_EVENTS:
-            return HttpResponse('Unauthorized', status=401)
+            raise PermissionDenied
 
         def truncate_table(model):
             if settings.TRUNCATE_TABLE_SQL_STATEMENT:
