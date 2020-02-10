@@ -55,7 +55,7 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
         urls = super(EasyAuditModelAdmin, self).get_urls()
         my_urls = []
-        if not settings.READONLY_EVENTS
+        if not settings.READONLY_EVENTS:
             my_urls = [
                 url(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
             ]
