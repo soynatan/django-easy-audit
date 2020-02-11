@@ -97,6 +97,12 @@ Below are some of the settings you may want to use. These should be defined in y
   
   To clarify, this is only _truly_ necessary for the model signals.
 
+* `DJANGO_EASY_AUDIT_READONLY_EVENTS`
+
+  Default is `False`. The events visible through the admin interface are editable by default by a
+  superuser. Set this to `True` if you wish to make the recorded events read-only through the admin
+  UI.
+
 ## What does it do
 
 Django Easy Audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)
