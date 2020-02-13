@@ -9,7 +9,7 @@ except: # Django < 2.0
 
 from django.utils.safestring import mark_safe
 from . import settings
-from .models import CRUDEvent, LoginEvent, RequestEvent
+from .models import CRUDEvent, CRUDEventBigInteger, CRUDEventUUID, LoginEvent, RequestEvent
 from .admin_helpers import prettify_json, EasyAuditModelAdmin
 from .settings import (CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_EVENT_LIST_FILTER,
                        CRUD_EVENT_SEARCH_FIELDS, LOGIN_EVENT_SEARCH_FIELDS, REQUEST_EVENT_SEARCH_FIELDS)
@@ -65,7 +65,8 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
 
 if settings.ADMIN_SHOW_MODEL_EVENTS:
     admin.site.register(CRUDEvent, CRUDEventAdmin)
-
+    admin.site.register(CRUDEventBigInteger, CRUDEventAdmin)
+    admin.site.register(CRUDEventUUID, CRUDEventAdmin)
 
 # Login events
 class LoginEventAdmin(EasyAuditModelAdmin):

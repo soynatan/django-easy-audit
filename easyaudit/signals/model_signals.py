@@ -13,9 +13,9 @@ from django.utils.encoding import force_text
 
 from easyaudit.middleware.easyaudit import get_current_request, \
     get_current_user
-from easyaudit.models import CRUDEvent
-from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
-    WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, DATABASE_ALIAS
+from easyaudit.models import CRUDEvent, CRUDEventBigInteger, CRUDEventUUID
+from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, REGISTERED_CLASSES_BIGINTEGER, \
+    REGISTERED_CLASSES_UUID, WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, DATABASE_ALIAS
 from easyaudit.utils import model_delta
 
 logger = logging.getLogger(__name__)
@@ -97,7 +97,13 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                     try:
                         # atomicity based on the easyaudit database alias
                         with transaction.atomic(using=DATABASE_ALIAS):
-                            crud_event = CRUDEvent.objects.create(
+                            if any(isinstance(instance, model) for model in REGISTERED_CLASSES_BIGINTEGER):
+                                crud_model = CRUDEventBigInteger
+                            elif any(isinstance(instance, model) for model in REGISTERED_CLASSES_UUID):
+                                crud_model = CRUDEventUUID
+                            else:
+                                crud_model = CRUDEvent
+                            crud_event = crud_model.objects.create(
                                 event_type=event_type,
                                 object_repr=str(instance),
                                 object_json_repr=object_json_repr,
@@ -161,7 +167,13 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                 def crud_flow():
                     try:
                         with transaction.atomic(using=DATABASE_ALIAS):
-                            crud_event = CRUDEvent.objects.create(
+                            if any(isinstance(instance, model) for model in REGISTERED_CLASSES_BIGINTEGER):
+                                crud_model = CRUDEventBigInteger
+                            elif any(isinstance(instance, model) for model in REGISTERED_CLASSES_UUID):
+                                crud_model = CRUDEventUUID
+                            else:
+                                crud_model = CRUDEvent
+                            crud_event = crud_model.objects.create(
                                 event_type=event_type,
                                 object_repr=str(instance),
                                 object_json_repr=object_json_repr,
@@ -244,7 +256,13 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
             def crud_flow():
                 try:
                     with transaction.atomic(using=DATABASE_ALIAS):
-                        crud_event = CRUDEvent.objects.create(
+                        if any(isinstance(instance, model) for model in REGISTERED_CLASSES_BIGINTEGER):
+                            crud_model = CRUDEventBigInteger
+                        elif any(isinstance(instance, model) for model in REGISTERED_CLASSES_UUID):
+                            crud_model = CRUDEventUUID
+                        else:
+                            crud_model = CRUDEvent
+                        crud_event = crud_model.objects.create(
                             event_type=event_type,
                             object_repr=str(instance),
                             object_json_repr=object_json_repr,
@@ -292,7 +310,13 @@ def post_delete(sender, instance, using, **kwargs):
                 try:
                     with transaction.atomic(using=DATABASE_ALIAS):
                         # crud event
-                        crud_event = CRUDEvent.objects.create(
+                        if any(isinstance(instance, model) for model in REGISTERED_CLASSES_BIGINTEGER):
+                            crud_model = CRUDEventBigInteger
+                        elif any(isinstance(instance, model) for model in REGISTERED_CLASSES_UUID):
+                            crud_model = CRUDEventUUID
+                        else:
+                            crud_model = CRUDEvent
+                        crud_event = crud_model.objects.create(
                             event_type=CRUDEvent.DELETE,
                             object_repr=str(instance),
                             object_json_repr=object_json_repr,
