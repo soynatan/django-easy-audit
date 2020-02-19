@@ -42,7 +42,7 @@ def user_login_failed(sender, credentials, **kwargs):
             user_model = get_user_model()
             login_event = audit_logger.login({
                 'login_type': LoginEvent.FAILED,
-                'username': getattr(user, user.USERNAME_FIELD),
+                'username': credentials[user_model.USERNAME_FIELD],
                 'remote_ip': request.META[REMOTE_ADDR_HEADER]
             })
     except:
