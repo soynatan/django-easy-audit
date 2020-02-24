@@ -15,20 +15,15 @@ from .settings import (CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_
                        CRUD_EVENT_SEARCH_FIELDS, LOGIN_EVENT_SEARCH_FIELDS, REQUEST_EVENT_SEARCH_FIELDS,
                        READONLY_EVENTS)
 
-
-readonly_fields = ['event_type', 'object_id', 'get_content_type',
-                   'object_repr', 'object_json_repr_prettified', 'get_user',
-                   'user_pk_as_string', 'datetime', 'changed_fields_prettified']
-if READONLY_EVENTS:
-    readonly_fields = readonly_fields + ['user', 'content_type']
-
 # CRUD events
 class CRUDEventAdmin(EasyAuditModelAdmin):
     list_display = ['get_event_type_display', 'get_content_type', 'object_id', 'object_repr_link', 'user_link', 'datetime']
     date_hierarchy = 'datetime'
     list_filter = CRUD_EVENT_LIST_FILTER
     search_fields = CRUD_EVENT_SEARCH_FIELDS
-    readonly_fields = readonly_fields
+    readonly_fields = ['event_type', 'object_id', 'get_content_type',
+                       'object_repr', 'object_json_repr_prettified', 'get_user',
+                       'user_pk_as_string', 'datetime', 'changed_fields_prettified']
     exclude = ['object_json_repr', 'changed_fields']
 
     def get_content_type(self, obj):

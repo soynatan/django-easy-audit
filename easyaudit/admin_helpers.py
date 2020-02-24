@@ -31,6 +31,13 @@ def prettify_json(json_string):
 
 class EasyAuditModelAdmin(admin.ModelAdmin):
 
+    def get_readonly_fields(self, request, obj=None):
+        "Mark all fields of model as readonly if configured to do so."
+        if settings.READONLY_EVENTS:
+            return [f.name for f in self.model._meta.get_fields()]
+        else:
+            return self.readonly_fields
+
     def user_link(self, obj):
         user = get_user_model().objects.filter(id=obj.user_id).first()
         #return mark_safe(get_user_link(user))
@@ -50,7 +57,7 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
-    
+
     def has_delete_permission(self, request, obj=None):
         if settings.READONLY_EVENTS:
             return False
