@@ -33,6 +33,8 @@ REMOTE_ADDR_HEADER = getattr(settings, 'DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER', '
 
 USER_DB_CONSTRAINT = bool(getattr(settings, 'DJANGO_EASY_AUDIT_USER_DB_CONSTRAINT', True))
 
+# logging backend settings
+LOGGING_BACKEND = getattr(settings, 'DJANGO_EASY_AUDIT_LOGGING_BACKEND', 'easyaudit.backends.ModelBackend')
 
 # Models which Django Easy Audit will not log.
 # By default, all but some models will be audited.
