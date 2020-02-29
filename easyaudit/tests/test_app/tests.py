@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import json
 import re
+
 from django.test import TestCase, override_settings
 
-try: # Django 2.0
-    from django.urls import reverse
-except: # Django < 2.0
-    from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import bs4
@@ -50,6 +49,17 @@ class TestAuditModels(TestCase):
         data = json.loads(crud_event.object_json_repr)[0]
         self.assertEqual(data['fields']['test_m2m'], [obj.id])
 
+    @override_settings(DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP=True)
+    def test_update_skip_no_changed_fields(self):
+        obj = TestModel.objects.create()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(1, crud_event_qs.count())
+        obj.name = 'changed name'
+        obj.save()
+        self.assertEqual(2, crud_event_qs.count())
+        last_change = crud_event_qs.first()
+        self.assertIn('name', last_change.changed_fields)
+
     def test_update(self):
         obj = TestModel.objects.create()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
@@ -60,11 +70,18 @@ class TestAuditModels(TestCase):
         last_change = crud_event_qs.first()
         self.assertIn('name', last_change.changed_fields)
 
-    def test_fake_update(self):
+    @override_settings(DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP=True)
+    def test_fake_update_skip_no_changed_fields(self):
         obj = TestModel.objects.create()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         obj.save()
         self.assertEqual(1, crud_event_qs.count())
+
+    def test_fake_update(self):
+        obj = TestModel.objects.create()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        obj.save()
+        self.assertEqual(2, crud_event_qs.count())
 
 
 @override_settings(TEST=True)

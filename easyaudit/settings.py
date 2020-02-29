@@ -94,6 +94,12 @@ for idx, callback in enumerate(CRUD_DIFFERENCE_CALLBACKS):
         CRUD_DIFFERENCE_CALLBACKS[idx] = getattr(import_module('.'.join(callback.split('.')[:-1])),
                                                  callback.split('.')[-1], None)
 
+# although this setting "exists" here we do not intend to use it anywhere due to test run issues
+# maybe we can properly solve this at a latter time. instead, anything inside of this library
+# should do the same getattr check here, bsaed on normal `settings` from `django.conf`.
+CRUD_EVENT_NO_CHANGED_FIELDS_SKIP = getattr(settings, "DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP", False)
+
+
 # Purge table optimization:
 # If TRUNCATE_TABLE_SQL_STATEMENT is not empty, we use it as custom sql statement
 # to speed up table truncation bypassing ORM, i.e.:
