@@ -96,6 +96,14 @@ Below are some of the settings you may want to use. These should be defined in y
   this is necessary in order to keep database atomicity concerns in check during signal handlers.
   
   To clarify, this is only _truly_ necessary for the model signals.
+  
+* `DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP`
+
+  By default this is `False`, but this allows the calling project not to save `CRUDEvent` if the changed fields as
+  determined by the `pre_save` handler sees that there are no changed fields. We are keeping it off by default so that
+  projects that wish to use this (potentially less `CRUDEvent`) can choose to turn it on! And those that do not want it (yet or ever),
+  or those that do not closely follow the release notes of this project will have one less worry when upgrading.
+  
 
 * `DJANGO_EASY_AUDIT_LOGGING_BACKEND`
 
