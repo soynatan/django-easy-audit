@@ -112,9 +112,12 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                                 'user_pk_as_string': str(user.pk) if user else user
                             })
                     except Exception as e:
-                        logger.exception(
-                            "easy audit had a pre-save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
-                                instance, instance.pk))
+                        try:
+                            logger.exception(
+                                "easy audit had a pre_save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
+                                    instance, instance.pk))
+                        except Exception:
+                            pass
                 if getattr(settings, "TEST", False):
                     crud_flow()
                 else:
@@ -175,9 +178,12 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                                 'user_pk_as_string': str(user.pk) if user else user
                             })
                     except Exception as e:
-                        logger.exception(
-                            "easy audit had a pre-save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
-                                instance, instance.pk))
+                        try:
+                            logger.exception(
+                                "easy audit had a post_save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
+                                    instance, instance.pk))
+                        except Exception:
+                            pass
                 if getattr(settings, "TEST", False):
                     crud_flow()
                 else:
@@ -258,9 +264,12 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                             'user_pk_as_string': str(user.pk) if user else user
                         })
                 except Exception as e:
-                    logger.exception(
-                        "easy audit had a pre-save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
-                            instance, instance.pk))
+                    try:
+                        logger.exception(
+                            "easy audit had a m2m_changed exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
+                                instance, instance.pk))
+                    except Exception:
+                        pass
 
             if getattr(settings, "TEST", False):
                 crud_flow()
@@ -307,9 +316,12 @@ def post_delete(sender, instance, using, **kwargs):
                         })
 
                 except Exception as e:
-                    logger.exception(
-                        "easy audit had a pre-save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
-                            instance, instance.pk))
+                    try:
+                        logger.exception(
+                            "easy audit had a post_delete exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
+                                instance, instance.pk))
+                    except Exception:
+                        pass
 
             if getattr(settings, "TEST", False):
                 crud_flow()
