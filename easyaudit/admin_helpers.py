@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.conf.urls import url
 from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from . import settings
 
 import json
@@ -21,12 +22,14 @@ import json
 def prettify_json(json_string):
     """Given a JSON string, it returns it as a
     safe formatted HTML"""
+    escaped = escape(json_string)
     try:
-        data = json.loads(json_string)
-        html = '<pre>' + json.dumps(data, sort_keys=True, indent=4) + '</pre>'
-    except:
-        html = json_string
-    return mark_safe(html)
+        data = json.loads(escaped)
+        # html = '<pre>' + json.dumps(data, sort_keys=True, indent=4) + '</pre>'
+        html = json.dumps(data, sort_keys=True, indent=4)
+    except Exception:
+        html = escaped
+    return html
 
 
 class EasyAuditModelAdmin(admin.ModelAdmin):
@@ -48,15 +51,16 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         #return mark_safe(get_user_link(user))
         if user is None:
             return '-'
+        escaped = escape(str(user))
         try:
             user_model = get_user_model()
             url = reverse("admin:%s_%s_change" % (
                 user_model._meta.app_label,
                 user_model._meta.model_name,
             ), args=(user.id,))
-            html = '<a href="%s">%s</a>' % (url, str(user))
-        except:
-            html = str(user)
+            html = '<a href="%s">%s</a>' % (url, escaped)
+        except Exception:
+            html = escaped
         return mark_safe(html)
     user_link.short_description = 'user'
 
