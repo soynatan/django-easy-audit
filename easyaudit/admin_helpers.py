@@ -30,9 +30,10 @@ def prettify_json(json_string):
 
 
 class EasyAuditModelAdmin(admin.ModelAdmin):
+    list_select_related = ["user"]
 
     def user_link(self, obj):
-        user = get_user_model().objects.filter(id=obj.user_id).first()
+        user = obj.user
         #return mark_safe(get_user_link(user))
         if user is None:
             return '-'

@@ -25,14 +25,15 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
                        'object_repr', 'object_json_repr_prettified', 'get_user',
                        'user_pk_as_string', 'datetime', 'changed_fields_prettified']
     exclude = ['object_json_repr', 'changed_fields']
+    list_select_related = ["content_type", "user"]
 
     def get_content_type(self, obj):
-        return ContentType.objects.get(id=obj.content_type_id)
+        return obj.content_type
 
     get_content_type.short_description = "Content Type"
 
     def get_user(self, obj):
-        return get_user_model().objects.filter(id=obj.user_id).first()
+        return obj.user
 
     get_user.short_description = "User"
 
@@ -76,12 +77,12 @@ class LoginEventAdmin(EasyAuditModelAdmin):
     readonly_fields = ['login_type', 'get_username', 'get_user', 'remote_ip', 'datetime', ]
 
     def get_user(self, obj):
-        return get_user_model().objects.filter(id=obj.user_id).first()
+        return obj.user
 
     get_user.short_description = "User"
 
     def get_username(self, obj):
-        user = get_user_model().objects.filter(id=obj.user_id).first()
+        user = obj.user
         username = user.get_username() if user else None
         return username
 
@@ -101,7 +102,7 @@ class RequestEventAdmin(EasyAuditModelAdmin):
     readonly_fields = ['url', 'method', 'query_string', 'get_user', 'remote_ip', 'datetime', ]
 
     def get_user(self, obj):
-        return get_user_model().objects.filter(id=obj.user_id).first()
+        return obj.user
 
     get_user.short_description = "User"
 
