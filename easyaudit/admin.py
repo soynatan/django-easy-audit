@@ -25,15 +25,20 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
                        'object_repr', 'object_json_repr_prettified', 'get_user',
                        'user_pk_as_string', 'datetime', 'changed_fields_prettified']
     exclude = ['object_json_repr', 'changed_fields']
-    list_select_related = ["content_type", "user"]
+
+    def get_changelist_instance(self, *args, **kwargs):
+        changelist_instance = super().get_changelist_instance(*args, **kwargs)
+        content_type_ids = [obj.content_type_id for obj in changelist_instance.result_list]
+        self.content_types_by_id = {content_type.id: content_type for content_type in ContentType.objects.filter(id__in=content_type_ids)}
+        return changelist_instance
 
     def get_content_type(self, obj):
-        return obj.content_type
+        return self.content_types_by_id[obj.content_type_id]
 
     get_content_type.short_description = "Content Type"
 
     def get_user(self, obj):
-        return obj.user
+        return self.users_by_id.get(obj.user_id)
 
     get_user.short_description = "User"
 
@@ -42,9 +47,10 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
             html = obj.object_repr
         else:
             try:
+                content_type = self.get_content_type(obj)
                 url = reverse("admin:%s_%s_change" % (
-                    obj.content_type.app_label,
-                    obj.content_type.model,
+                    content_type.app_label,
+                    content_type.model,
                 ), args=(obj.object_id,))
                 html = '<a href="%s">%s</a>' % (url, obj.object_repr)
             except:
@@ -77,12 +83,12 @@ class LoginEventAdmin(EasyAuditModelAdmin):
     readonly_fields = ['login_type', 'get_username', 'get_user', 'remote_ip', 'datetime', ]
 
     def get_user(self, obj):
-        return obj.user
+        return self.users_by_id.get(obj.user_id)
 
     get_user.short_description = "User"
 
     def get_username(self, obj):
-        user = obj.user
+        user = self.get_user(obj)
         username = user.get_username() if user else None
         return username
 
@@ -102,7 +108,7 @@ class RequestEventAdmin(EasyAuditModelAdmin):
     readonly_fields = ['url', 'method', 'query_string', 'get_user', 'remote_ip', 'datetime', ]
 
     def get_user(self, obj):
-        return obj.user
+        return self.users_by_id.get(obj.user_id)
 
     get_user.short_description = "User"
 
