@@ -3,6 +3,7 @@ import json
 import re
 
 from django.test import TestCase, override_settings
+from unittest.mock import patch
 
 from django.urls import reverse
 
@@ -134,6 +135,16 @@ class TestMiddleware(TestCase):
         self.assertEqual(crud_event_qs.count(), 1)
         crud_event = crud_event_qs[0]
         self.assertEqual(crud_event.user, None)
+
+    def test_middleware_logged_in_user_in_request(self):
+        user = self._setup_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        self.client.force_login(user)
+        create_obj_url = reverse("test_app:create-obj")
+        self.client.post(create_obj_url)
+        self.assertEqual(TestModel.objects.count(), 1)
+        obj = TestModel.objects.all()[0]
+        crud_event = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))[0]
+        self.assertEqual(crud_event.user, user)
 
 
 @override_settings(TEST=True)
