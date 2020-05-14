@@ -62,14 +62,16 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                 # We need a better way for this to work. ManyToMany will fail on pre_save on create
                 return None
 
-            if instance.pk is None:
-                created = True
-            else:
+            # Query the object, see if it exists
+            try:
+                old_model = sender.objects.get(id=instance.pk)
                 created = False
+            except (sender.DoesNotExist, ):
+                old_model = None
+                created = True
 
             # created or updated?
-            if not created:
-                old_model = sender.objects.get(pk=instance.pk)
+            if old_model:
                 delta = model_delta(old_model, instance)
                 if not delta and getattr(settings, "DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP", False):
                     return False
