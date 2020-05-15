@@ -8,7 +8,7 @@ try: # Django 2.0
 except: # Django < 2.0
     from django.core.urlresolvers import reverse
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.conf.urls import url
@@ -36,6 +36,13 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         self.users_by_id = {user.id: user for user in get_user_model().objects.filter(id__in=user_ids)}
         return changelist_instance
 
+    def get_readonly_fields(self, request, obj=None):
+        "Mark all fields of model as readonly if configured to do so."
+        if settings.READONLY_EVENTS:
+            return [f.name for f in self.model._meta.get_fields()]
+        else:
+            return self.readonly_fields
+
     def user_link(self, obj):
         user = self.users_by_id.get(obj.user_id)
         #return mark_safe(get_user_link(user))
@@ -56,6 +63,11 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
+    def has_delete_permission(self, request, obj=None):
+        if settings.READONLY_EVENTS:
+            return False
+        return True
+
     def get_urls(self):
         info = self.model._meta.app_label, self.model._meta.model_name
         urls = super(EasyAuditModelAdmin, self).get_urls()
@@ -74,6 +86,9 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         This action first displays a confirmation page;
         next, it deletes all objects and redirects back to the change list.
         """
+
+        if settings.READONLY_EVENTS:
+            raise PermissionDenied
 
         def truncate_table(model):
             if settings.TRUNCATE_TABLE_SQL_STATEMENT:
