@@ -64,7 +64,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
 
             # Query the object, see if it exists
             try:
-                old_model = sender.objects.get(id=instance.pk)
+                old_model = sender.objects.get(pk=instance.pk)
                 created = False
             except (sender.DoesNotExist, ):
                 old_model = None
