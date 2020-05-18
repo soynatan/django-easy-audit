@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
@@ -65,7 +66,13 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
             if instance.pk is None:
                 created = True
             else:
-                created = False
+                try:
+                    old_model = sender.objects.get(pk=instance.pk)
+                    created = False
+                except ObjectDoesNotExist:
+                    # This can happen when a model is saved as part of a Transaction. It then has
+                    # a pk set but is actually created.
+                    created = True
 
             # created or updated?
             if not created:
