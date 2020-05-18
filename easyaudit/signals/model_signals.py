@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
@@ -62,16 +63,21 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                 # We need a better way for this to work. ManyToMany will fail on pre_save on create
                 return None
 
-            # Query the object, see if it exists
-            try:
-                old_model = sender.objects.get(pk=instance.pk)
-                created = False
-            except (sender.DoesNotExist, ):
-                old_model = None
+            # Determine if the instance is a create
+            if instance.pk is None:
                 created = True
+            else:
+                created = False
+                try:
+                    old_model = sender.objects.get(pk=instance.pk)
+                    created = False
+                except ObjectDoesNotExist:
+                    # This can happen when a model is saved as part of a Transaction. It then has
+                    # a pk set but is actually created.
+                    created = True
 
             # created or updated?
-            if old_model:
+            if not created:
                 delta = model_delta(old_model, instance)
                 if not delta and getattr(settings, "DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP", False):
                     return False
