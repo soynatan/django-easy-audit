@@ -90,6 +90,16 @@ class TestAuditModels(TestCase):
         obj.save()
         self.assertEqual(2, crud_event_qs.count())
 
+    def test_delete(self):
+        obj = self.Model.objects.create()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(1, crud_event_qs.count())
+
+        obj_id = obj.pk
+        obj.delete()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj_id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(2, crud_event_qs.count())
+
 
 class TestAuditUUIDModels(TestAuditModels):
     Model = TestUUIDModel

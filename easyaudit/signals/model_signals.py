@@ -302,6 +302,9 @@ def post_delete(sender, instance, using, **kwargs):
                 user = None
             c_t = ContentType.objects.get_for_model(instance)
 
+            # object id to be used later
+            obj_id = instance.pk
+
             def crud_flow():
                 try:
                     with transaction.atomic(using=DATABASE_ALIAS):
@@ -311,7 +314,7 @@ def post_delete(sender, instance, using, **kwargs):
                             'object_repr': str(instance),
                             'object_json_repr': object_json_repr,
                             'content_type_id': c_t.id,
-                            'object_id': instance.pk,
+                            'object_id': obj_id,
                             'user_id': getattr(user, 'id', None),
                             'datetime': timezone.now(),
                             'user_pk_as_string': str(user.pk) if user else user
