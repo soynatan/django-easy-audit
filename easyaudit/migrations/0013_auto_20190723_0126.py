@@ -3,6 +3,10 @@
 from django.db import migrations, models
 
 
+def drop_index_if_exists(apps, schema_editor):
+    schema_editor.execute('DROP INDEX IF EXISTS "easyaudit_requestevent_url_37d1b8c4"')
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,6 +14,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(drop_index_if_exists),
         migrations.AlterField(
             model_name='requestevent',
             name='url',
