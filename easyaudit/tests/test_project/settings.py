@@ -133,5 +133,5 @@ def lazy_test_model():
 DJANGO_EASY_AUDIT_REGISTERED_CLASSES = [
     "test_app.TestM2M",
     "test_app.TestForeignKey",
-    lazy_test_model
+    lazy_test_model,
 ]
