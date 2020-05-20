@@ -89,12 +89,12 @@ Below are some of the settings you may want to use. These should be defined in y
     - ['event_type', 'content_type', 'user', 'datetime', ] for CRUDEventAdmin
     - ['login_type', 'user', 'datetime', ] for LoginEventAdmin
     - ['method', 'user', 'datetime', ] for RequestEventAdmin
-    
+
 * `DJANGO_EASY_AUDIT_DATABASE_ALIAS`
 
   By default it is the django `default` database alias. But for projects that have split databases,
   this is necessary in order to keep database atomicity concerns in check during signal handlers.
-  
+
   To clarify, this is only _truly_ necessary for the model signals.
   
 * `DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP`
@@ -105,35 +105,42 @@ Below are some of the settings you may want to use. These should be defined in y
   or those that do not closely follow the release notes of this project will have one less worry when upgrading.
   
 
+* `DJANGO_EASY_AUDIT_READONLY_EVENTS`
+
+  Default is `False`. The events visible through the admin interface are editable by default by a
+  superuser. Set this to `True` if you wish to make the recorded events read-only through the admin
+  UI.
+
 * `DJANGO_EASY_AUDIT_LOGGING_BACKEND`
 
   A pluggable backend option for logging. Defaults to `easyaudit.backends.ModelBackend`.
-  This class expects to have 3 methods: 
-  * `login(self, login_info_dict):`  
-  * `crud(self, crud_info_dict):`  
+  This class expects to have 3 methods:
+  * `login(self, login_info_dict):`
+  * `crud(self, crud_info_dict):`
   * `request(self, request_info_dict):`
 
-  each of these methods accept a dictionary containing the info regarding the event.  
+  each of these methods accept a dictionary containing the info regarding the event.
   example overriding:
   ```python
     import logging
-    
+
     class PythonLoggerBackend:
         logging.basicConfig()
         logger = logging.getLogger('your-kibana-logger')
         logger.setLevel(logging.DEBUG)
-        
+
         def request(self, request_info):
             return request_info # if you don't need it
-        
+
         def login(self, login_info):
-            self.logger.info(msg='your message', extra=login_info)      
-            return login_info      
-              
+            self.logger.info(msg='your message', extra=login_info)
+            return login_info
+
         def crud(self, crud_info):
             self.logger.info(msg='your message', extra=crud_info)
             return crud_info
     ```
+
 ## What does it do
 
 Django Easy Audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)

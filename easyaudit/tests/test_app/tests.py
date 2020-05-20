@@ -213,4 +213,3 @@ class TestAuditAdmin(TestCase):
         response = self.client.get(reverse('admin:easyaudit_requestevent_changelist'))
         self.assertEqual(200, response.status_code)
         filters = self._list_filters(response.content)
-        print(filters)
