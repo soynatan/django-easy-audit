@@ -64,20 +64,11 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                 return None
 
             # Determine if the instance is a create
-            if instance.pk is None:
-                created = True
-            else:
-                created = False
-                try:
-                    old_model = sender.objects.get(pk=instance.pk)
-                    created = False
-                except ObjectDoesNotExist:
-                    # This can happen when a model is saved as part of a Transaction. It then has
-                    # a pk set but is actually created.
-                    created = True
+            created = instance.pk is None or instance._state.adding
 
             # created or updated?
             if not created:
+                old_model = sender.objects.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
                 if not delta and getattr(settings, "DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP", False):
                     return False
