@@ -26,6 +26,15 @@ TEST_ADMIN_PASSWORD = 'password'
 
 
 @override_settings(TEST=True)
+class TestDjangoCompat(TestCase):
+
+    def test_model_state(self):
+        """Ensures models have the internal `_state` object."""
+        inst = TestModel()
+        self.assertTrue(hasattr(inst, '_state'))
+
+
+@override_settings(TEST=True)
 class TestAuditModels(TestCase):
     Model = TestModel
     FKModel = TestForeignKey
