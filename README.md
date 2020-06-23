@@ -1,5 +1,7 @@
 # django-easy-audit
 
+![PyPI - Django Version](https://img.shields.io/pypi/djversions/django-easy-audit)
+
 Yet another Django audit log app, hopefully the easiest one.
 
 This app allows you to keep track of every action taken by your users.
