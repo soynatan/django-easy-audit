@@ -66,6 +66,13 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
 
             # created or updated?
             if not created:
+                print('----------------------------------------')
+                print('Sender:')
+                print(sender)
+                print('----------------------------------------')
+                print('Instance:')
+                print(instance)
+
                 old_model = sender.objects.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
                 if not delta:
