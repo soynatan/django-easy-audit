@@ -11,6 +11,7 @@ from django.utils.module_loading import import_string
 from easyaudit.settings import REMOTE_ADDR_HEADER, UNREGISTERED_URLS, REGISTERED_URLS, WATCH_REQUEST_EVENTS, \
     LOGGING_BACKEND
 
+import jwt
 import re
 
 audit_logger = import_string(LOGGING_BACKEND)()
@@ -42,6 +43,19 @@ def request_started_handler(sender, environ, **kwargs):
     # try and get the user from the request; commented for now, may have a bug in this flow.
     # user = get_current_user()
     user = None
+
+    # get the user from http auth
+    if not user_id and environ.get("HTTP_AUTHORIZATION"):
+        try:
+            http_auth = environ.get("HTTP_AUTHORIZATION")
+            jwt_token = (
+                http_auth.split(" ")[1] if http_auth.startswith("Bearer") else http_auth
+            )
+            jwt_token_decoded = jwt.decode(jwt_token, None, None)
+            user_id = jwt_token_decoded["user_id"]
+        except:
+            user_id = None
+
     # get the user from cookies
     if not user and environ.get('HTTP_COOKIE'):
         cookie = SimpleCookie() # python3 compatibility
