@@ -11,9 +11,10 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import bs4
-from test_app.models import TestModel, TestForeignKey, TestM2M
+from test_app.models import TestModel, TestForeignKey, TestM2M, create_in_transaction
 from easyaudit.models import CRUDEvent
 from easyaudit.middleware.easyaudit import set_current_user, clear_request
+from easyaudit.signals import model_signals
 
 
 TEST_USER_EMAIL = 'joe@example.com'
@@ -84,6 +85,11 @@ class TestAuditModels(TestCase):
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         obj.save()
         self.assertEqual(2, crud_event_qs.count())
+
+    def test_transactions(self):
+        obj = create_in_transaction()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertTrue(2, crud_event_qs.count())
 
 
 @override_settings(TEST=True)
@@ -187,3 +193,16 @@ class TestAuditAdmin(TestCase):
         response = self.client.get(reverse('admin:easyaudit_requestevent_changelist'))
         self.assertEqual(200, response.status_code)
         filters = self._list_filters(response.content)
+
+
+@override_settings(TEST=True)
+class TestPreSave(TestCase):
+    def test_new_model_with_id(self):
+        obj = TestModel(name='Bob')
+        obj.pk = 123
+        model_signals.pre_save(TestModel, obj, None, 'default', None)
+
+        # No event must be registered in pre-save as this model isn't created yet.
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(crud_event_qs.count(), 0)
+
