@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-easy-audit',
-    version='1.2.3',
+    version='1.3.0a1',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
@@ -25,8 +25,6 @@ setup(
     classifiers=[
         'Environment :: Plugins',
         'Framework :: Django',
-        "Framework :: Django :: 2.0",
-        "Framework :: Django :: 2.1",
         "Framework :: Django :: 2.2",
         "Framework :: Django :: 3.0",
         'Intended Audience :: Developers',
@@ -34,7 +32,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
