@@ -8,6 +8,7 @@ except: # Django < 2.0
     from django.core.urlresolvers import reverse
 
 from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from . import settings
 from .models import CRUDEvent, LoginEvent, RequestEvent
 from .admin_helpers import prettify_json, EasyAuditModelAdmin
@@ -46,15 +47,16 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
         if obj.event_type == CRUDEvent.DELETE:
             html = obj.object_repr
         else:
+            escaped_obj_repr = escape(obj.object_repr)
             try:
                 content_type = self.get_content_type(obj)
                 url = reverse("admin:%s_%s_change" % (
                     content_type.app_label,
                     content_type.model,
                 ), args=(obj.object_id,))
-                html = '<a href="%s">%s</a>' % (url, obj.object_repr)
-            except:
-                html = obj.object_repr
+                html = '<a href="%s">%s</a>' % (url, escaped_obj_repr)
+            except Exception:
+                html = escaped_obj_repr
         return mark_safe(html)
 
     object_repr_link.short_description = 'object repr'
