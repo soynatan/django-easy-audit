@@ -11,7 +11,11 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import bs4
-from test_app.models import TestModel, TestForeignKey, TestM2M
+from test_app.models import (
+    TestModel, TestForeignKey, TestM2M,
+    TestBigIntModel, TestBigIntForeignKey, TestBigIntM2M,
+    TestUUIDModel, TestUUIDForeignKey, TestUUIDM2M
+)
 from easyaudit.models import CRUDEvent
 from easyaudit.middleware.easyaudit import set_current_user, clear_request
 
@@ -23,11 +27,22 @@ TEST_ADMIN_PASSWORD = 'password'
 
 
 @override_settings(TEST=True)
+class TestDjangoCompat(TestCase):
+
+    def test_model_state(self):
+        """Ensures models have the internal `_state` object."""
+        inst = TestModel()
+        self.assertTrue(hasattr(inst, '_state'))
+
+
+@override_settings(TEST=True)
 class TestAuditModels(TestCase):
+    Model = TestModel
+    FKModel = TestForeignKey
+    M2MModel = TestM2M
 
     def test_create_model(self):
-        obj = TestModel.objects.create()
-        self.assertEqual(obj.id, 1)
+        obj = self.Model.objects.create()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         self.assertEqual(1, crud_event_qs.count())
         crud_event = crud_event_qs[0]
@@ -35,25 +50,25 @@ class TestAuditModels(TestCase):
         self.assertEqual(data['fields']['name'], obj.name)
 
     def test_fk_model(self):
-        obj = TestModel.objects.create()
-        obj_fk = TestForeignKey(name='test', test_fk=obj)
+        obj = self.Model.objects.create()
+        obj_fk = self.FKModel(name='test', test_fk=obj)
         obj_fk.save()
         crud_event = CRUDEvent.objects.filter(object_id=obj_fk.id, content_type=ContentType.objects.get_for_model(obj_fk))[0]
         data = json.loads(crud_event.object_json_repr)[0]
-        self.assertEqual(data['fields']['test_fk'], obj.id)
+        self.assertEqual(str(data['fields']['test_fk']), str(obj.id))
 
     def test_m2m_model(self):
-        obj = TestModel.objects.create()
-        obj_m2m = TestM2M(name='test')
+        obj = self.Model.objects.create()
+        obj_m2m = self.M2MModel(name='test')
         obj_m2m.save()
         obj_m2m.test_m2m.add(obj)
         crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
         data = json.loads(crud_event.object_json_repr)[0]
-        self.assertEqual(data['fields']['test_m2m'], [obj.id])
+        self.assertEqual([str(d) for d in data['fields']['test_m2m']], [str(obj.id)])
 
     @override_settings(DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP=True)
     def test_update_skip_no_changed_fields(self):
-        obj = TestModel.objects.create()
+        obj = self.Model.objects.create()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         self.assertEqual(1, crud_event_qs.count())
         obj.name = 'changed name'
@@ -63,7 +78,7 @@ class TestAuditModels(TestCase):
         self.assertIn('name', last_change.changed_fields)
 
     def test_update(self):
-        obj = TestModel.objects.create()
+        obj = self.Model.objects.create()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         self.assertEqual(1, crud_event_qs.count())
         obj.name = 'changed name'
@@ -74,16 +89,38 @@ class TestAuditModels(TestCase):
 
     @override_settings(DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP=True)
     def test_fake_update_skip_no_changed_fields(self):
-        obj = TestModel.objects.create()
+        obj = self.Model.objects.create()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         obj.save()
         self.assertEqual(1, crud_event_qs.count())
 
     def test_fake_update(self):
-        obj = TestModel.objects.create()
+        obj = self.Model.objects.create()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         obj.save()
         self.assertEqual(2, crud_event_qs.count())
+
+    def test_delete(self):
+        obj = self.Model.objects.create()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(1, crud_event_qs.count())
+
+        obj_id = obj.pk
+        obj.delete()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj_id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(2, crud_event_qs.count())
+
+
+class TestAuditUUIDModels(TestAuditModels):
+    Model = TestUUIDModel
+    FKModel = TestUUIDForeignKey
+    M2MModel = TestUUIDM2M
+
+
+class TestAuditBigIntModels(TestAuditModels):
+    Model = TestBigIntModel
+    FKModel = TestBigIntForeignKey
+    M2MModel = TestBigIntM2M
 
 
 @override_settings(TEST=True)
