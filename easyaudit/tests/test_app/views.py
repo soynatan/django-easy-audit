@@ -16,7 +16,12 @@ def update_obj(Model, pk, name):
 
 
 def create_obj_view(request):
-    return HttpResponse(create_obj(TestModel).id)
+    obj = create_obj(TestModel)
+    return HttpResponse(obj.id)
+
+
+def index(request):
+    return HttpResponse()
 
 
 def update_obj_view(request):

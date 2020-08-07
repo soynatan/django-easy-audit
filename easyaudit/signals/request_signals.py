@@ -50,6 +50,8 @@ def request_started_handler(sender, **kwargs):
         path = scope.get("path")
         headers = dict(scope.get('headers'))
         cookie_string = headers.get(b'cookie')
+        if isinstance(cookie_string, bytes):
+            cookie_string = cookie_string.decode("utf-8")
         server = scope.get('server')
         remote_ip = '{s_ip}:{s_port}'.format(s_ip=server[0], s_port=server[1])
         query_string = scope.get("query_string")
@@ -64,7 +66,6 @@ def request_started_handler(sender, **kwargs):
     if not user and cookie_string:
         cookie = SimpleCookie()
         cookie.load(cookie_string)
-
         session_cookie_name = settings.SESSION_COOKIE_NAME
         if session_cookie_name in cookie:
             session_id = cookie[session_cookie_name].value
