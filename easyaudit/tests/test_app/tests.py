@@ -29,10 +29,6 @@ TEST_USER_PASSWORD = 'password'
 TEST_ADMIN_EMAIL = 'admin@example.com'
 TEST_ADMIN_PASSWORD = 'password'
 
-import tracemalloc
-
-tracemalloc.start()
-
 
 @override_settings(TEST=True)
 class TestDjangoCompat(TestCase):
