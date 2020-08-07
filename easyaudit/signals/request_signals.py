@@ -35,18 +35,37 @@ def should_log_url(url):
     return True
 
 
-def request_started_handler(sender, environ, **kwargs):
-    if not should_log_url(environ['PATH_INFO']):
+def request_started_handler(sender, **kwargs):
+    environ = kwargs.get("environ")
+    scope = kwargs.get("scope")
+    if environ:
+        path = environ["PATH_INFO"]
+        cookie_string = environ.get('HTTP_COOKIE')
+        remote_ip = environ[REMOTE_ADDR_HEADER]
+        method = environ['REQUEST_METHOD']
+        query_string = environ["QUERY_STRING"]
+
+    else:
+        method = scope.get('method')
+        path = scope.get("path")
+        headers = dict(scope.get('headers'))
+        cookie_string = headers.get(b'cookie')
+        if isinstance(cookie_string, bytes):
+            cookie_string = cookie_string.decode("utf-8")
+        server = scope.get('server')
+        remote_ip = '{s_ip}:{s_port}'.format(s_ip=server[0], s_port=server[1])
+        query_string = scope.get("query_string")
+
+    if not should_log_url(path):
         return
 
     # try and get the user from the request; commented for now, may have a bug in this flow.
     # user = get_current_user()
     user = None
     # get the user from cookies
-    if not user and environ.get('HTTP_COOKIE'):
-        cookie = SimpleCookie() # python3 compatibility
-        cookie.load(environ['HTTP_COOKIE'])
-
+    if not user and cookie_string:
+        cookie = SimpleCookie()
+        cookie.load(cookie_string)
         session_cookie_name = settings.SESSION_COOKIE_NAME
         if session_cookie_name in cookie:
             session_id = cookie[session_cookie_name].value
@@ -63,12 +82,14 @@ def request_started_handler(sender, environ, **kwargs):
                 except:
                     user = None
 
+
+    # may want to wrap this in an atomic transaction later
     request_event = audit_logger.request({
-        'url': environ['PATH_INFO'],
-        'method': environ['REQUEST_METHOD'],
-        'query_string': environ['QUERY_STRING'],
+        'url': path,
+        'method': method,
+        'query_string': query_string,
         'user_id': getattr(user, 'id', None),
-        'remote_ip': environ[REMOTE_ADDR_HEADER],
+        'remote_ip': remote_ip,
         'datetime': timezone.now()
     })
 
