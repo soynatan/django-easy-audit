@@ -1,5 +1,7 @@
 # django-easy-audit
 
+[![pypi](https://img.shields.io/pypi/v/django-easy-audit.svg)](https://pypi.org/project/django-easy-audit/)
+
 Yet another Django audit log app, hopefully the easiest one.
 
 This app allows you to keep track of every action taken by your users.
