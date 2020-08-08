@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
@@ -62,10 +63,8 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                 # We need a better way for this to work. ManyToMany will fail on pre_save on create
                 return None
 
-            if instance.pk is None:
-                created = True
-            else:
-                created = False
+            # Determine if the instance is a create
+            created = instance.pk is None or instance._state.adding
 
             # created or updated?
             if not created:
@@ -300,6 +299,9 @@ def post_delete(sender, instance, using, **kwargs):
                 user = None
             c_t = ContentType.objects.get_for_model(instance)
 
+            # object id to be used later
+            obj_id = instance.pk
+
             def crud_flow():
                 try:
                     with transaction.atomic(using=DATABASE_ALIAS):
@@ -309,7 +311,7 @@ def post_delete(sender, instance, using, **kwargs):
                             'object_repr': str(instance),
                             'object_json_repr': object_json_repr,
                             'content_type_id': c_t.id,
-                            'object_id': instance.pk,
+                            'object_id': obj_id,
                             'user_id': getattr(user, 'id', None),
                             'datetime': timezone.now(),
                             'user_pk_as_string': str(user.pk) if user else user

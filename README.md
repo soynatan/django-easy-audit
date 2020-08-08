@@ -1,5 +1,6 @@
 # django-easy-audit
 
+[![pypi](https://img.shields.io/pypi/v/django-easy-audit.svg)](https://pypi.org/project/django-easy-audit/)
 ![PyPI - Django Version](https://img.shields.io/pypi/djversions/django-easy-audit)
 
 Yet another Django audit log app, hopefully the easiest one.
