@@ -7,14 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-28 11:29+0000\n"
-"PO-Revision-Date: 2020-09-28 17:31+0600\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: ru_RU\n"
+"POT-Creation-Date: 2020-09-28 18:11+0600\n"
+"PO-Revision-Date: 2020-09-28 18:19+0600\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "X-Generator: Poedit 2.4.1\n"
 
 #: admin_helpers.py:122
@@ -49,11 +52,11 @@ msgstr "Удаление"
 
 #: models.py:18
 msgid "Many-to-Many Change"
-msgstr "Изменение многих ко многим"
+msgstr "Изменение многие ко многим"
 
 #: models.py:19
 msgid "Reverse Many-to-Many Change"
-msgstr "Изменение обратных многих ко многим"
+msgstr "Изменение обратного многие ко многим"
 
 #: models.py:22 models.py:60
 msgid "Event type"
@@ -129,7 +132,7 @@ msgstr "событие входа"
 
 #: models.py:70
 msgid "login events"
-msgstr "события входа"
+msgstr "События входа"
 
 #: models.py:75
 msgid "URL"
@@ -145,11 +148,11 @@ msgstr "Запрос"
 
 #: models.py:85
 msgid "request event"
-msgstr "событие запроса"
+msgstr "Событие запроса"
 
 #: models.py:86
 msgid "request events"
-msgstr "события запроса"
+msgstr "События запроса"
 
 #: templates/admin/easyaudit/change_list.html:10
 #, python-format
@@ -172,12 +175,12 @@ msgstr "Подтвердите удаление"
 msgid ""
 "This operation is destructive, cannot be undone and may require some minutes."
 msgstr ""
-"Эта операция разрушительна, не может быть отменена и потребует нескольких "
+"Эта операция удаляет данные, не может быть отменена и потребует несколько "
 "минут."
 
 #: templates/admin/easyaudit/purge_confirmation.html:21
 msgid "Are you sure you want to permanently remove all objects ?"
-msgstr "Вы действительно хотите навсегда удалить все объекты?"
+msgstr "Вы уверены, что хотите удалить все объекты?"
 
 #: templates/admin/easyaudit/purge_confirmation.html:25
 msgid "Yes, I\\"
