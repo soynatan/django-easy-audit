@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
@@ -19,7 +18,7 @@ from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, LOGGING_BACKEND, \
     DATABASE_ALIAS
-from easyaudit.utils import model_delta
+from easyaudit.utils import get_m2m_field_name, model_delta
 
 logger = logging.getLogger(__name__)
 audit_logger = import_string(LOGGING_BACKEND)()
@@ -221,7 +220,13 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
             object_json_repr = serializers.serialize("json", [instance])
 
             if reverse:
-                event_type = CRUDEvent.M2M_CHANGE_REV
+                if action == 'post_add':
+                    event_type = CRUDEvent.M2M_ADD_REV
+                elif action == 'post_remove':
+                    event_type = CRUDEvent.M2M_REMOVE_REV
+                else:
+                    event_type = CRUDEvent.M2M_CHANGE_REV  # just in case
+
                 # add reverse M2M changes to event. must use json lib because
                 # django serializers ignore extra fields.
                 tmp_repr = json.loads(object_json_repr)
@@ -235,7 +240,12 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                 tmp_repr[0]['m2m_rev_action'] = action
                 object_json_repr = json.dumps(tmp_repr)
             else:
-                event_type = CRUDEvent.M2M_CHANGE
+                if action == 'post_add':
+                    event_type = CRUDEvent.M2M_ADD
+                elif action == 'post_remove':
+                    event_type = CRUDEvent.M2M_REMOVE
+                else:
+                    event_type = CRUDEvent.M2M_CHANGE  # just in case
 
             # user
             try:
@@ -251,11 +261,13 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             def crud_flow():
                 try:
+                    changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)})
                     with transaction.atomic(using=DATABASE_ALIAS):
                         crud_event = audit_logger.crud({
                             'event_type': event_type,
                             'object_repr': str(instance),
                             'object_json_repr': object_json_repr,
+                            'changed_fields': changed_fields,
                             'content_type_id': c_t.id,
                             'object_id': instance.pk,
                             'user_id': getattr(user, 'id', None),

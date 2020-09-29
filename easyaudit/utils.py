@@ -60,3 +60,19 @@ def model_delta(old_model, new_model):
         delta = None
 
     return delta
+
+
+def get_m2m_field_name(model, instance):
+    """
+    Finds M2M field name on instance
+    Called from m2m_changed signal
+    :param model: m2m_changed signal model.
+    :type model: Model
+    :param instance:m2m_changed signal instance.
+    :type new: Model
+    :return: ManyToManyField name of instance related to model.
+    :rtype: str
+    """
+    for x in model._meta.related_objects:
+        if x.related_model().__class__ == instance.__class__:
+            return x.remote_field.name
