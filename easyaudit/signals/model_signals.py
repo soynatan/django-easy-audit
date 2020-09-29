@@ -18,7 +18,7 @@ from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, LOGGING_BACKEND, \
     DATABASE_ALIAS
-from easyaudit.utils import get_m2m_field_name, model_delta
+from easyaudit.utils import json_fix_uuid, get_m2m_field_name, model_delta
 
 logger = logging.getLogger(__name__)
 audit_logger = import_string(LOGGING_BACKEND)()
@@ -261,7 +261,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             def crud_flow():
                 try:
-                    changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)})
+                    changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)}, default=json_fix_uuid)
                     with transaction.atomic(using=DATABASE_ALIAS):
                         crud_event = audit_logger.crud({
                             'event_type': event_type,

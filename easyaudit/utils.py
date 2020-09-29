@@ -1,9 +1,12 @@
 from __future__ import unicode_literals
-from django.utils.encoding import smart_text
+
+from uuid import UUID
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import NOT_PROVIDED, DateTimeField
 from django.utils import timezone
+from django.utils.encoding import smart_text
 
 
 def get_field_value(obj, field):
@@ -76,3 +79,16 @@ def get_m2m_field_name(model, instance):
     for x in model._meta.related_objects:
         if x.related_model().__class__ == instance.__class__:
             return x.remote_field.name
+
+
+
+def json_fix_uuid(obj):
+    """
+    Returns string representation of object if it's UUID
+    :param obj: Object to test.
+    :type obj: Any
+    :return: String representation of UUID or object.
+    :rtype: str
+    """
+    if isinstance(obj, UUID):
+        return str(obj)
