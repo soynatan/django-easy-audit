@@ -1,0 +1,191 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-28 18:11+0600\n"
+"PO-Revision-Date: 2020-09-28 18:19+0600\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.4.1\n"
+
+#: admin_helpers.py:122
+#, python-format
+msgid "Successfully removed %d rows"
+msgstr "%d строк успешно удалено"
+
+#: admin_helpers.py:124
+msgid "ERROR"
+msgstr "ОШИБКА"
+
+#: admin_helpers.py:126
+msgid "Action cancelled by user"
+msgstr "Действие отменено пользователем"
+
+#: admin_helpers.py:130
+#, python-format
+msgid "Purge all %s ... are you sure?"
+msgstr "Удалить все %s ... вы уверены?"
+
+#: models.py:15
+msgid "Create"
+msgstr "Создание"
+
+#: models.py:16
+msgid "Update"
+msgstr "Обновление"
+
+#: models.py:17
+msgid "Delete"
+msgstr "Удаление"
+
+#: models.py:18
+msgid "Many-to-Many Change"
+msgstr "Изменение многие ко многим"
+
+#: models.py:19
+msgid "Reverse Many-to-Many Change"
+msgstr "Изменение обратного многие ко многим"
+
+#: models.py:22 models.py:60
+msgid "Event type"
+msgstr "Тип события"
+
+#: models.py:23
+msgid "Object ID"
+msgstr "ID объекта"
+
+#: models.py:24
+msgid "Content type"
+msgstr "Тип содержимого"
+
+#: models.py:25
+msgid "Object representation"
+msgstr "Представление объекта"
+
+#: models.py:26
+msgid "Object JSON representation"
+msgstr "JSON представление объекта"
+
+#: models.py:27
+msgid "Changed fields"
+msgstr "Изменившиеся поля"
+
+#: models.py:30 models.py:64 models.py:80
+msgid "User"
+msgstr "Пользователь"
+
+#: models.py:32
+msgid "String version of the user pk"
+msgstr "Строковая версия ПК пользователя"
+
+#: models.py:32
+msgid "User PK as string"
+msgstr "ПК пользователя как строка"
+
+#: models.py:33 models.py:66 models.py:82
+msgid "Date time"
+msgstr "Дата время"
+
+#: models.py:45
+msgid "CRUD event"
+msgstr "CRUD событие"
+
+#: models.py:46
+msgid "CRUD events"
+msgstr "CRUD события"
+
+#: models.py:56
+msgid "Login"
+msgstr "Вход"
+
+#: models.py:57
+msgid "Logout"
+msgstr "Выход"
+
+#: models.py:58
+msgid "Failed login"
+msgstr "Неудачная попытка входа"
+
+#: models.py:61
+msgid "Username"
+msgstr "Имя пользователя"
+
+#: models.py:65 models.py:81
+msgid "Remote IP"
+msgstr "Удаленный IP"
+
+#: models.py:69
+msgid "login event"
+msgstr "событие входа"
+
+#: models.py:70
+msgid "login events"
+msgstr "События входа"
+
+#: models.py:75
+msgid "URL"
+msgstr "Адрес"
+
+#: models.py:76
+msgid "Method"
+msgstr "Метод"
+
+#: models.py:77
+msgid "Query string"
+msgstr "Запрос"
+
+#: models.py:85
+msgid "request event"
+msgstr "Событие запроса"
+
+#: models.py:86
+msgid "request events"
+msgstr "События запроса"
+
+#: templates/admin/easyaudit/change_list.html:10
+#, python-format
+msgid "Purge %(name)s"
+msgstr "Удалить %(name)s"
+
+#: templates/admin/easyaudit/purge_confirmation.html:7
+msgid "Home"
+msgstr "Домой"
+
+#: templates/admin/easyaudit/purge_confirmation.html:10
+msgid "Purge"
+msgstr "Удалить"
+
+#: templates/admin/easyaudit/purge_confirmation.html:19
+msgid "Please confirm deletion"
+msgstr "Подтвердите удаление"
+
+#: templates/admin/easyaudit/purge_confirmation.html:20
+msgid ""
+"This operation is destructive, cannot be undone and may require some minutes."
+msgstr ""
+"Эта операция удаляет данные, не может быть отменена и потребует несколько "
+"минут."
+
+#: templates/admin/easyaudit/purge_confirmation.html:21
+msgid "Are you sure you want to permanently remove all objects ?"
+msgstr "Вы уверены, что хотите удалить все объекты?"
+
+#: templates/admin/easyaudit/purge_confirmation.html:25
+msgid "Yes, I\\"
+msgstr "Да, я\\"
+
+#: templates/admin/easyaudit/purge_confirmation.html:26
+msgid "Cancel"
+msgstr "Отменить"

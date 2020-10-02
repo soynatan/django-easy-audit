@@ -9,7 +9,7 @@ except: # Django < 2.0
     from django.core.urlresolvers import reverse
 
 from django.http import HttpResponseRedirect, HttpResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 from django.conf.urls import url
 from django.utils.safestring import mark_safe
