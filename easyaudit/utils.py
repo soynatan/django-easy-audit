@@ -79,16 +79,3 @@ def get_m2m_field_name(model, instance):
     for x in model._meta.related_objects:
         if x.related_model().__class__ == instance.__class__:
             return x.remote_field.name
-
-
-
-def json_fix_uuid(obj):
-    """
-    Returns string representation of object if it's UUID
-    :param obj: Object to test.
-    :type obj: Any
-    :return: String representation of UUID or object.
-    :rtype: str
-    """
-    if isinstance(obj, UUID):
-        return str(obj)
