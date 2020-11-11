@@ -1,5 +1,5 @@
-
 from importlib import import_module
+from inspect import isfunction
 
 import django.db.utils
 from django.apps import apps
@@ -22,6 +22,9 @@ def get_model_list(class_list):
     for idx, item in enumerate(class_list):
         if isinstance(item, (str,)):
             model_class = apps.get_model(item)
+            class_list[idx] = model_class
+        elif isfunction(item):
+            model_class = item()
             class_list[idx] = model_class
 
 

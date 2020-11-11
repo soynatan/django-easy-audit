@@ -124,3 +124,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 DJANGO_EASY_AUDIT_REQUEST_EVENT_LIST_FILTER = ['method', 'datetime', ]
+
+
+def lazy_test_model():
+    from test_app.models import TestModel
+    return TestModel
+
+
+DJANGO_EASY_AUDIT_REGISTERED_CLASSES = [
+    "test_app.TestM2M",
+    "test_app.TestForeignKey",
+    lazy_test_model,
+]
