@@ -93,7 +93,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                 for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
             # create crud event only if all callbacks returned True
             if create_crud_event and not created:
-                c_t = ContentType._base_manager.get_for_model(instance)
+                c_t = ContentType.objects.get_for_model(instance)
 
                 def crud_flow():
                     try:
@@ -161,7 +161,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
 
             # create crud event only if all callbacks returned True
             if create_crud_event and created:
-                c_t = ContentType._base_manager.get_for_model(instance)
+                c_t = ContentType.objects.get_for_model(instance)
 
                 def crud_flow():
                     try:
@@ -258,7 +258,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             if isinstance(user, AnonymousUser):
                 user = None
-            c_t = ContentType._base_manager.get_for_model(instance)
+            c_t = ContentType.objects.get_for_model(instance)
 
             def crud_flow():
                 try:
@@ -310,7 +310,7 @@ def post_delete(sender, instance, using, **kwargs):
 
             if isinstance(user, AnonymousUser):
                 user = None
-            c_t = ContentType._base_manager.get_for_model(instance)
+            c_t = ContentType.objects.get_for_model(instance)
 
             # object id to be used later
             obj_id = instance.pk
