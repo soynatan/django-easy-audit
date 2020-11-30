@@ -41,10 +41,9 @@ def request_started_handler(sender, **kwargs):
     if environ:
         path = environ["PATH_INFO"]
         cookie_string = environ.get('HTTP_COOKIE')
-        remote_ip = environ[REMOTE_ADDR_HEADER]
+        remote_ip = environ.get(REMOTE_ADDR_HEADER, '0.0.0.0')
         method = environ['REQUEST_METHOD']
         query_string = environ["QUERY_STRING"]
-
     else:
         method = scope.get('method')
         path = scope.get("path")
