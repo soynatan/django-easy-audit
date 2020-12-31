@@ -66,6 +66,16 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
             # Determine if the instance is a create
             created = instance.pk is None or instance._state.adding
 
+            # callbacks
+            kwargs['request'] = get_current_request()  # make request available for callbacks
+            create_crud_event = all(
+                callback(instance, object_json_repr, created, raw, using, update_fields, **kwargs)
+                for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
+
+            # Do a early return if all callbacks are not True or if this instance is a create
+            if not create_crud_event or created:
+                return False
+
             # created or updated?
             if not created:
                 old_model = sender.objects.get(pk=instance.pk)
@@ -85,42 +95,35 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
 
             if isinstance(user, AnonymousUser):
                 user = None
+  
+            c_t = ContentType.objects.get_for_model(instance)
 
-            # callbacks
-            kwargs['request'] = get_current_request()  # make request available for callbacks
-            create_crud_event = all(
-                callback(instance, object_json_repr, created, raw, using, update_fields, **kwargs)
-                for callback in CRUD_DIFFERENCE_CALLBACKS if callable(callback))
-            # create crud event only if all callbacks returned True
-            if create_crud_event and not created:
-                c_t = ContentType.objects.get_for_model(instance)
-
-                def crud_flow():
+            def crud_flow():
+                try:
+                    # atomicity based on the easyaudit database alias
+                    with transaction.atomic(using=DATABASE_ALIAS):
+                        crud_event = audit_logger.crud({
+                            'event_type': event_type,
+                            'object_repr': str(instance),
+                            'object_json_repr': object_json_repr,
+                            'changed_fields': changed_fields,
+                            'content_type_id': c_t.id,
+                            'object_id': instance.pk,
+                            'user_id': getattr(user, 'id', None),
+                            'datetime': timezone.now(),
+                            'user_pk_as_string': str(user.pk) if user else user
+                        })
+                except Exception as e:
                     try:
-                        # atomicity based on the easyaudit database alias
-                        with transaction.atomic(using=DATABASE_ALIAS):
-                            crud_event = audit_logger.crud({
-                                'event_type': event_type,
-                                'object_repr': str(instance),
-                                'object_json_repr': object_json_repr,
-                                'changed_fields': changed_fields,
-                                'content_type_id': c_t.id,
-                                'object_id': instance.pk,
-                                'user_id': getattr(user, 'id', None),
-                                'datetime': timezone.now(),
-                                'user_pk_as_string': str(user.pk) if user else user
-                            })
-                    except Exception as e:
-                        try:
-                            logger.exception(
-                                "easy audit had a pre_save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
-                                    instance, instance.pk))
-                        except Exception:
-                            pass
-                if getattr(settings, "TEST", False):
-                    crud_flow()
-                else:
-                    transaction.on_commit(crud_flow, using=using)
+                        logger.exception(
+                            "easy audit had a pre_save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
+                                instance, instance.pk))
+                    except Exception:
+                        pass
+            if getattr(settings, "TEST", False):
+                crud_flow()
+            else:
+                transaction.on_commit(crud_flow, using=using)
     except Exception:
         logger.exception('easy audit had a pre-save exception.')
 
@@ -137,6 +140,16 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                 return False
             object_json_repr = serializers.serialize("json", [instance])
 
+            # callbacks
+            kwargs['request'] = get_current_request()  # make request available for callbacks
+            create_crud_event = all(callback(instance, object_json_repr,
+                                             created, raw, using, update_fields, **kwargs)
+                                    for callback in CRUD_DIFFERENCE_CALLBACKS
+                                    if callable(callback))
+
+            if not (create_crud_event and created):
+                return False
+
             # created or updated?
             if created:
                 event_type = CRUDEvent.CREATE
@@ -152,41 +165,32 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
             if isinstance(user, AnonymousUser):
                 user = None
 
-            # callbacks
-            kwargs['request'] = get_current_request()  # make request available for callbacks
-            create_crud_event = all(callback(instance, object_json_repr,
-                                             created, raw, using, update_fields, **kwargs)
-                                    for callback in CRUD_DIFFERENCE_CALLBACKS
-                                    if callable(callback))
+            c_t = ContentType.objects.get_for_model(instance)
 
-            # create crud event only if all callbacks returned True
-            if create_crud_event and created:
-                c_t = ContentType.objects.get_for_model(instance)
-
-                def crud_flow():
+            def crud_flow():
+                try:
+                    with transaction.atomic(using=DATABASE_ALIAS):
+                        crud_event = audit_logger.crud({
+                            'event_type': event_type,
+                            'object_repr': str(instance),
+                            'object_json_repr': object_json_repr,
+                            'content_type_id': c_t.id,
+                            'object_id': instance.pk,
+                            'user_id': getattr(user, 'id', None),
+                            'datetime': timezone.now(),
+                            'user_pk_as_string': str(user.pk) if user else user
+                        })
+                except Exception as e:
                     try:
-                        with transaction.atomic(using=DATABASE_ALIAS):
-                            crud_event = audit_logger.crud({
-                                'event_type': event_type,
-                                'object_repr': str(instance),
-                                'object_json_repr': object_json_repr,
-                                'content_type_id': c_t.id,
-                                'object_id': instance.pk,
-                                'user_id': getattr(user, 'id', None),
-                                'datetime': timezone.now(),
-                                'user_pk_as_string': str(user.pk) if user else user
-                            })
-                    except Exception as e:
-                        try:
-                            logger.exception(
-                                "easy audit had a post_save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
-                                    instance, instance.pk))
-                        except Exception:
-                            pass
-                if getattr(settings, "TEST", False):
-                    crud_flow()
-                else:
-                    transaction.on_commit(crud_flow, using=using)
+                        logger.exception(
+                            "easy audit had a post_save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
+                                instance, instance.pk))
+                    except Exception:
+                        pass
+            if getattr(settings, "TEST", False):
+                crud_flow()
+            else:
+                transaction.on_commit(crud_flow, using=using)
     except Exception:
         logger.exception('easy audit had a post-save exception.')
 
