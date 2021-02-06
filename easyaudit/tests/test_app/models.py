@@ -55,3 +55,15 @@ class TestBigIntM2M(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=50)
     test_m2m = models.ManyToManyField(TestBigIntModel)
+
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(deleted=True)
+
+class TestSoftDeleteModel(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    deleted = models.BooleanField(default=False)
+    some_other_field = models.CharField(max_length=50, default='')
+
+    all_objects = models.Manager()
+    objects = SoftDeleteManager()
