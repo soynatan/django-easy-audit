@@ -5,6 +5,7 @@ from django.http.cookie import SimpleCookie
 from django.utils import timezone
 from django.conf import settings
 from django.utils.module_loading import import_string
+from importlib import import_module
 
 # try and get the user from the request; commented for now, may have a bug in this flow.
 # from easyaudit.middleware.easyaudit import get_current_user
@@ -69,14 +70,12 @@ def request_started_handler(sender, **kwargs):
         session_cookie_name = settings.SESSION_COOKIE_NAME
         if session_cookie_name in cookie:
             session_id = cookie[session_cookie_name].value
-
-            try:
-                session = Session.objects.get(session_key=session_id)
-            except Session.DoesNotExist:
-                session = None
+            engine = import_module(settings.SESSION_ENGINE)
+            SessionStore = engine.SessionStore
+            session = SessionStore(session_id)
 
             if session:
-                user_id = session.get_decoded().get('_auth_user_id')
+                user_id = session.get('_auth_user_id')
                 try:
                     user = get_user_model().objects.get(id=user_id)
                 except:
