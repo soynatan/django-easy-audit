@@ -2,6 +2,7 @@
 import json
 import re
 from unittest import skip, skipIf
+from uuid import uuid4
 
 import django
 
