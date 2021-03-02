@@ -25,12 +25,20 @@ def get_current_user():
         return getattr(request, 'user', None)
 
 
+def get_user_pk_as_string():
+    return getattr(_thread_locals, 'user_pk_string', None)
+
+
 def set_current_user(user):
     try:
         _thread_locals.request.user = user
     except AttributeError:
         request = MockRequest(user=user)
         _thread_locals.request = request
+
+
+def set_user_pk_as_string(user_pk_string):
+    _thread_locals.user_pk_string = user_pk_string
 
 
 def clear_request():

@@ -21,7 +21,9 @@ from test_app.models import (
     TestUUIDModel, TestUUIDForeignKey, TestUUIDM2M
 )
 from easyaudit.models import CRUDEvent, RequestEvent
-from easyaudit.middleware.easyaudit import set_current_user, clear_request
+from easyaudit.middleware.easyaudit import (
+    set_current_user, clear_request, set_user_pk_as_string
+)
 
 
 TEST_USER_EMAIL = 'joe@example.com'
@@ -176,6 +178,29 @@ class TestMiddleware(TestCase):
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
         self.assertEqual(crud_event_qs.count(), 1)
         crud_event = crud_event_qs[0]
+        self.assertEqual(crud_event.user, None)
+
+    def test_manual_set_user_pk_as_string(self):
+        obj = TestModel.objects.create()
+        self.assertEqual(obj.id, 1)
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(crud_event_qs.count(), 1)
+        crud_event = crud_event_qs[0]
+        self.assertEqual(crud_event.user_pk_as_string, None)
+        self.assertEqual(crud_event.user, None)
+
+
+        # Add a user_pk_as_string manually, do not depend on User fk, it might
+        # not be in the same db
+        user_uuid = uuid4()
+
+        set_user_pk_as_string(str(user_uuid))
+        obj = TestModel.objects.create()
+        self.assertEqual(obj.id, 2)
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(crud_event_qs.count(), 1)
+        crud_event = crud_event_qs[0]
+        self.assertEqual(crud_event.user_pk_as_string, str(user_uuid))
         self.assertEqual(crud_event.user, None)
 
     @skip("Test may need a rewrite but the library logic has been rolled back.")

@@ -14,7 +14,7 @@ from django.utils.encoding import force_text
 from django.utils.module_loading import import_string
 
 from easyaudit.middleware.easyaudit import get_current_request, \
-    get_current_user
+    get_current_user, get_user_pk_as_string
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, LOGGING_BACKEND, \
@@ -108,7 +108,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                                 'object_id': instance.pk,
                                 'user_id': getattr(user, 'id', None),
                                 'datetime': timezone.now(),
-                                'user_pk_as_string': str(user.pk) if user else user
+                                'user_pk_as_string': str(user.pk) if user else get_user_pk_as_string() or user
                             })
                     except Exception as e:
                         try:
@@ -174,7 +174,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                                 'object_id': instance.pk,
                                 'user_id': getattr(user, 'id', None),
                                 'datetime': timezone.now(),
-                                'user_pk_as_string': str(user.pk) if user else user
+                                'user_pk_as_string': str(user.pk) if user else get_user_pk_as_string() or user
                             })
                     except Exception as e:
                         try:
@@ -273,7 +273,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                             'object_id': instance.pk,
                             'user_id': getattr(user, 'id', None),
                             'datetime': timezone.now(),
-                            'user_pk_as_string': str(user.pk) if user else user
+                            'user_pk_as_string': str(user.pk) if user else get_user_pk_as_string() or user
                         })
                 except Exception as e:
                     try:
@@ -327,7 +327,7 @@ def post_delete(sender, instance, using, **kwargs):
                             'object_id': obj_id,
                             'user_id': getattr(user, 'id', None),
                             'datetime': timezone.now(),
-                            'user_pk_as_string': str(user.pk) if user else user
+                            'user_pk_as_string': str(user.pk) if user else get_user_pk_as_string() or user
                         })
 
                 except Exception as e:
