@@ -38,7 +38,7 @@ def set_current_user(user):
 
 
 def set_user_pk_as_string(user_pk_string):
-    _thread_locals.user_pk_string = user_pk_string
+    _thread_locals.user_pk_string = str(user_pk_string)
 
 
 def clear_request():
