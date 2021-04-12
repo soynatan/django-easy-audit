@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-12 10:52-0300\n"
+"POT-Creation-Date: 2021-04-12 13:27-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\admin.py:40
+msgid "Content Type"
+msgstr "Tipo de Conteúdo"
+
+#: .\admin.py:45 .\admin.py:91 .\admin.py:116 .\models.py:38 .\models.py:72
+#: .\models.py:88
+msgid "User"
+msgstr "Usuário"
+
+#: .\admin.py:63
+msgid "object repr"
+msgstr "representação do objeto"
+
+#: .\admin.py:68
+msgid "object json repr"
+msgstr "representação json do objeto"
+
+#: .\admin.py:73
+msgid "changed fields"
+msgstr "campos alterados"
+
+#: .\admin.py:98
+msgid "User name"
+msgstr "nome do usuário"
+
+#: .\admin_helpers.py:65
+msgid "user"
+msgstr "usuário"
 
 #: .\admin_helpers.py:122
 #, python-format
@@ -35,6 +64,10 @@ msgstr "Ação cancelada pelo usuário"
 #, python-format
 msgid "Purge all %s ... are you sure?"
 msgstr "Eliminar todos os %s ... tem certeza?"
+
+#: .\apps.py:6
+msgid "Easy Audit Application"
+msgstr "Aplicação Easy Audit"
 
 #: .\models.py:19
 msgid "Create"
@@ -82,7 +115,7 @@ msgstr "ID do Objeto"
 
 #: .\models.py:32
 msgid "Content type"
-msgstr "Tipo de Conteúdo"
+msgstr "Tipo de conteúdo"
 
 #: .\models.py:33
 msgid "Object representation"
@@ -95,10 +128,6 @@ msgstr "Representação JSON do Objeto"
 #: .\models.py:35
 msgid "Changed fields"
 msgstr "Campos Alterados"
-
-#: .\models.py:38 .\models.py:72 .\models.py:88
-msgid "User"
-msgstr "Usuário"
 
 #: .\models.py:40
 msgid "String version of the user pk"
@@ -189,7 +218,8 @@ msgstr "Por favor, confirme a exclusão"
 msgid ""
 "This operation is destructive, cannot be undone and may require some minutes."
 msgstr ""
-"Esta operação é destrutiva, não pode ser desfeita e pode demorar alguns minutos."
+"Esta operação é destrutiva, não pode ser desfeita e pode demorar alguns "
+"minutos."
 
 #: .\templates\admin\easyaudit\purge_confirmation.html:21
 msgid "Are you sure you want to permanently remove all objects ?"
