@@ -62,7 +62,7 @@ msgstr "Adicionar muitos para muitos"
 
 #: .\models.py:25
 msgid "Reverse Many-to-Many Add"
-msgstr "Reverter Adicção muitos para muitos"
+msgstr "Reverter Adição muitos para muitos"
 
 #: .\models.py:26
 msgid "Many-to-Many Remove"
