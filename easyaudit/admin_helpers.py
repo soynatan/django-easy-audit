@@ -62,7 +62,7 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         except Exception:
             html = escaped
         return mark_safe(html)
-    user_link.short_description = 'user'
+    user_link.short_description = _('user')
 
     def has_add_permission(self, request, obj=None):
         return False

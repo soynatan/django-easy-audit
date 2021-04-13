@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext_lazy as _
 
 try: # Django 2.0
     from django.urls import reverse
@@ -36,12 +37,12 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     def get_content_type(self, obj):
         return self.content_types_by_id[obj.content_type_id]
 
-    get_content_type.short_description = "Content Type"
+    get_content_type.short_description = _("Content Type")
 
     def get_user(self, obj):
         return self.users_by_id.get(obj.user_id)
 
-    get_user.short_description = "User"
+    get_user.short_description = _("User")
 
     def object_repr_link(self, obj):
         if obj.event_type == CRUDEvent.DELETE:
@@ -59,17 +60,17 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
                 html = escaped_obj_repr
         return mark_safe(html)
 
-    object_repr_link.short_description = 'object repr'
+    object_repr_link.short_description = _('object repr')
 
     def object_json_repr_prettified(self, obj):
         return prettify_json(obj.object_json_repr)
 
-    object_json_repr_prettified.short_description = 'object json repr'
+    object_json_repr_prettified.short_description = _('object json repr')
 
     def changed_fields_prettified(self, obj):
         return prettify_json(obj.changed_fields)
 
-    changed_fields_prettified.short_description = 'changed fields'
+    changed_fields_prettified.short_description = _('changed fields')
 
 
 if settings.ADMIN_SHOW_MODEL_EVENTS:
@@ -87,14 +88,14 @@ class LoginEventAdmin(EasyAuditModelAdmin):
     def get_user(self, obj):
         return self.users_by_id.get(obj.user_id)
 
-    get_user.short_description = "User"
+    get_user.short_description = _("User")
 
     def get_username(self, obj):
         user = self.get_user(obj)
         username = user.get_username() if user else None
         return username
 
-    get_username.short_description = "User name"
+    get_username.short_description = _("User name")
 
 
 if settings.ADMIN_SHOW_AUTH_EVENTS:
@@ -112,7 +113,7 @@ class RequestEventAdmin(EasyAuditModelAdmin):
     def get_user(self, obj):
         return self.users_by_id.get(obj.user_id)
 
-    get_user.short_description = "User"
+    get_user.short_description = _("User")
 
 
 if settings.ADMIN_SHOW_REQUEST_EVENTS:
