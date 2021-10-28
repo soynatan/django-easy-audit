@@ -8,7 +8,7 @@ import django
 asgi_views_supported = django.VERSION >= (3, 1)
 if asgi_views_supported:
     from asgiref.sync import sync_to_async
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings, tag, TransactionTestCase, SimpleTestCase
 
 from django.urls import reverse, reverse_lazy
 
@@ -24,14 +24,14 @@ from easyaudit.models import CRUDEvent, RequestEvent
 from easyaudit.middleware.easyaudit import set_current_user, clear_request
 
 
-TEST_USER_EMAIL = 'joe@example.com'
-TEST_USER_PASSWORD = 'password'
-TEST_ADMIN_EMAIL = 'admin@example.com'
-TEST_ADMIN_PASSWORD = 'password'
+class WithUserInfoMixin:
+    def setUp(self):
+        self.username = 'joe@example.com'
+        self.email = 'joe@example.com'
+        self.password = 'password'
 
 
-@override_settings(TEST=True)
-class TestDjangoCompat(TestCase):
+class TestDjangoCompat(SimpleTestCase):
 
     def test_model_state(self):
         """Ensures models have the internal `_state` object."""
@@ -128,20 +128,11 @@ class TestAuditBigIntModels(TestAuditModels):
 
 
 @override_settings(TEST=True)
-class TestMiddleware(TestCase):
-    def _setup_user(self, email, password):
-        user = User(username=email)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def _log_in_user(self, email, password):
-        login = self.client.login(username=email, password=password)
-        self.assertTrue(login)
+class TestMiddleware(WithUserInfoMixin, TestCase):
 
     def test_middleware_logged_in(self):
-        user = self._setup_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
-        self._log_in_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        user = User.objects.create_user(self.username, self.email, self.password)
+        self.client.login(username=self.username, password=self.password)
         create_obj_url = reverse("test_app:create-obj")
         self.client.post(create_obj_url)
         self.assertEqual(TestModel.objects.count(), 1)
@@ -158,7 +149,7 @@ class TestMiddleware(TestCase):
         self.assertEqual(crud_event.user, None)
 
     def test_manual_set_user(self):
-        user = self._setup_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        user = User.objects.create_user(self.username, self.email, self.password)
 
         # set user/request
         set_current_user(user)
@@ -180,7 +171,7 @@ class TestMiddleware(TestCase):
 
     @skip("Test may need a rewrite but the library logic has been rolled back.")
     def test_middleware_logged_in_user_in_request(self):
-        user = self._setup_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        user = User.objects.create_user(self.username, self.email, self.password)
         self.client.force_login(user)
         create_obj_url = reverse("test_app:create-obj")
         self.client.post(create_obj_url)
@@ -193,47 +184,23 @@ class TestMiddleware(TestCase):
 @tag("asgi")
 @override_settings(TEST=True)
 @skipIf(not asgi_views_supported, "Testing ASGI is easier with Django 3.1")
-class TestASGIRequestEvent(TestCase):
-
-    def _setup_user(self, email, password):
-        user = User.objects.create(username=email)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def _log_in_user(self, email, password):
-        login = self.async_client.login(username=email, password=password)
-        self.assertTrue(login)
+class TestASGIRequestEvent(WithUserInfoMixin, TransactionTestCase):
 
     async def test_login(self):
-        user = await sync_to_async(self._setup_user)(TEST_USER_EMAIL, TEST_USER_PASSWORD)
-        await sync_to_async(self._log_in_user)(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        user = await sync_to_async(User.objects.create_user)(self.username, self.email, self.password)
+        await sync_to_async(self.async_client.login)(username=self.username, password=self.password)
         self.assertEqual((await sync_to_async(RequestEvent.objects.count)()), 0)
         resp = await self.async_client.get(reverse_lazy("test_app:index"))
         self.assertEqual(resp.status_code, 200)
         assert (await sync_to_async(RequestEvent.objects.get)(user=user))
-        # asyncio and transactions do not mix all that well, so here we are performing manual cleanup of the objects
-        # created within this test
-        await sync_to_async(user.delete)()
-        await sync_to_async(RequestEvent.objects.all().delete)()
 
 
 @override_settings(TEST=True)
-class TestWSGIRequestEvent(TestCase):
-
-    def _setup_user(self, email, password):
-        user = User.objects.create(username=email)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def _log_in_user(self, email, password):
-        login = self.client.login(username=email, password=password)
-        self.assertTrue(login)
+class TestWSGIRequestEvent(WithUserInfoMixin, TestCase):
 
     def test_login(self):
-        user = self._setup_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
-        self._log_in_user(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        user = User.objects.create_user(self.username, self.email, self.password)
+        self.client.login(username=self.username, password=self.password)
         self.assertEqual(RequestEvent.objects.count(), 0)
         resp = self.client.get(reverse_lazy("test_app:index"))
         self.assertEqual(resp.status_code, 200)
@@ -241,16 +208,7 @@ class TestWSGIRequestEvent(TestCase):
 
 
 @override_settings(TEST=True)
-class TestAuditAdmin(TestCase):
-
-    def _setup_superuser(self, email, password):
-        admin = User.objects.create_superuser(email, email, password)
-        admin.save()
-        return admin
-
-    def _log_in_user(self, email, password):
-        login = self.client.login(username=email, password=password)
-        self.assertTrue(login)
+class TestAuditAdmin(WithUserInfoMixin, TestCase):
 
     def _list_filters(self, content):
         """
@@ -273,8 +231,8 @@ class TestAuditAdmin(TestCase):
         return filters
 
     def test_request_event_admin_no_users(self):
-        self._setup_superuser(TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD)
-        self._log_in_user(TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD)
+        User.objects.create_superuser(self.username, self.email, self.password)
+        self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse('admin:easyaudit_requestevent_changelist'))
         self.assertEqual(200, response.status_code)
         filters = self._list_filters(response.content)
