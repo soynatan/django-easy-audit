@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-from uuid import UUID
-
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import NOT_PROVIDED, DateTimeField
@@ -19,18 +17,24 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
+    raw_value = getattr(obj, field.name, None)
     if isinstance(field, DateTimeField):
         # DateTimeFields are timezone-aware, so we need to convert the field
         # to its naive form before we can accuratly compare them for changes.
         try:
-            value = field.to_python(getattr(obj, field.name, None))
+            value = field.to_python(raw_value)
             if value is not None and settings.USE_TZ and not timezone.is_naive(value):
                 value = timezone.make_naive(value, timezone=timezone.utc)
         except ObjectDoesNotExist:
             value = field.default if field.default is not NOT_PROVIDED else None
+    elif isinstance(raw_value, bytes):
+        if len(raw_value) > 100:
+            return repr(raw_value[:100]) + '[truncated {} bytes]'.format(len(raw_value) - 100)
+        else:
+            return repr(raw_value)
     else:
         try:
-            value = smart_text(getattr(obj, field.name, None))
+            value = smart_text(raw_value)
         except ObjectDoesNotExist:
             value = field.default if field.default is not NOT_PROVIDED else None
 

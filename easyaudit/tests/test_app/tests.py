@@ -4,6 +4,9 @@ import re
 from unittest import skip, skipIf
 
 import django
+from django.db.models import BinaryField
+
+from easyaudit.utils import get_field_value
 
 asgi_views_supported = django.VERSION >= (3, 1)
 if asgi_views_supported:
@@ -236,3 +239,25 @@ class TestAuditAdmin(WithUserInfoMixin, TestCase):
         response = self.client.get(reverse('admin:easyaudit_requestevent_changelist'))
         self.assertEqual(200, response.status_code)
         filters = self._list_filters(response.content)
+
+
+@override_settings(TEST=True)
+class TestBinaryData(TestCase):
+    def test_binary_data(self):
+        class FakeObject:
+            pass
+        obj = FakeObject()
+        obj.binary_data = b'\x00\x00\x00 cHRM\x00\x00z&\x00\x00\x80\x84\x00\x00\xfa\x00\x00'
+        binary_field = BinaryField()
+        binary_field.name = 'binary_data'
+
+        # Small
+        actual = get_field_value(obj, binary_field)
+        expected = r"b'\x00\x00\x00 cHRM\x00\x00z&\x00\x00\x80\x84\x00\x00\xfa\x00\x00'"
+        assert actual == expected
+
+        # Large
+        obj.binary_data = b'\x00\x00\x00 cHRM\x00\x00z&\x00\x00\x80\x84\x00\x00\xfa\x00\x00' * 100
+        actual = get_field_value(obj, binary_field)
+        assert actual.startswith(expected[:-1])
+        assert actual.endswith('[truncated 2000 bytes]')
