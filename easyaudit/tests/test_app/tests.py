@@ -204,6 +204,35 @@ class TestASGIRequestEvent(WithUserInfoMixin, TransactionTestCase):
         self.assertEqual(resp.status_code, 200)
         assert (await sync_to_async(RequestEvent.objects.get)(user=user))
 
+    async def test_remote_addr_default(self):
+        self.assertEqual((await sync_to_async(RequestEvent.objects.count)()), 0)
+        resp = await self.async_client.request(
+            method='GET', path=str(reverse_lazy("test_app:index")),
+            server=('127.0.0.1', '80'),
+            scheme='http',
+            headers=[(b'host', b'testserver')],
+            query_string='',
+        )
+        self.assertEqual(resp.status_code, 200)
+        r = await sync_to_async(RequestEvent.objects.get)(url=reverse_lazy("test_app:index"))
+        i = await sync_to_async(getattr)(r, 'remote_ip')
+        self.assertEqual(i, '127.0.0.1')
+
+    async def test_remote_addr_another(self):
+        self.assertEqual((await sync_to_async(RequestEvent.objects.count)()), 0)
+        resp = await self.async_client.request(
+            method='GET', path=str(reverse_lazy("test_app:index")),
+            server=('127.0.0.1', '80'),
+            client=('10.0.0.1', 111),
+            scheme='http',
+            headers=[(b'host', b'testserver')],
+            query_string='',
+        )
+        self.assertEqual(resp.status_code, 200)
+        r = await sync_to_async(RequestEvent.objects.get)(url=reverse_lazy("test_app:index"))
+        i = await sync_to_async(getattr)(r, 'remote_ip')
+        self.assertEqual(i, '10.0.0.1')
+
 
 @override_settings(TEST=True)
 class TestWSGIRequestEvent(WithUserInfoMixin, TestCase):
