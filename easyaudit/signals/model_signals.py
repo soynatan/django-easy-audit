@@ -225,6 +225,8 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     event_type = CRUDEvent.M2M_ADD_REV
                 elif action == 'post_remove':
                     event_type = CRUDEvent.M2M_REMOVE_REV
+                elif action == 'post_clear':
+                    event_type = CRUDEvent.M2M_CLEAR_REV
                 else:
                     event_type = CRUDEvent.M2M_CHANGE_REV  # just in case
 
@@ -245,6 +247,8 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     event_type = CRUDEvent.M2M_ADD
                 elif action == 'post_remove':
                     event_type = CRUDEvent.M2M_REMOVE
+                elif action == 'post_clear':
+                    event_type = CRUDEvent.M2M_CLEAR
                 else:
                     event_type = CRUDEvent.M2M_CHANGE  # just in case
 
@@ -262,7 +266,10 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             def crud_flow():
                 try:
-                    changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)}, cls=DjangoJSONEncoder)
+                    if action == "post_clear":
+                        changed_fields = []
+                    else:
+                        changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)}, cls=DjangoJSONEncoder)
                     with transaction.atomic(using=DATABASE_ALIAS):
                         crud_event = audit_logger.crud({
                             'event_type': event_type,

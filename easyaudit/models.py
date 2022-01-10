@@ -14,6 +14,8 @@ class CRUDEvent(models.Model):
     M2M_ADD_REV = 7
     M2M_REMOVE = 8
     M2M_REMOVE_REV = 9
+    M2M_CLEAR = 10
+    M2M_CLEAR_REV = 11
 
     TYPES = (
         (CREATE, _('Create')),
@@ -25,6 +27,8 @@ class CRUDEvent(models.Model):
         (M2M_ADD_REV, _('Reverse Many-to-Many Add')),
         (M2M_REMOVE, _('Many-to-Many Remove')),
         (M2M_REMOVE_REV, _('Reverse Many-to-Many Remove')),
+        (M2M_CLEAR, _('Many-to-Many Clear')),
+        (M2M_CLEAR_REV, _('Reverse Many-to-Many Clear')),
     )
 
     event_type = models.SmallIntegerField(choices=TYPES, verbose_name=_('Event type'))
