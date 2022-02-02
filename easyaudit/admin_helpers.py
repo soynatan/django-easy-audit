@@ -8,10 +8,10 @@ try: # Django 2.0
 except: # Django < 2.0
     from django.core.urlresolvers import reverse
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import re_path
+from django.http import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
-from django.conf.urls import url
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from . import settings
@@ -76,7 +76,7 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
         urls = super(EasyAuditModelAdmin, self).get_urls()
         my_urls = [
-            url(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
+            re_path(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
         ]
         return my_urls + urls
 

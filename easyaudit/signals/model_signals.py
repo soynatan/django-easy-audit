@@ -10,7 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
 
 from easyaudit.middleware.easyaudit import get_current_request, \
@@ -236,7 +236,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                 related_instances = getattr(instance, m2m_rev_field).all()
                 related_ids = [r.pk for r in related_instances]
 
-                tmp_repr[0]['m2m_rev_model'] = force_text(model._meta)
+                tmp_repr[0]['m2m_rev_model'] = force_str(model._meta)
                 tmp_repr[0]['m2m_rev_pks'] = related_ids
                 tmp_repr[0]['m2m_rev_action'] = action
                 object_json_repr = json.dumps(tmp_repr)
