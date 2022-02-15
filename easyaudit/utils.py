@@ -19,6 +19,8 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
+    resolver_map = getattr(settings, "DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP", dict())
+
     if isinstance(field, DateTimeField):
         # DateTimeFields are timezone-aware, so we need to convert the field
         # to its naive form before we can accurately compare them for changes.
@@ -30,7 +32,12 @@ def get_field_value(obj, field):
             value = field.default if field.default is not NOT_PROVIDED else None
     else:
         try:
-            value = smart_str(getattr(obj, field.name, None))
+            for cls, resolver in resolver_map.items():
+                if isinstance(field, cls):
+                    value = smart_str(resolver(obj, field))
+                    break
+            else:
+                value = smart_str(getattr(obj, field.name, None))
         except ObjectDoesNotExist:
             value = field.default if field.default is not NOT_PROVIDED else None
 

@@ -114,6 +114,11 @@ Below are some of the settings you may want to use. These should be defined in y
   superuser. Set this to `True` if you wish to make the recorded events read-only through the admin
   UI.
 
+* `DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP`
+
+  By default, most fields use `smart_str` when computing the field value for the Changed Fields. This allows for custom values.
+  An example would be `DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP: {models.ForeignKey: handle_foreign_key}`
+  All function get 2 arguments: the object and the field. `handle_foreign_key(obj, field)`.
 * `DJANGO_EASY_AUDIT_LOGGING_BACKEND`
 
   A pluggable backend option for logging. Defaults to `easyaudit.backends.ModelBackend`.
