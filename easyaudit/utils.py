@@ -19,6 +19,7 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
+    print("field", field)
     if isinstance(field, DateTimeField):
         # DateTimeFields are timezone-aware, so we need to convert the field
         # to its naive form before we can accurately compare them for changes.
