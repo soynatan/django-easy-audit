@@ -7,7 +7,21 @@ from django.utils import timezone
 from django.utils.encoding import smart_str
 
 
+def handle_date_time_field(obj, field):
+    # DateTimeFields are timezone-aware, so we need to convert the field
+    # to its naive form before we can accurately compare them for changes.
+    try:
+        value = field.to_python(getattr(obj, field.name, None))
+        if value is not None and settings.USE_TZ and not timezone.is_naive(value):
+            value = timezone.make_naive(value, timezone=timezone.utc)
+    except ObjectDoesNotExist:
+        value = field.default if field.default is not NOT_PROVIDED else None
+
+    return value
+
+
 RESOLVER_MAP = getattr(settings, "DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP", dict())
+RESOLVER_MAP.setdefault(DateTimeField, handle_date_time_field)
 
 
 def get_field_value(obj, field):
@@ -20,25 +34,13 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
-    if isinstance(field, DateTimeField):
-        # DateTimeFields are timezone-aware, so we need to convert the field
-        # to its naive form before we can accurately compare them for changes.
-        try:
-            value = field.to_python(getattr(obj, field.name, None))
-            if value is not None and settings.USE_TZ and not timezone.is_naive(value):
-                value = timezone.make_naive(value, timezone=timezone.utc)
-        except ObjectDoesNotExist:
-            value = field.default if field.default is not NOT_PROVIDED else None
-    else:
-        try:
-            for cls, resolver in RESOLVER_MAP.items():
-                if isinstance(field, cls):
-                    value = smart_str(resolver(obj, field))
-                    break
-            else:
-                value = smart_str(getattr(obj, field.name, None))
-        except ObjectDoesNotExist:
-            value = field.default if field.default is not NOT_PROVIDED else None
+    try:
+        for cls, resolver in RESOLVER_MAP.items():
+            if isinstance(field, cls):
+                return resolver(obj, field)
+        value = smart_str(getattr(obj, field.name, None))
+    except ObjectDoesNotExist:
+        value = field.default if field.default is not NOT_PROVIDED else None
 
     return value
 
