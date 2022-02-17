@@ -115,10 +115,16 @@ Below are some of the settings you may want to use. These should be defined in y
   UI.
 
 * `DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP`
-
-  By default, most fields use `smart_str` when computing the field value for the Changed Fields. This allows for custom values.
-  An example would be `DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP: {models.ForeignKey: handle_foreign_key}`
-  All function get 2 arguments: the object and the field. `handle_foreign_key(obj, field)`.
+  `easyaudit` uses `smart_str` for field values by default, with the exception of DateTimeField. `DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP` extends the ability to customize field values to more fields. The resolver map should be a map of class -> field value resolver. The field value resolver fn will be provided the object and the field.
+  
+  An example of the usefulness would be customizing value of FK. Instead of calling `__str__` on the instance, we might want the PK instead.
+  
+    def resolve_fk_value(object, field):
+        return object.pk
+  
+    DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP = {
+        ForeignKey: resolve_fk_value
+    }
 * `DJANGO_EASY_AUDIT_LOGGING_BACKEND`
 
   A pluggable backend option for logging. Defaults to `easyaudit.backends.ModelBackend`.

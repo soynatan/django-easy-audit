@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.encoding import smart_str
 
 
-def handle_date_time_field(obj, field):
+def default_get_datetimefield_value(obj, field):
     # DateTimeFields are timezone-aware, so we need to convert the field
     # to its naive form before we can accurately compare them for changes.
     try:
@@ -21,7 +21,7 @@ def handle_date_time_field(obj, field):
 
 
 RESOLVER_MAP = getattr(settings, "DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP", dict())
-RESOLVER_MAP.setdefault(DateTimeField, handle_date_time_field)
+RESOLVER_MAP.setdefault(DateTimeField, default_get_datetimefield_value)
 
 
 def get_field_value(obj, field):
