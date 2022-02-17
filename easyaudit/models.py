@@ -36,7 +36,7 @@ class CRUDEvent(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_constraint=False, verbose_name=_('Content type'))
     object_repr = models.TextField(null=True, blank=True, verbose_name=_('Object representation'))
     object_json_repr = models.JSONField(null=True, blank=True, verbose_name=_('Object JSON representation'))
-    changed_fields = models.TextField(null=True, blank=True, verbose_name=_('Changed fields'))
+    changed_fields = models.JSONField(null=True, blank=True, verbose_name=_('Changed fields'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                              blank=True, on_delete=models.SET_NULL,
                              db_constraint=False, verbose_name=_('User'))
