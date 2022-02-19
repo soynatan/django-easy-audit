@@ -31,6 +31,7 @@ class CRUDEvent(models.Model):
         (M2M_CLEAR_REV, _('Reverse Many-to-Many Clear')),
     )
 
+    id = models.AutoField(primary_key=True)
     event_type = models.SmallIntegerField(choices=TYPES, verbose_name=_('Event type'))
     object_id = models.CharField(max_length=255, verbose_name=_('Object ID'))
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_constraint=False, verbose_name=_('Content type'))
@@ -69,6 +70,7 @@ class LoginEvent(models.Model):
         (LOGOUT, _('Logout')),
         (FAILED, _('Failed login')),
     )
+    id = models.AutoField(primary_key=True)
     login_type = models.SmallIntegerField(choices=TYPES, verbose_name=_('Event type'))
     username = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Username'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
@@ -84,6 +86,7 @@ class LoginEvent(models.Model):
 
 
 class RequestEvent(models.Model):
+    id = models.AutoField(primary_key=True)
     url = models.CharField(null=False, db_index=True, max_length=254, verbose_name=_('URL'))
     method = models.CharField(max_length=20, null=False, db_index=True, verbose_name=_('Method'))
     query_string = models.TextField(null=True, verbose_name=_('Query string'))
