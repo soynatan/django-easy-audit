@@ -84,6 +84,15 @@ def get_m2m_field_name(model, instance):
     :return: ManyToManyField name of instance related to model.
     :rtype: str
     """
+
+    # When using Multi-table inheritance
+    # https://docs.djangoproject.com/en/4.0/topics/db/models/#multi-table-inheritance
+    # This might return None because the m2m relation is declared on the parent model
     for x in model._meta.related_objects:
         if x.related_model().__class__ == instance.__class__:
             return x.remote_field.name
+
+    # instance._meta.many_to_many also holds the m2m relations defined on the parents
+    for x in instance._meta.many_to_many:
+        if x.related_model == model:
+            return x.name
