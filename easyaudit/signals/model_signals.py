@@ -72,7 +72,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                 delta = model_delta(old_model, instance)
                 if not delta and getattr(settings, "DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP", False):
                     return False
-                changed_fields = json.dumps(delta)
+                changed_fields = delta
                 event_type = CRUDEvent.UPDATE
 
             # user
@@ -269,7 +269,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     if action == "post_clear":
                         changed_fields = []
                     else:
-                        changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)}, cls=DjangoJSONEncoder)
+                        changed_fields = {get_m2m_field_name(model, instance): list(pk_set)}
                     with transaction.atomic(using=DATABASE_ALIAS):
                         crud_event = audit_logger.crud({
                             'event_type': event_type,
