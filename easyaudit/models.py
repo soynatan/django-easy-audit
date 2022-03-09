@@ -1,16 +1,25 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+<<<<<<< HEAD
 from django.utils.translation import ugettext_lazy as _
+=======
+from django.utils.translation import gettext_lazy as _
+>>>>>>> ef5c3c73004a9e3a1bfc53da64f6f3c16da60fba
 
 
-# Create your models here.
 class CRUDEvent(models.Model):
     CREATE = 1
     UPDATE = 2
     DELETE = 3
     M2M_CHANGE = 4
     M2M_CHANGE_REV = 5
+    M2M_ADD = 6
+    M2M_ADD_REV = 7
+    M2M_REMOVE = 8
+    M2M_REMOVE_REV = 9
+    M2M_CLEAR = 10
+    M2M_CLEAR_REV = 11
 
     TYPES = (
         (CREATE, _('Create')),
@@ -18,19 +27,34 @@ class CRUDEvent(models.Model):
         (DELETE, _('Delete')),
         (M2M_CHANGE, _('Many-to-Many Change')),
         (M2M_CHANGE_REV, _('Reverse Many-to-Many Change')),
+<<<<<<< HEAD
+=======
+        (M2M_ADD, _('Many-to-Many Add')),
+        (M2M_ADD_REV, _('Reverse Many-to-Many Add')),
+        (M2M_REMOVE, _('Many-to-Many Remove')),
+        (M2M_REMOVE_REV, _('Reverse Many-to-Many Remove')),
+        (M2M_CLEAR, _('Many-to-Many Clear')),
+        (M2M_CLEAR_REV, _('Reverse Many-to-Many Clear')),
+>>>>>>> ef5c3c73004a9e3a1bfc53da64f6f3c16da60fba
     )
 
-    event_type = models.SmallIntegerField(choices=TYPES)
-    object_id = models.IntegerField()  # we should try to allow other ID types
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_repr = models.TextField(null=True, blank=True)
-    object_json_repr = models.TextField(null=True, blank=True)
-    changed_fields = models.TextField(null=True, blank=True)
+    event_type = models.SmallIntegerField(choices=TYPES, verbose_name=_('Event type'))
+    object_id = models.CharField(max_length=255, verbose_name=_('Object ID'))
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, db_constraint=False, verbose_name=_('Content type'))
+    object_repr = models.TextField(null=True, blank=True, verbose_name=_('Object representation'))
+    object_json_repr = models.TextField(null=True, blank=True, verbose_name=_('Object JSON representation'))
+    changed_fields = models.TextField(null=True, blank=True, verbose_name=_('Changed fields'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
-                             blank=True, on_delete=models.SET_NULL)
+                             blank=True, on_delete=models.SET_NULL,
+                             db_constraint=False, verbose_name=_('User'))
     user_pk_as_string = models.CharField(max_length=255, null=True, blank=True,
+<<<<<<< HEAD
                                      help_text=_('String version of the user pk'))
     datetime = models.DateTimeField(auto_now_add=True)
+=======
+                                         help_text=_('String version of the user pk'), verbose_name=_('User PK as string'))
+    datetime = models.DateTimeField(auto_now_add=True, verbose_name=_('Date time'))
+>>>>>>> ef5c3c73004a9e3a1bfc53da64f6f3c16da60fba
 
     def is_create(self):
         return self.CREATE == self.event_type
@@ -57,12 +81,13 @@ class LoginEvent(models.Model):
         (LOGOUT, _('Logout')),
         (FAILED, _('Failed login')),
     )
-    login_type = models.SmallIntegerField(choices=TYPES)
-    username = models.CharField(max_length=255, null=True, blank=True)
+    login_type = models.SmallIntegerField(choices=TYPES, verbose_name=_('Event type'))
+    username = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Username'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
-                             on_delete=models.SET_NULL)
-    remote_ip = models.CharField(max_length=50, null=True, db_index=True)
-    datetime = models.DateTimeField(auto_now_add=True)
+                             on_delete=models.SET_NULL, db_constraint=False,
+                             verbose_name=_('User'))
+    remote_ip = models.CharField(max_length=50, null=True, db_index=True, verbose_name=_('Remote IP'))
+    datetime = models.DateTimeField(auto_now_add=True, verbose_name=_('Date time'))
 
     class Meta:
         verbose_name = _('login event')
@@ -71,13 +96,14 @@ class LoginEvent(models.Model):
 
 
 class RequestEvent(models.Model):
-    url = models.TextField(null=False, db_index=True)
-    method = models.CharField(max_length=20, null=False, db_index=True)
-    query_string = models.TextField(null=True)
+    url = models.CharField(null=False, db_index=True, max_length=254, verbose_name=_('URL'))
+    method = models.CharField(max_length=20, null=False, db_index=True, verbose_name=_('Method'))
+    query_string = models.TextField(null=True, verbose_name=_('Query string'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
-                             on_delete=models.SET_NULL)
-    remote_ip = models.CharField(max_length=50, null=True, db_index=True)
-    datetime = models.DateTimeField(auto_now_add=True)
+                             on_delete=models.SET_NULL, db_constraint=False,
+                             verbose_name=_('User'))
+    remote_ip = models.CharField(max_length=50, null=True, db_index=True, verbose_name=_('Remote IP'))
+    datetime = models.DateTimeField(auto_now_add=True, verbose_name=_('Date time'))
 
     class Meta:
         verbose_name = _('request event')

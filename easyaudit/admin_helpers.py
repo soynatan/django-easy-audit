@@ -8,11 +8,12 @@ try: # Django 2.0
 except: # Django < 2.0
     from django.core.urlresolvers import reverse
 
+from django.urls import re_path
 from django.http import HttpResponseRedirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
-from django.conf.urls import url
 from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from . import settings
 
 import json
@@ -21,41 +22,61 @@ import json
 def prettify_json(json_string):
     """Given a JSON string, it returns it as a
     safe formatted HTML"""
+    escaped = escape(json_string)
     try:
-        data = json.loads(json_string)
-        html = '<pre>' + json.dumps(data, sort_keys=True, indent=4) + '</pre>'
-    except:
-        html = json_string
-    return mark_safe(html)
+        data = json.loads(escaped)
+        # html = '<pre>' + json.dumps(data, sort_keys=True, indent=4) + '</pre>'
+        html = json.dumps(data, sort_keys=True, indent=4)
+    except Exception:
+        html = escaped
+    return html
 
 
 class EasyAuditModelAdmin(admin.ModelAdmin):
+    def get_changelist_instance(self, *args, **kwargs):
+        changelist_instance = super().get_changelist_instance(*args, **kwargs)
+        user_ids = [obj.user_id for obj in changelist_instance.result_list]
+        self.users_by_id = {user.id: user for user in get_user_model().objects.filter(id__in=user_ids)}
+        return changelist_instance
+
+    def get_readonly_fields(self, request, obj=None):
+        "Mark all fields of model as readonly if configured to do so."
+        if settings.READONLY_EVENTS:
+            return [f.name for f in self.model._meta.get_fields()]
+        else:
+            return self.readonly_fields
 
     def user_link(self, obj):
-        #return mark_safe(get_user_link(obj.user))
-        user = obj.user
+        user = self.users_by_id.get(obj.user_id)
+        #return mark_safe(get_user_link(user))
         if user is None:
             return '-'
+        escaped = escape(str(user))
         try:
             user_model = get_user_model()
             url = reverse("admin:%s_%s_change" % (
                 user_model._meta.app_label,
                 user_model._meta.model_name,
             ), args=(user.id,))
-            html = '<a href="%s">%s</a>' % (url, str(user))
-        except:
-            html = str(user)
+            html = '<a href="%s">%s</a>' % (url, escaped)
+        except Exception:
+            html = escaped
         return mark_safe(html)
     user_link.short_description = _('user')
 
     def has_add_permission(self, request, obj=None):
         return False
 
+    def has_delete_permission(self, request, obj=None):
+        if settings.READONLY_EVENTS:
+            return False
+        return True
+
     def get_urls(self):
         info = self.model._meta.app_label, self.model._meta.model_name
         urls = super(EasyAuditModelAdmin, self).get_urls()
         my_urls = [
-            url(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
+            re_path(r'^purge/$', self.admin_site.admin_view(self.purge), {}, name="%s_%s_purge" % info),
         ]
         return my_urls + urls
 
@@ -69,6 +90,9 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
         This action first displays a confirmation page;
         next, it deletes all objects and redirects back to the change list.
         """
+
+        if settings.READONLY_EVENTS:
+            raise PermissionDenied
 
         def truncate_table(model):
             if settings.TRUNCATE_TABLE_SQL_STATEMENT:
