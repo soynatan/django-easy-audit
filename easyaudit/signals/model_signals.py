@@ -241,7 +241,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                 tmp_repr[0]['m2m_rev_model'] = force_str(model._meta)
                 tmp_repr[0]['m2m_rev_pks'] = related_ids
                 tmp_repr[0]['m2m_rev_action'] = action
-                object_json_repr = json.dumps(tmp_repr)
+                object_json_repr = json.dumps(tmp_repr, cls=DjangoJSONEncoder)
             else:
                 if action == 'post_add':
                     event_type = CRUDEvent.M2M_ADD
