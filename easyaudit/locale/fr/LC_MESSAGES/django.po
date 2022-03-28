@@ -1,0 +1,190 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-28 18:11+0600\n"
+"PO-Revision-Date: 2022-03-09 20:43+0100\n"
+"Last-Translator: Thierry BOULOGNE <contact@tng-concepts.com>\n"
+"Language-Team: FR\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
+"%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: admin_helpers.py:122
+#, python-format
+msgid "Successfully removed %d rows"
+msgstr "%d lignes supprimées avec succès"
+
+#: admin_helpers.py:124
+msgid "ERROR"
+msgstr "Erreur"
+
+#: admin_helpers.py:126
+msgid "Action cancelled by user"
+msgstr "Action annulée par l'utilisateur"
+
+#: admin_helpers.py:130
+#, python-format
+msgid "Purge all %s ... are you sure?"
+msgstr "Nettoyer tous les  %s ... Certain ?"
+
+#: models.py:15
+msgid "Create"
+msgstr "Сréer"
+
+#: models.py:16
+msgid "Update"
+msgstr "Modifier"
+
+#: models.py:17
+msgid "Delete"
+msgstr "Supprimer"
+
+#: models.py:18
+msgid "Many-to-Many Change"
+msgstr "Changement plusieur-à-plusieur"
+
+#: models.py:19
+msgid "Reverse Many-to-Many Change"
+msgstr "Annuler le changement plusieur-à-plusieur"
+
+#: models.py:22 models.py:60
+msgid "Event type"
+msgstr "Type évènement"
+
+#: models.py:23
+msgid "Object ID"
+msgstr "ID de l'object"
+
+#: models.py:24
+msgid "Content type"
+msgstr "Type Contenu"
+
+#: models.py:25
+msgid "Object representation"
+msgstr "Représentation de l'object"
+
+#: models.py:26
+msgid "Object JSON representation"
+msgstr "Représentation de l'objet JSON"
+
+#: models.py:27
+msgid "Changed fields"
+msgstr "Champs modifiés"
+
+#: models.py:30 models.py:64 models.py:80
+msgid "User"
+msgstr "Utilisateur"
+
+#: models.py:32
+msgid "String version of the user pk"
+msgstr "Version chaine du pk utilisateur"
+
+#: models.py:32
+msgid "User PK as string"
+msgstr "PK utilisateur en tant que chaine"
+
+#: models.py:33 models.py:66 models.py:82
+msgid "Date time"
+msgstr "Horodatage"
+
+#: models.py:45
+msgid "CRUD event"
+msgstr "Evènement CRUD"
+
+#: models.py:46
+msgid "CRUD events"
+msgstr "Evènements CRUD"
+
+#: models.py:56
+msgid "Login"
+msgstr "Connexion"
+
+#: models.py:57
+msgid "Logout"
+msgstr "Déconnexion"
+
+#: models.py:58
+msgid "Failed login"
+msgstr "Connexion échouée"
+
+#: models.py:61
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: models.py:65 models.py:81
+msgid "Remote IP"
+msgstr "IP distante"
+
+#: models.py:69
+msgid "login event"
+msgstr "Evènement de connexion"
+
+#: models.py:70
+msgid "login events"
+msgstr "Evènements de connexion"
+
+#: models.py:75
+msgid "URL"
+msgstr "URL"
+
+#: models.py:76
+msgid "Method"
+msgstr "Méthode"
+
+#: models.py:77
+msgid "Query string"
+msgstr "Requêtes"
+
+#: models.py:85
+msgid "request event"
+msgstr "Evènement Requête"
+
+#: models.py:86
+msgid "request events"
+msgstr "Evènements Requête"
+
+#: templates/admin/easyaudit/change_list.html:10
+#, python-format
+msgid "Purge %(name)s"
+msgstr "Vider %(name)s"
+
+#: templates/admin/easyaudit/purge_confirmation.html:7
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/admin/easyaudit/purge_confirmation.html:10
+msgid "Purge"
+msgstr "Vider"
+
+#: templates/admin/easyaudit/purge_confirmation.html:19
+msgid "Please confirm deletion"
+msgstr "Merci de confirmer la suppression"
+
+#: templates/admin/easyaudit/purge_confirmation.html:20
+msgid ""
+"This operation is destructive, cannot be undone and may require some "
+"minutes."
+msgstr "Cette opération est irrémédiable et demandera quelques minutes."
+
+#: templates/admin/easyaudit/purge_confirmation.html:21
+msgid "Are you sure you want to permanently remove all objects ?"
+msgstr "Voulez-vous supprimer définitivement tous les objects"
+
+#: templates/admin/easyaudit/purge_confirmation.html:25
+msgid "Yes, I\'m sure"
+msgstr "Oui j'en suis sûre"
+
+#: templates/admin/easyaudit/purge_confirmation.html:26
+msgid "Cancel"
+msgstr "Annuler"

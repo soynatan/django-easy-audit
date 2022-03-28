@@ -73,6 +73,16 @@ class TestAuditModels(TestCase):
         data = json.loads(crud_event.object_json_repr)[0]
         self.assertEqual([str(d) for d in data['fields']['test_m2m']], [str(obj.id)])
 
+    def test_m2m_clear(self):
+        obj = self.Model.objects.create()
+        obj_m2m = self.M2MModel(name='test')
+        obj_m2m.save()
+        obj_m2m.test_m2m.add(obj)
+        obj_m2m.test_m2m.clear()
+        crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
+        data = json.loads(crud_event.object_json_repr)[0]
+        self.assertEqual([str(d) for d in data['fields']['test_m2m']], [])
+
     @override_settings(DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP=True)
     def test_update_skip_no_changed_fields(self):
         obj = self.Model.objects.create()

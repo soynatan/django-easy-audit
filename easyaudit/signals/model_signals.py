@@ -10,7 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.db.models import signals
 from django.utils import timezone
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
 
 from easyaudit.middleware.easyaudit import get_current_request, \
@@ -225,6 +225,8 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     event_type = CRUDEvent.M2M_ADD_REV
                 elif action == 'post_remove':
                     event_type = CRUDEvent.M2M_REMOVE_REV
+                elif action == 'post_clear':
+                    event_type = CRUDEvent.M2M_CLEAR_REV
                 else:
                     event_type = CRUDEvent.M2M_CHANGE_REV  # just in case
 
@@ -236,7 +238,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                 related_instances = getattr(instance, m2m_rev_field).all()
                 related_ids = [r.pk for r in related_instances]
 
-                tmp_repr[0]['m2m_rev_model'] = force_text(model._meta)
+                tmp_repr[0]['m2m_rev_model'] = force_str(model._meta)
                 tmp_repr[0]['m2m_rev_pks'] = related_ids
                 tmp_repr[0]['m2m_rev_action'] = action
                 object_json_repr = json.dumps(tmp_repr)
@@ -245,6 +247,8 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     event_type = CRUDEvent.M2M_ADD
                 elif action == 'post_remove':
                     event_type = CRUDEvent.M2M_REMOVE
+                elif action == 'post_clear':
+                    event_type = CRUDEvent.M2M_CLEAR
                 else:
                     event_type = CRUDEvent.M2M_CHANGE  # just in case
 
@@ -262,7 +266,10 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 
             def crud_flow():
                 try:
-                    changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)}, cls=DjangoJSONEncoder)
+                    if action == "post_clear":
+                        changed_fields = []
+                    else:
+                        changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)}, cls=DjangoJSONEncoder)
                     with transaction.atomic(using=DATABASE_ALIAS):
                         crud_event = audit_logger.crud({
                             'event_type': event_type,
