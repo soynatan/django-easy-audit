@@ -96,3 +96,12 @@ def get_m2m_field_name(model, instance):
     for x in instance._meta.many_to_many:
         if x.related_model == model:
             return x.name
+
+
+def get_model_queryset(model):
+    queryset_method_name = getattr(model, "EASY_AUDIT_QUERYSET_METHOD", None)
+
+    if not queryset_method_name:
+        return model.objects.all()
+
+    return getattr(model, queryset_method_name)()

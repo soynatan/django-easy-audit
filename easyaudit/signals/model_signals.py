@@ -19,7 +19,7 @@ from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, LOGGING_BACKEND, \
     DATABASE_ALIAS
-from easyaudit.utils import get_m2m_field_name, model_delta
+from easyaudit.utils import get_m2m_field_name, model_delta, get_model_queryset
 
 logger = logging.getLogger(__name__)
 audit_logger = import_string(LOGGING_BACKEND)()
@@ -68,7 +68,8 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
 
             # created or updated?
             if not created:
-                old_model = sender.objects.get(pk=instance.pk)
+                queryset = get_model_queryset(sender)
+                old_model = queryset.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
                 if not delta and getattr(settings, "DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP", False):
                     return False
