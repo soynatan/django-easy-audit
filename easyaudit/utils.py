@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import NOT_PROVIDED, DateTimeField
 from django.utils import timezone
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 
 
 def get_field_value(obj, field):
@@ -21,7 +21,7 @@ def get_field_value(obj, field):
     """
     if isinstance(field, DateTimeField):
         # DateTimeFields are timezone-aware, so we need to convert the field
-        # to its naive form before we can accuratly compare them for changes.
+        # to its naive form before we can accurately compare them for changes.
         try:
             value = field.to_python(getattr(obj, field.name, None))
             if value is not None and settings.USE_TZ and not timezone.is_naive(value):
@@ -30,7 +30,7 @@ def get_field_value(obj, field):
             value = field.default if field.default is not NOT_PROVIDED else None
     else:
         try:
-            value = smart_text(getattr(obj, field.name, None))
+            value = smart_str(getattr(obj, field.name, None))
         except ObjectDoesNotExist:
             value = field.default if field.default is not NOT_PROVIDED else None
 
@@ -56,8 +56,8 @@ def model_delta(old_model, new_model):
         old_value = get_field_value(old_model, field)
         new_value = get_field_value(new_model, field)
         if old_value != new_value:
-            delta[field.name] = [smart_text(old_value),
-                                 smart_text(new_value)]
+            delta[field.name] = [smart_str(old_value),
+                                 smart_str(new_value)]
 
     if len(delta) == 0:
         delta = None

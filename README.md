@@ -95,7 +95,7 @@ Below are some of the settings you may want to use. These should be defined in y
 
 * `DJANGO_EASY_AUDIT_DATABASE_ALIAS`
 
-  By default it is the django `default` database alias. But for projects that have split databases,
+  By default it is the Django `default` database alias. But for projects that have split databases,
   this is necessary in order to keep database atomicity concerns in check during signal handlers.
 
   To clarify, this is only _truly_ necessary for the model signals.
@@ -147,7 +147,7 @@ Below are some of the settings you may want to use. These should be defined in y
 ## What does it do
 
 Django Easy Audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)
-to listen to the events happenning in your project, such as when a user creates, updates or deletes
+to listen to the events happening in your project, such as when a user creates, updates or deletes
 a registry. This applies to every model of every app in your project.
 
 When any of these events takes place, Django Easy Audit will log it in the model `CRUDEvent`.
