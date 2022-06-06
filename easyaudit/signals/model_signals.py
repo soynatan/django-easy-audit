@@ -71,9 +71,10 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
         return
 
     try:
+        if not should_audit(instance):
+            return False
+
         with transaction.atomic(using=using):
-            if not should_audit(instance):
-                return False
             try:
                 object_json_repr = serializers.serialize("json", [instance])
             except Exception:
@@ -141,9 +142,10 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
         return
 
     try:
+        if not should_audit(instance):
+            return False
+
         with transaction.atomic(using=using):
-            if not should_audit(instance):
-                return False
             object_json_repr = serializers.serialize("json", [instance])
 
             # created or updated?
@@ -212,13 +214,12 @@ def _m2m_rev_field_name(model1, model2):
 def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#m2m-changed"""
     try:
+        if not should_audit(instance):
+            return False
+        if action not in ("post_add", "post_remove", "post_clear"):
+            return False
+
         with transaction.atomic(using=using):
-            if not should_audit(instance):
-                return False
-
-            if action not in ("post_add", "post_remove", "post_clear"):
-                return False
-
             object_json_repr = serializers.serialize("json", [instance])
 
             if reverse:
@@ -295,10 +296,10 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
 def post_delete(sender, instance, using, **kwargs):
     """https://docs.djangoproject.com/es/1.10/ref/signals/#post-delete"""
     try:
-        with transaction.atomic(using=using):
-            if not should_audit(instance):
-                return False
+        if not should_audit(instance):
+            return False
 
+        with transaction.atomic(using=using):
             object_json_repr = serializers.serialize("json", [instance])
 
             # user
