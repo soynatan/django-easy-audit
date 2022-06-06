@@ -106,7 +106,11 @@ Below are some of the settings you may want to use. These should be defined in y
   determined by the `pre_save` handler sees that there are no changed fields. We are keeping it off by default so that
   projects that wish to use this (potentially less `CRUDEvent`) can choose to turn it on! And those that do not want it (yet or ever),
   or those that do not closely follow the release notes of this project will have one less worry when upgrading.
-  
+
+* `DJANGO_EASY_AUDIT_CHECK_IF_REQUEST_USER_EXISTS`
+
+  By default this is `True`, but this allows the calling project to make easyaudit ignore user validation on audit event creation.
+  This is useful when you have a app with soft delete or no delete on users model. With this set to `False`, easyaudit only fetch `request.user` for audit event creation, no db check is made, meaning you can speed up audit events creation and save some DB calls.
 
 * `DJANGO_EASY_AUDIT_READONLY_EVENTS`
 
