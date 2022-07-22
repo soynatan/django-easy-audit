@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(drop_index_if_exists),
+        migrations.RunPython(drop_index_if_exists, migrations.RunPython.noop),
         migrations.AlterField(
             model_name='requestevent',
             name='url',
