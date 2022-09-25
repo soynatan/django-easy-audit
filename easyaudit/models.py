@@ -91,7 +91,7 @@ class RequestEvent(models.Model):
                              on_delete=models.SET_NULL, db_constraint=False,
                              verbose_name=_('User'))
     remote_ip = models.CharField(max_length=50, null=True, db_index=True, verbose_name=_('Remote IP'))
-    datetime = models.DateTimeField(auto_now_add=True, verbose_name=_('Date time'))
+    datetime = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_('Date time'))
 
     class Meta:
         verbose_name = _('request event')
