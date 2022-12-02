@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
 from django.core.signals import request_started
-from django.http.cookie import SimpleCookie
+from django.http.cookie import parse_cookie
 from django.utils import timezone
 from django.conf import settings
 from django.utils.module_loading import import_string
@@ -63,11 +63,10 @@ def request_started_handler(sender, **kwargs):
     user = None
     # get the user from cookies
     if not user and cookie_string:
-        cookie = SimpleCookie()
-        cookie.load(cookie_string)
+        cookie = parse_cookie(cookie_string)
         session_cookie_name = settings.SESSION_COOKIE_NAME
         if session_cookie_name in cookie:
-            session_id = cookie[session_cookie_name].value
+            session_id = cookie[session_cookie_name]
 
             try:
                 session = Session.objects.get(session_key=session_id)
