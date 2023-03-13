@@ -99,7 +99,11 @@ Below are some of the settings you may want to use. These should be defined in y
   this is necessary in order to keep database atomicity concerns in check during signal handlers.
 
   To clarify, this is only _truly_ necessary for the model signals.
-  
+
+* `DJANGO_EASY_AUDIT_DEBUG_SIGNALS`
+
+  Default is `False`. When set to `True` and Django's `DEBUG` is enabled, easyaudit will propagate exceptions occurred in own signal handlers. This is useful, unless you are using `DEBUG` in production.
+
 * `DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP`
 
   By default this is `False`, but this allows the calling project not to save `CRUDEvent` if the changed fields as
