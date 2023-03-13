@@ -18,7 +18,7 @@ from easyaudit.middleware.easyaudit import get_current_request, \
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, LOGGING_BACKEND, \
-    DATABASE_ALIAS
+    DATABASE_ALIAS, DEBUG_SIGNALS
 from easyaudit.utils import get_m2m_field_name, model_delta
 
 logger = logging.getLogger(__name__)
@@ -127,12 +127,18 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                                     instance, instance.pk))
                         except Exception:
                             pass
+
+                        raise e
+
                 if getattr(settings, "TEST", False):
                     crud_flow()
                 else:
                     transaction.on_commit(crud_flow, using=using)
     except Exception:
         logger.exception('easy audit had a pre-save exception.')
+
+        if settings.DEBUG and DEBUG_SIGNALS:
+            raise
 
 
 def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
@@ -186,12 +192,18 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                                     instance, instance.pk))
                         except Exception:
                             pass
+
+                        raise e
+
                 if getattr(settings, "TEST", False):
                     crud_flow()
                 else:
                     transaction.on_commit(crud_flow, using=using)
     except Exception:
         logger.exception('easy audit had a post-save exception.')
+
+        if settings.DEBUG and DEBUG_SIGNALS:
+            raise
 
 
 def _m2m_rev_field_name(model1, model2):
@@ -285,12 +297,17 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     except Exception:
                         pass
 
+                    raise e
+
             if getattr(settings, "TEST", False):
                 crud_flow()
             else:
                 transaction.on_commit(crud_flow, using=using)
     except Exception:
         logger.exception('easy audit had an m2m-changed exception.')
+
+        if settings.DEBUG and DEBUG_SIGNALS:
+            raise
 
 
 def post_delete(sender, instance, using, **kwargs):
@@ -333,12 +350,17 @@ def post_delete(sender, instance, using, **kwargs):
                     except Exception:
                         pass
 
+                    raise e
+
             if getattr(settings, "TEST", False):
                 crud_flow()
             else:
                 transaction.on_commit(crud_flow, using=using)
     except Exception:
         logger.exception('easy audit had a post-delete exception.')
+
+        if settings.DEBUG and DEBUG_SIGNALS:
+            raise
 
 
 if WATCH_MODEL_EVENTS:
