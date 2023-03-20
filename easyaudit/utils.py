@@ -79,3 +79,11 @@ def get_m2m_field_name(model, instance):
     for x in model._meta.related_objects:
         if x.related_model().__class__ == instance.__class__:
             return x.remote_field.name
+
+
+def should_propagate_exceptions():
+    """
+    Should Django Easy Audit propagate signal handler exceptions.
+    :rtype: bool
+    """
+    return settings.DEBUG and getattr(settings, 'DJANGO_EASY_AUDIT_DEBUG_SIGNALS')
