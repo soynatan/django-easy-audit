@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import signals, get_user_model
 from django.db import transaction
 from django.utils.module_loading import import_string
@@ -6,7 +5,8 @@ from django.utils.module_loading import import_string
 from easyaudit.middleware.easyaudit import get_current_request
 from easyaudit.models import LoginEvent
 from easyaudit.settings import REMOTE_ADDR_HEADER, WATCH_AUTH_EVENTS, LOGGING_BACKEND, \
-    DATABASE_ALIAS, DEBUG_SIGNALS
+    DATABASE_ALIAS
+from easyaudit.utils import should_propagate_exceptions
 
 audit_logger = import_string(LOGGING_BACKEND)()
 
@@ -21,7 +21,7 @@ def user_logged_in(sender, request, user, **kwargs):
                 'remote_ip': request.META[REMOTE_ADDR_HEADER]
             })
     except Exception:
-        if settings.DEBUG and DEBUG_SIGNALS:
+        if should_propagate_exceptions():
             raise
 
 
@@ -35,7 +35,7 @@ def user_logged_out(sender, request, user, **kwargs):
                 'remote_ip': request.META[REMOTE_ADDR_HEADER]
             })
     except Exception:
-        if settings.DEBUG and DEBUG_SIGNALS:
+        if should_propagate_exceptions():
             raise
 
 
@@ -50,7 +50,7 @@ def user_login_failed(sender, credentials, **kwargs):
                 'remote_ip': request.META[REMOTE_ADDR_HEADER]
             })
     except Exception:
-        if settings.DEBUG and DEBUG_SIGNALS:
+        if should_propagate_exceptions():
             raise
 
 

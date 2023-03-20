@@ -18,8 +18,8 @@ from easyaudit.middleware.easyaudit import get_current_request, \
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, LOGGING_BACKEND, \
-    DATABASE_ALIAS, DEBUG_SIGNALS
-from easyaudit.utils import get_m2m_field_name, model_delta
+    DATABASE_ALIAS
+from easyaudit.utils import get_m2m_field_name, model_delta, should_propagate_exceptions
 
 logger = logging.getLogger(__name__)
 audit_logger = import_string(LOGGING_BACKEND)()
@@ -137,7 +137,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
     except Exception:
         logger.exception('easy audit had a pre-save exception.')
 
-        if settings.DEBUG and DEBUG_SIGNALS:
+        if should_propagate_exceptions():
             raise
 
 
@@ -202,7 +202,7 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
     except Exception:
         logger.exception('easy audit had a post-save exception.')
 
-        if settings.DEBUG and DEBUG_SIGNALS:
+        if should_propagate_exceptions():
             raise
 
 
@@ -306,7 +306,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
     except Exception:
         logger.exception('easy audit had an m2m-changed exception.')
 
-        if settings.DEBUG and DEBUG_SIGNALS:
+        if should_propagate_exceptions():
             raise
 
 
@@ -359,7 +359,7 @@ def post_delete(sender, instance, using, **kwargs):
     except Exception:
         logger.exception('easy audit had a post-delete exception.')
 
-        if settings.DEBUG and DEBUG_SIGNALS:
+        if should_propagate_exceptions():
             raise
 
 
