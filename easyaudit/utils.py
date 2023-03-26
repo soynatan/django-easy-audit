@@ -86,4 +86,4 @@ def should_propagate_exceptions():
     Should Django Easy Audit propagate signal handler exceptions.
     :rtype: bool
     """
-    return settings.DEBUG and getattr(settings, 'DJANGO_EASY_AUDIT_DEBUG_SIGNALS')
+    return getattr(settings, 'DJANGO_EASY_AUDIT_PROPAGATE_EXCEPTIONS', False)

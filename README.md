@@ -100,9 +100,13 @@ Below are some of the settings you may want to use. These should be defined in y
 
   To clarify, this is only _truly_ necessary for the model signals.
 
-* `DJANGO_EASY_AUDIT_DEBUG_SIGNALS`
+* `DJANGO_EASY_AUDIT_PROPAGATE_EXCEPTIONS`
 
-  Default is `False`. When set to `True` and Django's `DEBUG` is enabled, easyaudit will propagate exceptions occurred in own signal handlers. This is useful, unless you are using `DEBUG` in production.
+  Default is `False`. When set to `True`, easyaudit will propagate exceptions occurred in own signal handlers. The 
+  recommended approach is to use Django's `DEBUG` setting in order to only propagate errors in development: 
+  ```python
+  DJANGO_EASY_AUDIT_PROPAGATE_EXCEPTIONS = DEBUG
+  ```
 
 * `DJANGO_EASY_AUDIT_CRUD_EVENT_NO_CHANGED_FIELDS_SKIP`
 
