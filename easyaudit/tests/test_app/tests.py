@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import re
-from unittest import skip, skipIf
+from unittest import skip, skipIf, mock
 
 import django
 
@@ -123,6 +123,17 @@ class TestAuditModels(TestCase):
         obj.delete()
         crud_event_qs = CRUDEvent.objects.filter(object_id=obj_id, content_type=ContentType.objects.get_for_model(obj))
         self.assertEqual(2, crud_event_qs.count())
+
+    @mock.patch('easyaudit.signals.model_signals.audit_logger')
+    def test_propagate_exceptions(self, mocked_audit_logger):
+        mocked_audit_logger.crud.side_effect = ValueError
+
+        # By default, it should catch exceptions
+        _ = self.Model.objects.create()
+
+        with override_settings(DJANGO_EASY_AUDIT_PROPAGATE_EXCEPTIONS=True):
+            with self.assertRaises(ValueError):
+                _ = self.Model.objects.create()
 
 
 class TestAuditUUIDModels(TestAuditModels):
