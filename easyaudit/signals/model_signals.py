@@ -18,7 +18,7 @@ from easyaudit.middleware.easyaudit import get_current_request, \
 from easyaudit.models import CRUDEvent
 from easyaudit.settings import REGISTERED_CLASSES, UNREGISTERED_CLASSES, \
     WATCH_MODEL_EVENTS, CRUD_DIFFERENCE_CALLBACKS, LOGGING_BACKEND, \
-    DATABASE_ALIAS
+    DATABASE_ALIAS, CRUD_EVENT_NO_CHANGED_FIELDS_SKIP
 from easyaudit.utils import get_m2m_field_name, model_delta
 
 logger = logging.getLogger(__name__)
@@ -73,6 +73,9 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
     try:
         if not should_audit(instance):
             return False
+        
+        if CRUD_EVENT_NO_CHANGED_FIELDS_SKIP:
+            return
 
         with transaction.atomic(using=using):
             try:
