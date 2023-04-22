@@ -1,0 +1,234 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-12 13:27-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\admin.py:40
+msgid "Content Type"
+msgstr "Tipo de Conteúdo"
+
+#: .\admin.py:45 .\admin.py:91 .\admin.py:116 .\models.py:38 .\models.py:72
+#: .\models.py:88
+msgid "User"
+msgstr "Usuário"
+
+#: .\admin.py:63
+msgid "object repr"
+msgstr "representação do objeto"
+
+#: .\admin.py:68
+msgid "object json repr"
+msgstr "representação json do objeto"
+
+#: .\admin.py:73
+msgid "changed fields"
+msgstr "campos alterados"
+
+#: .\admin.py:98
+msgid "User name"
+msgstr "nome do usuário"
+
+#: .\admin_helpers.py:65
+msgid "user"
+msgstr "usuário"
+
+#: .\admin_helpers.py:122
+#, python-format
+msgid "Successfully removed %d rows"
+msgstr "%d linhas removidas com sucesso"
+
+#: .\admin_helpers.py:124
+msgid "ERROR"
+msgstr "ERRO"
+
+#: .\admin_helpers.py:126
+msgid "Action cancelled by user"
+msgstr "Ação cancelada pelo usuário"
+
+#: .\admin_helpers.py:130
+#, python-format
+msgid "Purge all %s ... are you sure?"
+msgstr "Eliminar todos os %s ... tem certeza?"
+
+#: .\apps.py:6
+msgid "Easy Audit Application"
+msgstr "Aplicação Easy Audit"
+
+#: .\models.py:19
+msgid "Create"
+msgstr "Criar"
+
+#: .\models.py:20
+msgid "Update"
+msgstr "Atualizar"
+
+#: .\models.py:21
+msgid "Delete"
+msgstr "Excluir"
+
+#: .\models.py:22
+msgid "Many-to-Many Change"
+msgstr "Mudança muitos para muitos"
+
+#: .\models.py:23
+msgid "Reverse Many-to-Many Change"
+msgstr "Reverter mudança muitos para muitos"
+
+#: .\models.py:24
+msgid "Many-to-Many Add"
+msgstr "Adicionar muitos para muitos"
+
+#: .\models.py:25
+msgid "Reverse Many-to-Many Add"
+msgstr "Reverter Adição muitos para muitos"
+
+#: .\models.py:26
+msgid "Many-to-Many Remove"
+msgstr "Remover muitos para muitos"
+
+#: .\models.py:27
+msgid "Reverse Many-to-Many Remove"
+msgstr "Reverter Remoção muitos para muitos"
+
+#: .\models.py:30 .\models.py:68
+msgid "Event type"
+msgstr "Tipo de Evento"
+
+#: .\models.py:31
+msgid "Object ID"
+msgstr "ID do Objeto"
+
+#: .\models.py:32
+msgid "Content type"
+msgstr "Tipo de conteúdo"
+
+#: .\models.py:33
+msgid "Object representation"
+msgstr "Representação do Objeto"
+
+#: .\models.py:34
+msgid "Object JSON representation"
+msgstr "Representação JSON do Objeto"
+
+#: .\models.py:35
+msgid "Changed fields"
+msgstr "Campos Alterados"
+
+#: .\models.py:40
+msgid "String version of the user pk"
+msgstr "Versão string da PK do usuário"
+
+#: .\models.py:40
+msgid "User PK as string"
+msgstr "PK do usuário como string"
+
+#: .\models.py:41 .\models.py:74 .\models.py:90
+msgid "Date time"
+msgstr "Data e Hora"
+
+#: .\models.py:53
+msgid "CRUD event"
+msgstr "Evento CRUD"
+
+#: .\models.py:54
+msgid "CRUD events"
+msgstr "Eventos CRUD"
+
+#: .\models.py:64
+msgid "Login"
+msgstr "Login"
+
+#: .\models.py:65
+msgid "Logout"
+msgstr "Logout"
+
+#: .\models.py:66
+msgid "Failed login"
+msgstr "Falha no login"
+
+#: .\models.py:69
+msgid "Username"
+msgstr "Nome do usuário"
+
+#: .\models.py:73 .\models.py:89
+msgid "Remote IP"
+msgstr "IP Remoto"
+
+#: .\models.py:77
+msgid "login event"
+msgstr "Evento de Login"
+
+#: .\models.py:78
+msgid "login events"
+msgstr "Eventos de Login"
+
+#: .\models.py:83
+msgid "URL"
+msgstr "URL"
+
+#: .\models.py:84
+msgid "Method"
+msgstr "Método"
+
+#: .\models.py:85
+msgid "Query string"
+msgstr "String de Consulta"
+
+#: .\models.py:93
+msgid "request event"
+msgstr "Evento de Solicitação"
+
+#: .\models.py:94
+msgid "request events"
+msgstr "Eventos de Solicitação"
+
+#: .\templates\admin\easyaudit\change_list.html:10
+#, python-format
+msgid "Purge %(name)s"
+msgstr "Limpar %(name)s"
+
+#: .\templates\admin\easyaudit\purge_confirmation.html:7
+msgid "Home"
+msgstr "Home"
+
+#: .\templates\admin\easyaudit\purge_confirmation.html:10
+msgid "Purge"
+msgstr "Limpar"
+
+#: .\templates\admin\easyaudit\purge_confirmation.html:19
+msgid "Please confirm deletion"
+msgstr "Por favor, confirme a exclusão"
+
+#: .\templates\admin\easyaudit\purge_confirmation.html:20
+msgid ""
+"This operation is destructive, cannot be undone and may require some minutes."
+msgstr ""
+"Esta operação é destrutiva, não pode ser desfeita e pode demorar alguns "
+"minutos."
+
+#: .\templates\admin\easyaudit\purge_confirmation.html:21
+msgid "Are you sure you want to permanently remove all objects ?"
+msgstr "Tem certeza de que deseja remover todos os objetos permanentemente?"
+
+#: .\templates\admin\easyaudit\purge_confirmation.html:25
+msgid "Yes, I'm sure"
+msgstr "Sim eu tenho certeza"
+
+#: .\templates\admin\easyaudit\purge_confirmation.html:26
+msgid "Cancel"
+msgstr "Cancelar"
