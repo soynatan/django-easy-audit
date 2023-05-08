@@ -1,0 +1,220 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-08 09:44+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: django-easy-audit/easyaudit/admin_helpers.py:122
+#, python-format
+msgid "Successfully removed %d rows"
+msgstr "%d Einträge erfolgreich gelöscht"
+
+#: django-easy-audit/easyaudit/admin_helpers.py:124
+msgid "ERROR"
+msgstr "FEHLER"
+
+#: django-easy-audit/easyaudit/admin_helpers.py:126
+msgid "Action cancelled by user"
+msgstr "Von Benutzer*in abgebrochen"
+
+#: django-easy-audit/easyaudit/admin_helpers.py:130
+#, python-format
+msgid "Purge all %s ... are you sure?"
+msgstr "Alle %s löschen ... bist du sicher?"
+
+#: django-easy-audit/easyaudit/crudhistory_admin_mixin.py:43
+msgid "CRUD history"
+msgstr "CRUD Verlauf"
+
+#: django-easy-audit/easyaudit/models.py:21
+msgid "Create"
+msgstr "Erstellt"
+
+#: django-easy-audit/easyaudit/models.py:22
+msgid "Update"
+msgstr "Aktualisiert"
+
+#: django-easy-audit/easyaudit/models.py:23
+msgid "Delete"
+msgstr "Gelöscht"
+
+#: django-easy-audit/easyaudit/models.py:24
+msgid "Many-to-Many Change"
+msgstr "Mehrfachbeziehung geändert"
+
+#: django-easy-audit/easyaudit/models.py:25
+msgid "Reverse Many-to-Many Change"
+msgstr "Mehrfachbeziehung geändert (Gegenseite)"
+
+#: django-easy-audit/easyaudit/models.py:26
+msgid "Many-to-Many Add"
+msgstr "Mehrfachbeziehung hinzugefügt"
+
+#: django-easy-audit/easyaudit/models.py:27
+msgid "Reverse Many-to-Many Add"
+msgstr "Mehrfachbeziehung hinzugefügt (Gegenseite)"
+
+#: django-easy-audit/easyaudit/models.py:28
+msgid "Many-to-Many Remove"
+msgstr "Mehrfachbeziehung entfernt"
+
+#: django-easy-audit/easyaudit/models.py:29
+msgid "Reverse Many-to-Many Remove"
+msgstr "Mehrfachbeziehung entfernt (Gegenseite)"
+
+#: django-easy-audit/easyaudit/models.py:30
+msgid "Many-to-Many Clear"
+msgstr "Mehrfachbeziehung zurückgesetzt"
+
+#: django-easy-audit/easyaudit/models.py:31
+msgid "Reverse Many-to-Many Clear"
+msgstr "Mehrfachbeziehung zurückgesetzt (Gegenseite)"
+
+#: django-easy-audit/easyaudit/models.py:34
+#: django-easy-audit/easyaudit/models.py:72
+msgid "Event type"
+msgstr "Ereignistyp"
+
+#: django-easy-audit/easyaudit/models.py:35
+msgid "Object ID"
+msgstr "Objekt-ID"
+
+#: django-easy-audit/easyaudit/models.py:36
+msgid "Content type"
+msgstr "Content Type"
+
+#: django-easy-audit/easyaudit/models.py:37
+msgid "Object representation"
+msgstr "Objektrepräsentation"
+
+#: django-easy-audit/easyaudit/models.py:38
+msgid "Object JSON representation"
+msgstr "JSON-Repräsentation"
+
+#: django-easy-audit/easyaudit/models.py:39
+msgid "Changed fields"
+msgstr "Geänderte Felder"
+
+#: django-easy-audit/easyaudit/models.py:42
+#: django-easy-audit/easyaudit/models.py:76
+#: django-easy-audit/easyaudit/models.py:92
+msgid "User"
+msgstr "Benutzer*in"
+
+#: django-easy-audit/easyaudit/models.py:44
+msgid "String version of the user pk"
+msgstr "Primärschlüssel der Benutzer*in als String"
+
+#: django-easy-audit/easyaudit/models.py:44
+msgid "User PK as string"
+msgstr "Primärschlüssel der Benutzer*in als String"
+
+#: django-easy-audit/easyaudit/models.py:45
+#: django-easy-audit/easyaudit/models.py:78
+#: django-easy-audit/easyaudit/models.py:94
+msgid "Date time"
+msgstr "Zeitpunkt"
+
+#: django-easy-audit/easyaudit/models.py:57
+msgid "CRUD event"
+msgstr "CRUD-Ereignis"
+
+#: django-easy-audit/easyaudit/models.py:58
+msgid "CRUD events"
+msgstr "CRUD-Ereignisse"
+
+#: django-easy-audit/easyaudit/models.py:68
+msgid "Login"
+msgstr ""
+
+#: django-easy-audit/easyaudit/models.py:69
+msgid "Logout"
+msgstr ""
+
+#: django-easy-audit/easyaudit/models.py:70
+msgid "Failed login"
+msgstr "Fehlgeschlagener Login"
+
+#: django-easy-audit/easyaudit/models.py:73
+msgid "Username"
+msgstr "Benutzername"
+
+#: django-easy-audit/easyaudit/models.py:77
+#: django-easy-audit/easyaudit/models.py:93
+msgid "Remote IP"
+msgstr "IP-Adresse"
+
+#: django-easy-audit/easyaudit/models.py:81
+msgid "login event"
+msgstr "Login Event"
+
+#: django-easy-audit/easyaudit/models.py:82
+msgid "login events"
+msgstr "Login Events"
+
+#: django-easy-audit/easyaudit/models.py:87
+msgid "URL"
+msgstr ""
+
+#: django-easy-audit/easyaudit/models.py:88
+msgid "Method"
+msgstr "Methode"
+
+#: django-easy-audit/easyaudit/models.py:89
+msgid "Query string"
+msgstr "Query String"
+
+#: django-easy-audit/easyaudit/models.py:97
+msgid "request event"
+msgstr "Anfrage"
+
+#: django-easy-audit/easyaudit/models.py:98
+msgid "request events"
+msgstr "Anfragen"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/change_list.html:10
+#, python-format
+msgid "Purge %(name)s"
+msgstr "%(name)s löschen"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/purge_confirmation.html:7
+msgid "Home"
+msgstr "Start"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/purge_confirmation.html:10
+msgid "Purge"
+msgstr "Löschen"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/purge_confirmation.html:19
+msgid "Please confirm deletion"
+msgstr "Bitte bestätige den Löschvorgang"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/purge_confirmation.html:20
+msgid ""
+"This operation is destructive, cannot be undone and may require some minutes."
+msgstr "Diese Operation löscht Daten unwiderbringlich und dauert möglicherweise mehrere Minuten"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/purge_confirmation.html:21
+msgid "Are you sure you want to permanently remove all objects ?"
+msgstr "Möchtest du wirklich alle Objekte dauerhaft löschen?"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/purge_confirmation.html:25
+msgid "Yes, I'm sure"
+msgstr "Ja, ich bin sicher"
+
+#: django-easy-audit/easyaudit/templates/admin/easyaudit/purge_confirmation.html:26
+msgid "Cancel"
+msgstr "Abbrechen"
