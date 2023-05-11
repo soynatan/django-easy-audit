@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponse
+import csv, datetime
 
 try: # Django 2.0
     from django.urls import reverse
@@ -15,6 +17,30 @@ from .admin_helpers import prettify_json, EasyAuditModelAdmin
 from .settings import (CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_EVENT_LIST_FILTER,
                        CRUD_EVENT_SEARCH_FIELDS, LOGIN_EVENT_SEARCH_FIELDS, REQUEST_EVENT_SEARCH_FIELDS,
                        READONLY_EVENTS)
+
+# Export event audits to csv
+def export_to_csv(modeladmin, request, queryset):
+    opts = modeladmin.model._meta
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment;' 'filename={}.csv'.format(opts.verbose_name)
+    writer = csv.writer(response)
+    fields = [field for field in opts.get_fields() if not field.many_to_many and not field.one_to_many]
+    # Write a first row with header information
+    writer.writerow([field.verbose_name for field in fields])
+    # Write data rows
+    for obj in queryset:
+        data_row = []
+        for field in fields:
+            value = getattr(obj, field.name)
+            if isinstance(value, datetime.datetime):
+                value = value.strftime('%d/%m/%Y')
+            data_row.append(value)
+        writer.writerow(data_row)
+
+    return response
+
+export_to_csv.short_description = 'Export to CSV'  #short description
+
 
 # CRUD events
 class CRUDEventAdmin(EasyAuditModelAdmin):
@@ -71,6 +97,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
 
     changed_fields_prettified.short_description = 'changed fields'
 
+    actions = [export_to_csv] 
 
 if settings.ADMIN_SHOW_MODEL_EVENTS:
     admin.site.register(CRUDEvent, CRUDEventAdmin)
@@ -96,6 +123,7 @@ class LoginEventAdmin(EasyAuditModelAdmin):
 
     get_username.short_description = "User name"
 
+    actions = [export_to_csv] 
 
 if settings.ADMIN_SHOW_AUTH_EVENTS:
     admin.site.register(LoginEvent, LoginEventAdmin)
@@ -114,6 +142,7 @@ class RequestEventAdmin(EasyAuditModelAdmin):
 
     get_user.short_description = "User"
 
+    actions = [export_to_csv] 
 
 if settings.ADMIN_SHOW_REQUEST_EVENTS:
     admin.site.register(RequestEvent, RequestEventAdmin)
