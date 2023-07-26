@@ -57,7 +57,9 @@ class CRUDEvent(models.Model):
         verbose_name = _('CRUD event')
         verbose_name_plural = _('CRUD events')
         ordering = ['-datetime']
-        index_together = ['object_id', 'content_type', ]
+        indexes = [
+            models.Index(fields=['object_id', 'content_type']),
+        ]
 
 
 class LoginEvent(models.Model):
