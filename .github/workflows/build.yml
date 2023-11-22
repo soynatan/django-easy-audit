@@ -12,7 +12,10 @@ jobs:
         python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
         django-version: [3.2, 4.1, 4.2]
         exclude:
+          # Django 3.2 only supports Python 3.6 to 3.10
           - python-version: 3.11
+            django-version: 3.2
+          - python-version: 3.12
             django-version: 3.2
 
     steps:
