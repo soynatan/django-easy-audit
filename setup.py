@@ -15,7 +15,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "beautifulsoup4",
-        "django>=2.2,<5.0"
+        "django>=3.2"
     ],
     python_requires=">=3.8",
     license='GPL3',
@@ -27,11 +27,11 @@ setup(
     classifiers=[
         'Environment :: Plugins',
         'Framework :: Django',
-        "Framework :: Django :: 2.2",
-        "Framework :: Django :: 3.0",
-        "Framework :: Django :: 3.1",
         "Framework :: Django :: 3.2",
         "Framework :: Django :: 4.0",
+        "Framework :: Django :: 4.1",
+        "Framework :: Django :: 4.2",
+        "Framework :: Django :: 5.0",
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
@@ -41,6 +41,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
