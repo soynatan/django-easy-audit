@@ -128,7 +128,8 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                         except Exception:
                             pass
 
-                        raise e
+                        if should_propagate_exceptions():
+                            raise e
 
                 if getattr(settings, "TEST", False):
                     crud_flow()
@@ -193,7 +194,8 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                         except Exception:
                             pass
 
-                        raise e
+                        if should_propagate_exceptions():
+                            raise e
 
                 if getattr(settings, "TEST", False):
                     crud_flow()
@@ -297,7 +299,8 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     except Exception:
                         pass
 
-                    raise e
+                    if should_propagate_exceptions():
+                        raise e
 
             if getattr(settings, "TEST", False):
                 crud_flow()
@@ -350,7 +353,8 @@ def post_delete(sender, instance, using, **kwargs):
                     except Exception:
                         pass
 
-                    raise e
+                    if should_propagate_exceptions():
+                        raise e
 
             if getattr(settings, "TEST", False):
                 crud_flow()
