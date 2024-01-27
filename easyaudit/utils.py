@@ -65,20 +65,27 @@ def model_delta(old_model, new_model):
     return delta
 
 
-def get_m2m_field_name(model, instance):
+def get_m2m_field_name(model, instance, through):
     """
     Finds M2M field name on instance
     Called from m2m_changed signal
     :param model: m2m_changed signal model.
     :type model: Model
     :param instance:m2m_changed signal instance.
-    :type new: Model
+    :type instance: Model
+    :param through:m2m_changed intermediate model / signal sender.
+    :type through: Model
     :return: ManyToManyField name of instance related to model.
     :rtype: str
     """
-    for x in model._meta.related_objects:
-        if x.related_model().__class__ == instance.__class__:
-            return x.remote_field.name
+    instance_model = instance._meta.model
+    if instance_model._meta.proxy:
+        instance_model = instance._meta.proxy_for_model
+    for field in instance._meta.many_to_many:
+        if field.remote_field.remote_field.model == model and field.remote_field.through == through:
+            field = field.remote_field
+            return field.name
+
 
 
 def should_propagate_exceptions():
