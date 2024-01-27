@@ -78,9 +78,6 @@ def get_m2m_field_name(model, instance, through):
     :return: ManyToManyField name of instance related to model.
     :rtype: str
     """
-    instance_model = instance._meta.model
-    if instance_model._meta.proxy:
-        instance_model = instance._meta.proxy_for_model
     for field in instance._meta.many_to_many:
         if field.remote_field.remote_field.model == model and field.remote_field.through == through:
             field = field.remote_field
