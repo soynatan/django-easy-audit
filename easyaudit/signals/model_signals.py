@@ -188,7 +188,6 @@ def post_save(sender, instance, created, raw, using, update_fields, **kwargs):
                             })
                     except Exception as e:
                         try:
-                            import pdb; pdb.set_trace()
                             logger.exception(
                                 "easy audit had a post_save exception on CRUDEvent creation. instance: {}, instance pk: {}".format(
                                     instance, instance.pk))

@@ -17,8 +17,8 @@ from django.contrib.contenttypes.models import ContentType
 import bs4
 from test_app.models import (
     TestModel, TestForeignKey, TestM2M, TestM2MProxy, TestMultiM2M,
-    TestBigIntModel, TestBigIntForeignKey, TestBigIntM2M,
-    TestUUIDModel, TestUUIDForeignKey, TestUUIDM2M
+    TestBigIntModel, TestBigIntForeignKey, TestBigIntM2M, TestBigIntM2MProxy, TestBigIntMultiM2M,
+    TestUUIDModel, TestUUIDForeignKey, TestUUIDM2M, TestMultiUUIDM2M, TestUUIDM2MProxy
 )
 from easyaudit.models import CRUDEvent, RequestEvent
 from easyaudit.middleware.easyaudit import set_current_user, clear_request
@@ -72,16 +72,37 @@ class TestAuditModels(TestCase):
         data = json.loads(crud_event.object_json_repr)[0]
         self.assertEqual([str(d) for d in data['fields']['test_m2m']], [str(obj.id)])
 
-#    def test_m2m_proxy_model(self):
-#        obj = self.Model.objects.create()
-#        obj_m2m = self.M2MProxyModel(name='test')
-#        obj_m2m.save()
-#        obj_m2m.test_m2m.add(obj)
-#        crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
-#        obj_data = json.loads(crud_event.object_json_repr)[0]
-#        changed_fields_data = json.loads(crud_event.changed_fields)
-#        self.assertEqual([str(d) for d in data['fields']['test_m2m']], [str(obj.id)])
-#        self.assertEqual(changed_fields_data.keys()[0], 'test_m2m')
+    def test_m2m_proxy_model(self):
+        obj = self.Model.objects.create()
+        obj_m2m = self.M2MProxyModel(name='test')
+        obj_m2m.save()
+        obj_m2m.test_m2m.add(obj)
+        crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
+        obj_data = json.loads(crud_event.object_json_repr)[0]
+        changed_fields_data = json.loads(crud_event.changed_fields)
+        self.assertEqual([str(d) for d in obj_data['fields']['test_m2m']], [str(obj.id)])
+        self.assertEqual(list(changed_fields_data.keys())[0], 'test_m2m')
+
+    def test_multifield_m2m_model(self):
+        obj = self.Model.objects.create()
+        obj_m2m = self.M2MMultiModel(name='test')
+        obj_m2m.save()
+        
+        obj_m2m.test_m2m_a.add(obj)
+        crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
+        obj_data = json.loads(crud_event.object_json_repr)[0]
+        changed_fields_data = json.loads(crud_event.changed_fields)
+        self.assertEqual([str(d) for d in obj_data['fields']['test_m2m_a']], [str(obj.id)])
+        self.assertEqual(list(changed_fields_data.keys())[0], 'test_m2m_a')
+        
+        obj_m2m.test_m2m_b.add(obj)
+        crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
+        obj_data = json.loads(crud_event.object_json_repr)[0]
+        changed_fields_data = json.loads(crud_event.changed_fields)
+        self.assertEqual([str(d) for d in obj_data['fields']['test_m2m_b']], [str(obj.id)])
+        self.assertEqual(list(changed_fields_data.keys())[0], 'test_m2m_b')
+
+
 
     def test_m2m_clear(self):
         obj = self.Model.objects.create()
@@ -153,12 +174,16 @@ class TestAuditUUIDModels(TestAuditModels):
     Model = TestUUIDModel
     FKModel = TestUUIDForeignKey
     M2MModel = TestUUIDM2M
+    M2MProxyModel = TestUUIDM2MProxy
+    M2MMultiModel = TestMultiUUIDM2M
 
 
 class TestAuditBigIntModels(TestAuditModels):
     Model = TestBigIntModel
     FKModel = TestBigIntForeignKey
     M2MModel = TestBigIntM2M
+    M2MProxyModel = TestBigIntM2MProxy
+    M2MMultiModel = TestBigIntMultiM2M
 
 
 @override_settings(TEST=True)
