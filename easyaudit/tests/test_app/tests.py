@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 import bs4
 from test_app.models import (
-    TestModel, TestForeignKey, TestM2M,
+    TestModel, TestForeignKey, TestM2M, TestM2MProxy, TestMultiM2M,
     TestBigIntModel, TestBigIntForeignKey, TestBigIntM2M,
     TestUUIDModel, TestUUIDForeignKey, TestUUIDM2M
 )
@@ -44,6 +44,8 @@ class TestAuditModels(TestCase):
     Model = TestModel
     FKModel = TestForeignKey
     M2MModel = TestM2M
+    M2MProxyModel = TestM2MProxy
+    M2MMultiModel = TestMultiM2M
 
     def test_create_model(self):
         obj = self.Model.objects.create()
@@ -69,6 +71,17 @@ class TestAuditModels(TestCase):
         crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
         data = json.loads(crud_event.object_json_repr)[0]
         self.assertEqual([str(d) for d in data['fields']['test_m2m']], [str(obj.id)])
+
+#    def test_m2m_proxy_model(self):
+#        obj = self.Model.objects.create()
+#        obj_m2m = self.M2MProxyModel(name='test')
+#        obj_m2m.save()
+#        obj_m2m.test_m2m.add(obj)
+#        crud_event = CRUDEvent.objects.filter(object_id=obj_m2m.id, content_type=ContentType.objects.get_for_model(obj_m2m))[0]
+#        obj_data = json.loads(crud_event.object_json_repr)[0]
+#        changed_fields_data = json.loads(crud_event.changed_fields)
+#        self.assertEqual([str(d) for d in data['fields']['test_m2m']], [str(obj.id)])
+#        self.assertEqual(changed_fields_data.keys()[0], 'test_m2m')
 
     def test_m2m_clear(self):
         obj = self.Model.objects.create()
