@@ -1,10 +1,14 @@
-from django.contrib.auth import get_user_model
+from importlib import import_module
+
+from django.contrib.auth import get_user_model, SESSION_KEY as AUTH_SESSION_KEY
 from django.contrib.sessions.models import Session
 from django.core.signals import request_started
 from django.http.cookie import SimpleCookie
 from django.utils import timezone
 from django.conf import settings
 from django.utils.module_loading import import_string
+
+session_engine = import_module(settings.SESSION_ENGINE)
 
 # try and get the user from the request; commented for now, may have a bug in this flow.
 # from easyaudit.middleware.easyaudit import get_current_user
@@ -70,12 +74,12 @@ def request_started_handler(sender, **kwargs):
             session_id = cookie[session_cookie_name].value
 
             try:
-                session = Session.objects.get(session_key=session_id)
+                session = session_engine.SessionStore(session_key=session_id).load()
             except Session.DoesNotExist:
                 session = None
 
-            if session:
-                user_id = session.get_decoded().get('_auth_user_id')
+            if session and AUTH_SESSION_KEY in session:
+                user_id = session.get(AUTH_SESSION_KEY)
                 try:
                     user = get_user_model().objects.get(id=user_id)
                 except:
