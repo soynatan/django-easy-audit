@@ -77,7 +77,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
         with transaction.atomic(using=using):
             try:
                 object_json_repr = serializers.serialize("json", [instance])
-            except Exception:
+            except ValueError:
                 # We need a better way for this to work. ManyToMany will fail on pre_save on create
                 return None
 
