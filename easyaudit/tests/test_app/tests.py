@@ -18,7 +18,8 @@ import bs4
 from test_app.models import (
     TestModel, TestForeignKey, TestM2M,
     TestBigIntModel, TestBigIntForeignKey, TestBigIntM2M,
-    TestUUIDModel, TestUUIDForeignKey, TestUUIDM2M
+    TestUUIDModel, TestUUIDForeignKey, TestUUIDM2M,
+    TestSoftDeleteModel
 )
 from easyaudit.models import CRUDEvent, RequestEvent
 from easyaudit.middleware.easyaudit import set_current_user, clear_request
@@ -286,3 +287,17 @@ class TestAuditAdmin(WithUserInfoMixin, TestCase):
         response = self.client.get(reverse('admin:easyaudit_requestevent_changelist'))
         self.assertEqual(200, response.status_code)
         filters = self._list_filters(response.content)
+
+@override_settings(TEST=True)
+class TestCustomManager(TestCase):
+    Model = TestSoftDeleteModel
+
+    def test_soft_delete_model(self):
+        obj = self.Model.objects.create(deleted=True)
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(1, crud_event_qs.count())
+
+        obj.some_other_field = 'this should not fail'
+        obj.save()
+        crud_event_qs = CRUDEvent.objects.filter(object_id=obj.id, content_type=ContentType.objects.get_for_model(obj))
+        self.assertEqual(2, crud_event_qs.count())
