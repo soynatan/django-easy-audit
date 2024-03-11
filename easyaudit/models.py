@@ -52,6 +52,10 @@ class CRUDEvent(models.Model):
 
     def is_delete(self):
         return self.DELETE == self.event_type
+    
+    def get_edited_object(self):
+        """ Return the edited object represented by this CRUD event (Like Django LogEntry does). """
+        return self.content_type.get_object_for_this_type(pk=self.object_id)
 
     class Meta:
         verbose_name = _('CRUD event')
