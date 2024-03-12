@@ -9,13 +9,16 @@ from django.utils import timezone
 from django.utils.encoding import smart_str
 
 
-def get_field_value(obj, field):
+def get_field_value(obj, field, raw=False):
     """
     Gets the value of a given model instance field.
     :param obj: The model instance.
     :type obj: Model
     :param field: The field you want to find the value of.
     :type field: Any
+    :param raw: When field is relation, toggle to return value as string representation
+                of the object (False) or raw value from db (True)
+    :type raw: Boolean
     :return: The value of the field as a string.
     :rtype: str
     """
@@ -30,7 +33,8 @@ def get_field_value(obj, field):
             value = field.default if field.default is not NOT_PROVIDED else None
     else:
         try:
-            value = smart_str(getattr(obj, field.name, None))
+            field_attr = getattr(field, 'attname' if raw else 'name')
+            value = smart_text(getattr(obj, field_attr, None))
         except ObjectDoesNotExist:
             value = field.default if field.default is not NOT_PROVIDED else None
 
@@ -53,11 +57,13 @@ def model_delta(old_model, new_model):
     delta = {}
     fields = new_model._meta.fields
     for field in fields:
-        old_value = get_field_value(old_model, field)
-        new_value = get_field_value(new_model, field)
-        if old_value != new_value:
-            delta[field.name] = [smart_str(old_value),
-                                 smart_str(new_value)]
+        old_value_raw = get_field_value(old_model, field, raw=True)
+        new_value_raw = get_field_value(new_model, field, raw=True)
+        if old_value_raw != new_value_raw:
+            old_value = get_field_value(old_model, field)
+            new_value = get_field_value(new_model, field)
+            delta[field.name] = [smart_text(old_value),
+                                 smart_text(new_value)]
 
     if len(delta) == 0:
         delta = None
