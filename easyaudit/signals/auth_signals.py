@@ -18,7 +18,7 @@ def user_logged_in(sender, request, user, **kwargs):
                 'login_type': LoginEvent.LOGIN,
                 'username': getattr(user, user.USERNAME_FIELD),
                 'user_id': getattr(user, 'id', None),
-                'remote_ip': request.META.get(REMOTE_ADDR_HEADER, "")
+                'remote_ip': request.META.get(REMOTE_ADDR_HEADER, '')
             })
     except Exception:
         if should_propagate_exceptions():
@@ -32,7 +32,7 @@ def user_logged_out(sender, request, user, **kwargs):
                 'login_type': LoginEvent.LOGOUT,
                 'username': getattr(user, user.USERNAME_FIELD),
                 'user_id': getattr(user, 'id', None),
-                'remote_ip': request.META[REMOTE_ADDR_HEADER]
+                'remote_ip': request.META.get(REMOTE_ADDR_HEADER, '')
             })
     except Exception:
         if should_propagate_exceptions():
@@ -47,7 +47,7 @@ def user_login_failed(sender, credentials, **kwargs):
             login_event = audit_logger.login({
                 'login_type': LoginEvent.FAILED,
                 'username': credentials[user_model.USERNAME_FIELD],
-                'remote_ip': request.META[REMOTE_ADDR_HEADER]
+                'remote_ip': request.META.get(REMOTE_ADDR_HEADER, '')
             })
     except Exception:
         if should_propagate_exceptions():
