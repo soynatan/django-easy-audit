@@ -278,7 +278,7 @@ def m2m_changed(sender, instance, action, reverse, model, pk_set, using, **kwarg
                     if action == "post_clear":
                         changed_fields = []
                     else:
-                        changed_fields = json.dumps({get_m2m_field_name(model, instance): list(pk_set)}, cls=DjangoJSONEncoder)
+                        changed_fields = json.dumps({get_m2m_field_name(model, instance, sender): list(pk_set)}, cls=DjangoJSONEncoder)
                     with transaction.atomic(using=DATABASE_ALIAS):
                         crud_event = audit_logger.crud({
                             'event_type': event_type,
