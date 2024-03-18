@@ -15,6 +15,7 @@ from . import settings
 from .models import CRUDEvent, LoginEvent, RequestEvent
 from .admin_helpers import prettify_json, EasyAuditModelAdmin
 from .settings import (CRUD_EVENT_LIST_FILTER, LOGIN_EVENT_LIST_FILTER, REQUEST_EVENT_LIST_FILTER,
+                       CRUD_EVENT_LIST_DISPLAY, LOGIN_EVENT_LIST_DISPLAY, REQUEST_EVENT_LIST_DISPLAY,
                        CRUD_EVENT_SEARCH_FIELDS, LOGIN_EVENT_SEARCH_FIELDS, REQUEST_EVENT_SEARCH_FIELDS,
                        READONLY_EVENTS)
 
@@ -44,7 +45,7 @@ export_to_csv.short_description = 'Export to CSV'  #short description
 
 # CRUD events
 class CRUDEventAdmin(EasyAuditModelAdmin):
-    list_display = ['get_event_type_display', 'get_content_type', 'object_id', 'object_repr_link', 'user_link', 'datetime']
+    list_display = CRUD_EVENT_LIST_DISPLAY
     date_hierarchy = 'datetime'
     list_filter = CRUD_EVENT_LIST_FILTER
     search_fields = CRUD_EVENT_SEARCH_FIELDS
@@ -105,7 +106,7 @@ if settings.ADMIN_SHOW_MODEL_EVENTS:
 
 # Login events
 class LoginEventAdmin(EasyAuditModelAdmin):
-    list_display = ['datetime', 'get_login_type_display', 'user_link', "get_username", 'remote_ip']
+    list_display = LOGIN_EVENT_LIST_DISPLAY
     date_hierarchy = 'datetime'
     list_filter = LOGIN_EVENT_LIST_FILTER
     search_fields = LOGIN_EVENT_SEARCH_FIELDS
@@ -131,7 +132,7 @@ if settings.ADMIN_SHOW_AUTH_EVENTS:
 
 # Request events
 class RequestEventAdmin(EasyAuditModelAdmin):
-    list_display = ['datetime', 'user_link', 'method', 'url', 'remote_ip']
+    list_display = REQUEST_EVENT_LIST_DISPLAY
     date_hierarchy = 'datetime'
     list_filter = REQUEST_EVENT_LIST_FILTER
     search_fields = REQUEST_EVENT_SEARCH_FIELDS
