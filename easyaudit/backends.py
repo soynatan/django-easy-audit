@@ -1,11 +1,11 @@
 import logging
-
-from easyaudit.models import CRUDEvent, LoginEvent, RequestEvent
+from easyaudit.models import RequestEvent, CRUDEvent, LoginEvent
 
 logger = logging.getLogger(__name__)
 
 
 class ModelBackend:
+
     def request(self, request_info):
         return RequestEvent.objects.create(**request_info)
 

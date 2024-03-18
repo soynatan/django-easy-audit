@@ -78,7 +78,6 @@ celerybeat-schedule
 .env
 
 # virtualenv
-.venv/
 venv/
 ENV/
 
@@ -88,6 +87,3 @@ ENV/
 # Rope project settings
 .ropeproject
 .idea
-
-# DB
-db.sqlite3
