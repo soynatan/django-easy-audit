@@ -57,6 +57,7 @@ addopts = [
     "--ruff",
     "--ruff-format",
     "--ignore-glob='*/models.py'",
+    "-W error",
 ]
 
 [tool.ruff]
