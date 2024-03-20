@@ -61,6 +61,8 @@ jobs:
         run: poetry run pre-commit run --all-files
 
       - name: Run Tests (Django ${{ steps.poetry-install.outputs.django_version }})
+        # enforce failing fast: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#exit-codes-and-error-action-preference
+        shell: bash
         run: |
           poetry run pytest \
           --junitxml=pytest.xml \
