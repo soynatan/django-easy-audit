@@ -44,7 +44,6 @@ pytest = "^7.4.4"
 pytest-asyncio = "^0.23.3"
 pytest-cov = "^4.1.0"
 pytest-django = "^4.7.0"
-pytest-ruff = "^0.2.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -54,8 +53,6 @@ build-backend = "poetry.core.masonry.api"
 asyncio_mode = "auto"
 addopts = [
     "--ds=tests.settings",         # Forces pytest-django to use test settings
-    "--ruff",
-    "--ruff-format",
     "--ignore-glob='*/models.py'",
 ]
 
