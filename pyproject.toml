@@ -54,6 +54,7 @@ asyncio_mode = "auto"
 addopts = [
     "--ds=tests.settings",         # Forces pytest-django to use test settings
     "--ignore-glob='*/models.py'",
+    "-W error",
 ]
 
 [tool.ruff]
