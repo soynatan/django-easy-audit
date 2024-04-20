@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytest
 from asgiref.sync import sync_to_async
@@ -320,16 +321,16 @@ class TestMiddleware:
 class TestASGIRequestEvent:
     async def test_login(self, async_user, async_client, username, password):
         await sync_to_async(async_client.login)(username=username, password=password)
-        assert await sync_to_async(RequestEvent.objects.count)() == 0
+        assert await RequestEvent.objects.acount() == 0
 
         resp = await async_client.get(reverse("test_app:index"))
         assert resp.status_code == 200
 
-        qs = await sync_to_async(RequestEvent.objects.filter)(user=async_user)
-        assert await sync_to_async(qs.exists)()
+        qs = RequestEvent.objects.filter(user=async_user)
+        assert await qs.aexists()
 
     async def test_remote_addr_default(self, async_client):
-        assert await sync_to_async(RequestEvent.objects.count)() == 0
+        assert await RequestEvent.objects.acount() == 0
 
         resp = await async_client.request(
             method="GET",
@@ -341,11 +342,11 @@ class TestASGIRequestEvent:
         )
         assert resp.status_code == 200
 
-        event = await sync_to_async(RequestEvent.objects.get)(url=reverse("test_app:index"))
+        event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
         assert event.remote_ip == "127.0.0.1"
 
     async def test_remote_addr_another(self, async_client):
-        assert await sync_to_async(RequestEvent.objects.count)() == 0
+        assert await RequestEvent.objects.acount() == 0
 
         resp = await async_client.request(
             method="GET",
@@ -358,8 +359,25 @@ class TestASGIRequestEvent:
         )
         assert resp.status_code == 200
 
-        event = await sync_to_async(RequestEvent.objects.get)(url=reverse("test_app:index"))
+        event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
         assert event.remote_ip == "10.0.0.1"
+
+    async def test_middleware_is_async_capable(self, async_client, caplog, settings):
+        """Test for async capability of EasyAuditMiddleware.
+
+        If the EasyAuditMiddleware is async capable Django `django.request` logger
+        will not emit debug message 'Asynchronous handler adapted for middleware …'
+
+        See: https://docs.djangoproject.com/en/5.0/topics/async/#async-views
+        """
+        unwanted_log_message = (
+            "Asynchronous handler adapted for middleware "
+            "easyaudit.middleware.easyaudit.EasyAuditMiddleware"
+        )
+        settings.DEBUG = True
+        with caplog.at_level(logging.DEBUG, "django.request"):
+            await async_client.get(reverse("test_app:index"))
+            assert unwanted_log_message not in caplog.text
 
 
 @pytest.mark.django_db
