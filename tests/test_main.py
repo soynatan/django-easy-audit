@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytest
 from asgiref.sync import sync_to_async
@@ -337,6 +338,23 @@ class TestASGIRequestEvent:
 
         event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
         assert event.remote_ip == "10.0.0.1"
+
+    async def test_middleware_is_async_capable(self, async_client, caplog, settings):
+        """Test for async capability of EasyAuditMiddleware.
+
+        If the EasyAuditMiddleware is async capable Django `django.request` logger
+        will not emit debug message 'Asynchronous handler adapted for middleware …'
+
+        See: https://docs.djangoproject.com/en/5.0/topics/async/#async-views
+        """
+        unwanted_log_message = (
+            "Asynchronous handler adapted for middleware "
+            "easyaudit.middleware.easyaudit.EasyAuditMiddleware"
+        )
+        settings.DEBUG = True
+        with caplog.at_level(logging.DEBUG, "django.request"):
+            await async_client.get(reverse("test_app:index"))
+            assert unwanted_log_message not in caplog.text
 
 
 @pytest.mark.django_db
