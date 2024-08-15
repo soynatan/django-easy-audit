@@ -29,7 +29,7 @@ packages = [{include = "easyaudit"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-django = "^4.2"
+django = ">=4.2", "<6.0"
 
 [tool.poetry.group.dev.dependencies]
 djlint = "^1.34.1"
