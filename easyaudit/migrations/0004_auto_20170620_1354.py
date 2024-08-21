@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name='crudevent',
-            index=models.Index(fields=['object_id', 'content_type']),
+            index=models.Index(fields=['object_id', 'content_type'], name='easyaudit_c_object__82020b_idx'),
         ),
     ]
