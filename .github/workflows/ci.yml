@@ -1,32 +1,36 @@
 name: CI
 
-on: [pull_request, workflow_dispatch]
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  get-python-versions:
-    name: Get Python versions
-    runs-on: ubuntu-latest
-    outputs:
-      python-matrix: ${{ steps.get-python-versions-action.outputs.latest-python-versions }}
-    steps:
-      - name: Get Python version matrix
-        uses: snok/latest-python-versions@v1
-        id: get-python-versions-action
-        with:
-          min-version: 3.8
-
   ci:
     name: CI
-    needs: [get-python-versions]
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
+      max-parallel: 4
       matrix:
-        python-version: ${{ fromJson(needs.get-python-versions.outputs.python-matrix) }}
+        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
+        django-version: [4.2, '5.0', 5.1]
+        exclude:
+          # Django 5.0 and 5.1 only support Python 3.10 to 3.12
+          - python-version: 3.8
+            django-version: 5.0
+          - python-version: 3.9
+            django-version: 5.0
+          - python-version: 3.8
+            django-version: 5.1
+          - python-version: 3.9
+            django-version: 5.1
 
     steps:
       - name: Checkout ${{ github.repository }}
@@ -55,6 +59,7 @@ jobs:
         id: poetry-install
         run: |
           poetry install --no-interaction --no-root
+          poetry run pip install Django==${{ matrix.django-version }}.*
           echo "django_version=$(poetry run django-admin --version)" >> $GITHUB_OUTPUT
 
       - name: Run pre-commit
