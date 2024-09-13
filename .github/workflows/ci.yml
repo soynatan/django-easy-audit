@@ -19,7 +19,7 @@ jobs:
       fail-fast: true
       max-parallel: 4
       matrix:
-        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
+        python-version: [3.8, 3.9, '3.10', 3.11, 3.12, 3.13.0-rc.2]
         django-version: [4.2, '5.0', 5.1]
         exclude:
           # Django 5.0 and 5.1 only support Python 3.10 to 3.12
@@ -31,6 +31,8 @@ jobs:
             django-version: 5.1
           - python-version: 3.9
             django-version: 5.1
+          - python-version: 3.13.0-rc.2
+            django-version: 4.2
 
     steps:
       - name: Checkout ${{ github.repository }}
