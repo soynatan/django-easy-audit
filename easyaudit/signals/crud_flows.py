@@ -85,7 +85,7 @@ def post_save_crud_flow(instance, object_json_repr):
             object_json_repr,
         )
     except Exception:
-        handle_flow_exception(instance, "pre_save")
+        handle_flow_exception(instance, "post_save")
 
 
 def m2m_changed_crud_flow(  # noqa: PLR0913
@@ -106,7 +106,7 @@ def m2m_changed_crud_flow(  # noqa: PLR0913
             changed_fields=changed_fields,
         )
     except Exception:
-        handle_flow_exception(instance, "pre_save")
+        handle_flow_exception(instance, "m2m_changed")
 
 
 def post_delete_crud_flow(instance, object_json_repr):
@@ -118,4 +118,4 @@ def post_delete_crud_flow(instance, object_json_repr):
         )
 
     except Exception:
-        handle_flow_exception(instance, "pre_save")
+        handle_flow_exception(instance, "post_delete")
