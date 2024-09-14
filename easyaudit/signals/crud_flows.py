@@ -35,7 +35,7 @@ def get_current_user_details():
     return user_id, user_pk_as_string
 
 
-def log_event(event_type, instance, object_json_repr, **kwargs):
+def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
     user_id, user_pk_as_string = get_current_user_details()
     with transaction.atomic(using=DATABASE_ALIAS):
         audit_logger.crud(
@@ -43,7 +43,7 @@ def log_event(event_type, instance, object_json_repr, **kwargs):
                 "content_type_id": ContentType.objects.get_for_model(instance).id,
                 "datetime": timezone.now(),
                 "event_type": event_type,
-                "object_id": instance.pk,
+                "object_id": object_id,
                 "object_json_repr": object_json_repr or "",
                 "object_repr": str(instance),
                 "user_id": user_id,
@@ -70,6 +70,7 @@ def pre_save_crud_flow(instance, object_json_repr, changed_fields):
         log_event(
             CRUDEvent.UPDATE,
             instance,
+            instance.pk,
             object_json_repr,
             changed_fields=changed_fields,
         )
@@ -82,6 +83,7 @@ def post_save_crud_flow(instance, object_json_repr):
         log_event(
             CRUDEvent.CREATE,
             instance,
+            instance.pk,
             object_json_repr,
         )
     except Exception:
@@ -102,6 +104,7 @@ def m2m_changed_crud_flow(  # noqa: PLR0913
         log_event(
             event_type,
             instance,
+            instance.pk,
             object_json_repr,
             changed_fields=changed_fields,
         )
@@ -109,11 +112,12 @@ def m2m_changed_crud_flow(  # noqa: PLR0913
         handle_flow_exception(instance, "m2m_changed")
 
 
-def post_delete_crud_flow(instance, object_json_repr):
+def post_delete_crud_flow(instance, object_id, object_json_repr):
     try:
         log_event(
             CRUDEvent.DELETE,
             instance,
+            object_id,
             object_json_repr,
         )
 
