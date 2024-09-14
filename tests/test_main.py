@@ -4,6 +4,7 @@ import pytest
 from asgiref.sync import sync_to_async
 from django.contrib.contenttypes.models import ContentType
 from django.core import management
+from django.db import transaction
 from django.urls import reverse
 from django.utils.version import get_version
 from pytest_django.asserts import assertInHTML
@@ -188,6 +189,28 @@ class TestAuditModels:
             object_id=obj_id, content_type=ContentType.objects.get_for_model(obj)
         )
         assert crud_event_qs.count() == 2
+
+    @pytest.mark.django_db(transaction=True)
+    def test_delete_transaction(self, model, settings):
+        settings.TEST = False
+
+        with transaction.atomic():
+            obj = model.objects.create()
+            model.objects.all().delete()
+
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj.id,
+            content_type=ContentType.objects.get_for_model(obj),
+            event_type=CRUDEvent.CREATE,
+        )
+        assert crud_event_qs.count() == 1
+
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj.id,
+            content_type=ContentType.objects.get_for_model(obj),
+            event_type=CRUDEvent.DELETE,
+        )
+        assert crud_event_qs.count() == 1
 
     @pytest.mark.usefixtures("_audit_logger")
     def test_propagate_exceptions(self, model, settings):

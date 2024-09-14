@@ -241,10 +241,13 @@ def post_delete(sender, instance, using, **kwargs):
 
         with transaction.atomic(using=using):
             object_json_repr = serializers.serialize("json", [instance])
+            # instance.pk returns None if the changes are performed within a transaction
+            object_id = instance.pk
 
             crud_flow = partial(
                 post_delete_crud_flow,
                 instance=instance,
+                object_id=object_id,
                 object_json_repr=object_json_repr,
             )
             if getattr(settings, "TEST", False):
