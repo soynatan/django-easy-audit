@@ -42,11 +42,11 @@ class CRUDEvent(models.Model):
     object_repr = models.TextField(
         default="", blank=True, verbose_name=_("Object representation")
     )
-    object_json_repr = models.TextField(
-        default="", blank=True, verbose_name=_("Object JSON representation")
+    object_json_repr = models.JSONField(
+        default=dict, blank=True, verbose_name=_("Object JSON representation")
     )
-    changed_fields = models.TextField(
-        default="", blank=True, verbose_name=_("Changed fields")
+    changed_fields = models.JSONField(
+        default=dict, blank=True, verbose_name=_("Changed fields")
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
