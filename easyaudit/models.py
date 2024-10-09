@@ -66,10 +66,12 @@ class CRUDEvent(models.Model):
     datetime = models.DateTimeField(auto_now_add=True, verbose_name=_("Date time"))
 
     class Meta:
-        verbose_name = _("CRUD event")
-        verbose_name_plural = _("CRUD events")
-        ordering = ["-datetime"]
-        indexes = [models.Index(fields=["object_id", "content_type"])]
+        verbose_name = _('CRUD event')
+        verbose_name_plural = _('CRUD events')
+        ordering = ['-datetime']
+        indexes = [
+            models.Index(fields=['object_id', 'content_type']),
+        ]
 
     def is_create(self):
         return self.event_type == self.CREATE
