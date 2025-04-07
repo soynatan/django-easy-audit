@@ -182,7 +182,7 @@ msgid "Are you sure you want to permanently remove all objects ?"
 msgstr "Voulez-vous supprimer définitivement tous les objects"
 
 #: templates/admin/easyaudit/purge_confirmation.html:25
-msgid "Yes, I\'m sure"
+msgid "Yes, I'm sure"
 msgstr "Oui j'en suis sûre"
 
 #: templates/admin/easyaudit/purge_confirmation.html:26
