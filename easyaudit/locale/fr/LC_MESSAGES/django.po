@@ -188,3 +188,27 @@ msgstr "Oui j'en suis sûre"
 #: templates/admin/easyaudit/purge_confirmation.html:26
 msgid "Cancel"
 msgstr "Annuler"
+
+#: models.py:26
+msgid "Many-to-Many Add"
+msgstr "Ajout plusieurs-à-plusieurs"
+
+#: models.py:27
+msgid "Reverse Many-to-Many Add"
+msgstr "Ajout inversé plusieurs-à-plusieurs"
+
+#: models.py:28
+msgid "Many-to-Many Remove"
+msgstr "Suppression plusieurs-à-plusieurs"
+
+#: models.py:29
+msgid "Reverse Many-to-Many Remove"
+msgstr "Suppression inversée plusieurs-à-plusieurs"
+
+#: models.py:30
+msgid "Many-to-Many Clear"
+msgstr "Nettoyage plusieurs-à-plusieurs"
+
+#: models.py:31
+msgid "Reverse Many-to-Many Clear"
+msgstr "Nettoyage inversé plusieurs-à-plusieurs"
