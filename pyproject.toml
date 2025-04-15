@@ -20,7 +20,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -31,15 +30,12 @@ classifiers = [
 packages = [{include = "easyaudit"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 django = ">=4.2,<6.0"
 
 [tool.poetry.group.dev.dependencies]
 djlint = "^1.34.1"
-pre-commit = [
-    {version = "~3.5", python = "<3.9"},
-    {version = "^3.5", python = ">=3.9"},
-]
+pre-commit = "^3.5"
 ruff = "^0.1.11"
 
 [tool.poetry.group.test.dependencies]
@@ -100,7 +96,7 @@ select = [ # https://docs.astral.sh/ruff/rules
     "RUF", # ruff
 ]
 show-fixes = true
-target-version = "py38"
+target-version = "py39"
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
