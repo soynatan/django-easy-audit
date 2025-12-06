@@ -14,6 +14,7 @@ classifiers = [
     "Framework :: Django :: 5.0",
     "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Framework :: Django",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -25,13 +26,14 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-packages = [{include = "easyaudit"}]
+packages = [{ include = "easyaudit" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-django = ">=4.2,<6.0"
+django = ">=4.2,<6.1"
 
 [tool.poetry.group.dev.dependencies]
 djlint = "^1.34.1"
