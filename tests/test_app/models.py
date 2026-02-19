@@ -3,6 +3,8 @@ import uuid
 
 from django.db import models
 
+from .managers import SoftDeleteManager
+
 
 class Model(models.Model):
     id = models.AutoField(primary_key=True)
@@ -51,3 +53,12 @@ class BigIntM2MModel(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=50)
     test_m2m = models.ManyToManyField(BigIntModel)
+
+
+class CustomManagerModel(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=50, default="test data")
+    deleted = models.BooleanField(default=False)
+
+    all_objects = models.Manager()
+    objects = SoftDeleteManager()

@@ -16,6 +16,7 @@ from tests.test_app.models import (
     BigIntForeignKeyModel,
     BigIntM2MModel,
     BigIntModel,
+    CustomManagerModel,
     ForeignKeyModel,
     M2MModel,
     Model,
@@ -52,6 +53,7 @@ def test_no_issues(capsys: pytest.CaptureFixture):
         UUIDForeignKeyModel,
         UUIDM2MModel,
         UUIDModel,
+        CustomManagerModel,
     ],
 )
 class TestDjangoCompat:
@@ -74,6 +76,10 @@ class TestAuditModels:
     @pytest.fixture
     def m2m_model(self):
         return M2MModel
+
+    @pytest.fixture
+    def custom_manager_model(self):
+        return CustomManagerModel
 
     @pytest.fixture
     def _audit_logger(self, monkeypatch):
@@ -130,6 +136,20 @@ class TestAuditModels:
         ).first()
         data = json.loads(crud_event.object_json_repr)[0]
         assert [str(d) for d in data["fields"]["test_m2m"]] == []
+
+    def test_custom_manager(self, custom_manager_model):
+        obj = custom_manager_model.objects.create(deleted=True)
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj.id, content_type=ContentType.objects.get_for_model(obj)
+        )
+        assert crud_event_qs.count() == 1
+
+        obj.name = "this should not fail"
+        obj.save()
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj.id, content_type=ContentType.objects.get_for_model(obj)
+        )
+        assert crud_event_qs.count() == 2
 
     @pytest.mark.usefixtures("no_changed_fields_skip")
     def test_update_skip_no_changed_fields(self, model):
