@@ -1,4 +1,3 @@
-# ruff: noqa: A003
 import uuid
 
 from django.db import models
@@ -51,3 +50,12 @@ class BigIntM2MModel(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=50)
     test_m2m = models.ManyToManyField(BigIntModel)
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+
+
+class Article(models.Model):
+    title = models.CharField(max_length=200)
+    tags = models.ManyToManyField(Tag, blank=True)
