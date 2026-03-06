@@ -46,12 +46,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # Poetry 2.3+ requires Python 3.10+. Use 1.8.x when testing on 3.9.
+      - name: Set Poetry version
+        id: poetry-version
+        run: |
+          if [ "${{ matrix.python-version }}" = "3.9" ]; then
+            echo "version=1.8.3" >> $GITHUB_OUTPUT
+          else
+            echo "version=latest" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
+          version: ${{ steps.poetry-version.outputs.version }}
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
+
+      - name: Set Poetry Python version
+        run: poetry env use ${{ steps.setup-python.outputs.python-path }}
 
       - name: Load cached environment
         uses: actions/cache@v3

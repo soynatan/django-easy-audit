@@ -33,18 +33,19 @@ packages = [{ include = "easyaudit" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-django = ">=4.2,<6.1"
+django = ">=4.2,<7"
 
 [tool.poetry.group.dev.dependencies]
-djlint = "^1.34.1"
-pre-commit = "^3.5"
-ruff = "^0.1.11"
+django-upgrade = "*"
+djlint = "*"
+pre-commit = "*"
+ruff = "*"
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.4.4"
-pytest-asyncio = "^0.23.3"
-pytest-cov = "^4.1.0"
-pytest-django = "^4.7.0"
+pytest = "*"
+pytest-asyncio = "*"
+pytest-cov = "*"
+pytest-django = "*"
 
 [build-system]
 requires = ["poetry-core"]
@@ -60,6 +61,11 @@ addopts = [
 
 [tool.ruff]
 extend-exclude = ["migrations"]
+line-length = 92
+target-version = "py39"
+show-fixes = true
+
+[tool.ruff.lint]
 ignore = [
     "D1",     # Missing docstrings
     "D203",   # Docstrings on class definitions not preceded by a blank line
@@ -67,8 +73,10 @@ ignore = [
     "D407",   # Dashed underline after doc section (not compatible with google style)
     "DJ008",  # Model does not define `__str__` method
     "RUF012", # Mutable default values in class attributes
+    "PLC0415", # Import inside function (lazy load / avoid circular)
+    "PLE0704", # Bare raise (re-raise from helper called in except)
+    "ISC001",  # Conflicts with ruff formatter; disable to avoid unexpected behavior
 ]
-line-length = 92
 select = [ # https://docs.astral.sh/ruff/rules
     "F",   # pyflakes
     "E",   # pycodestyle
@@ -97,12 +105,10 @@ select = [ # https://docs.astral.sh/ruff/rules
     "PL",  # pylint
     "RUF", # ruff
 ]
-show-fixes = true
-target-version = "py39"
+[tool.ruff.lint.per-file-ignores]
+"**/test_*.py" = ["PLR2004", "S101", "S106"]
+"tests/test_app/models.py" = ["A003"]  # id primary key shadows builtin
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
-
-[tool.ruff.per-file-ignores]
-"**/test_*.py" = ["PLR2004", "S101", "S106"]
