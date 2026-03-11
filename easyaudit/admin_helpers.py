@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import re_path, reverse
+from django.urls import path, reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -67,8 +67,8 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            re_path(
-                r"^purge/$",
+            path(
+                "purge/",
                 self.admin_site.admin_view(self.purge),
                 {},
                 name=f"{self.model._meta.app_label}_{self.model._meta.model_name}_purge",
@@ -116,12 +116,12 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
                     n = modeladmin.model.objects.count()
                     truncate_table(modeladmin.model)
                     modeladmin.message_user(
-                        request, _("Successfully removed %d rows" % n), messages.SUCCESS
+                        request,
+                        _(f"Successfully removed {n} rows"),
+                        messages.SUCCESS,
                     )
                 except Exception as e:
-                    modeladmin.message_user(
-                        request, _("ERROR") + ": %r" % e, messages.ERROR
-                    )
+                    modeladmin.message_user(request, _(f"ERROR: {e!r}"), messages.ERROR)
             else:
                 modeladmin.message_user(
                     request, _("Action cancelled by user"), messages.SUCCESS
