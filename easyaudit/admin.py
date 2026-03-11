@@ -140,18 +140,16 @@ class LoginEventAdmin(EasyAuditModelAdmin):
         "datetime",
     ]
 
+    @admin.display(description="User")
     def get_user(self, obj):
         return self.users_by_id.get(obj.user_id)
 
-    get_user.short_description = "User"
-
+    @admin.display(description="User name")
     def get_username(self, obj):
         user = self.get_user(obj)
         if user:
             return user.get_username()
         return obj.username
-
-    get_username.short_description = "User name"
 
     actions = [export_to_csv]
 
@@ -171,10 +169,9 @@ class RequestEventAdmin(EasyAuditModelAdmin):
         "datetime",
     ]
 
+    @admin.display(description="User")
     def get_user(self, obj):
         return self.users_by_id.get(obj.user_id)
-
-    get_user.short_description = "User"
 
     actions = [export_to_csv]
 

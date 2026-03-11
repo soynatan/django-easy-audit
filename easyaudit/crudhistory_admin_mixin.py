@@ -24,7 +24,7 @@ class BaseProcessActionsAdminMixin:
 
         return add_preserved_filters(
             {"preserved_filters": preserved_filters, "opts": opts},
-            request.META.get("HTTP_REFERER", "/"),
+            request.headers.get("referer", "/"),
         )
 
     def process_action(
@@ -64,6 +64,7 @@ class CRUDHistoryAdminMixin(BaseProcessActionsAdminMixin, admin.ModelAdmin):
     def crud_history_view(self, request: HttpRequest, object_id: int):
         return self.process_action(request, object_id, self.CRUD_HISTORY)
 
+    @admin.action(description=crud_history_translated_title)
     def crud_history_action(self, request: HttpRequest, obj: Model) -> HttpResponseRedirect:
         base_history_url = reverse(
             "admin:easyaudit_crudevent_changelist",
@@ -76,21 +77,17 @@ class CRUDHistoryAdminMixin(BaseProcessActionsAdminMixin, admin.ModelAdmin):
 
         return redirect(history_url)
 
-    crud_history_action.short_description = crud_history_translated_title
-
     def get_crud_history_url(self, obj: Model) -> str:
         info = self._get_path_info()
         return reverse(f"admin:%s_%s_{self.CRUD_HISTORY}" % info, args=[obj.pk])
 
+    @admin.display(description=crud_history_translated_title)
     def crud_history_link(self, obj: Model) -> str:
         crud_history_url = self.get_crud_history_url(obj=obj)
         crud_history_a = (
             f"<a href={crud_history_url}>> {self.crud_history_translated_title}</a>"
         )
         return format_html(crud_history_a)
-
-    crud_history_link.allow_tags = True
-    crud_history_link.short_description = crud_history_translated_title
 
 
 # Example
