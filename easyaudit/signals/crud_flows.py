@@ -48,7 +48,6 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
                 "object_repr": str(instance),
                 "user_id": user_id,
                 "user_pk_as_string": user_pk_as_string,
-                "metadata": get_instance_metadata(instance, kwargs.get("changed_fields")),
                 **kwargs,
             }
         )
