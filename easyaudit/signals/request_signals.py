@@ -1,4 +1,5 @@
 import re
+from functools import lru_cache
 from importlib import import_module
 
 from django.conf import settings
@@ -20,19 +21,31 @@ from easyaudit.settings import (
 
 session_engine = import_module(settings.SESSION_ENGINE)
 audit_logger = import_string(LOGGING_BACKEND)()
-REGISTERED_URL_PATTERNS = [re.compile(url) for url in REGISTERED_URLS]
-UNREGISTERED_URL_PATTERNS = [re.compile(url) for url in UNREGISTERED_URLS]
+
+
+@lru_cache(maxsize=8)
+def _compile_patterns(urls):
+    return tuple(re.compile(url) for url in urls)
+
+
+def _get_registered_url_patterns():
+    return _compile_patterns(tuple(REGISTERED_URLS))
+
+
+def _get_unregistered_url_patterns():
+    return _compile_patterns(tuple(UNREGISTERED_URLS))
 
 
 def should_log_url(url):
     # check if current url is blacklisted
-    for pattern in UNREGISTERED_URL_PATTERNS:
+    for pattern in _get_unregistered_url_patterns():
         if pattern.match(url):
             return False
 
     # only audit URLs listed in REGISTERED_URLS (if it's set)
-    if REGISTERED_URL_PATTERNS:
-        return any(pattern.match(url) for pattern in REGISTERED_URL_PATTERNS)
+    registered_url_patterns = _get_registered_url_patterns()
+    if registered_url_patterns:
+        return any(pattern.match(url) for pattern in registered_url_patterns)
 
     # all good
     return True
@@ -49,17 +62,24 @@ def _get_asgi_headers(scope):
     }
 
 
+def _normalize_remote_ip(remote_ip):
+    if remote_ip is None:
+        return None
+
+    return remote_ip.split(",", maxsplit=1)[0].strip()
+
+
 def _get_asgi_remote_ip(scope, headers):
     remote_addr_header = _get_remote_addr_header()
     if remote_addr_header != "REMOTE_ADDR":
         asgi_header_name = (
             remote_addr_header.removeprefix("HTTP_").lower().replace("_", "-")
         )
-        remote_ip = headers.get(asgi_header_name)
+        remote_ip = _normalize_remote_ip(headers.get(asgi_header_name))
         if remote_ip:
             return remote_ip
 
-    return next(iter(scope.get("client", ("0.0.0.0", 0))))  # noqa: S104
+    return _normalize_remote_ip(next(iter(scope.get("client", ("0.0.0.0", 0)))))  # noqa: S104
 
 
 def _get_request_details(environ, scope):
@@ -69,7 +89,7 @@ def _get_request_details(environ, scope):
             "method": environ["REQUEST_METHOD"],
             "path": environ["PATH_INFO"],
             "query_string": environ["QUERY_STRING"],
-            "remote_ip": environ.get(_get_remote_addr_header()),
+            "remote_ip": _normalize_remote_ip(environ.get(_get_remote_addr_header())),
         }
 
     headers = _get_asgi_headers(scope)

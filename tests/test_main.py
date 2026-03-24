@@ -12,7 +12,6 @@ from pytest_django.asserts import assertInHTML
 
 from easyaudit.middleware.easyaudit import clear_request, set_current_user
 from easyaudit.models import CRUDEvent, RequestEvent
-from easyaudit.signals.request_signals import should_log_url
 from tests.test_app.models import (
     BigIntForeignKeyModel,
     BigIntM2MModel,
@@ -39,12 +38,6 @@ def test_no_issues(capsys: pytest.CaptureFixture):
 
     captured: str = capsys.readouterr().out
     assert "System check identified no issues" in captured
-
-
-def test_should_log_url_defaults():
-    assert not should_log_url("/admin/easyaudit/requestevent/")
-    assert not should_log_url("/favicon.ico")
-    assert should_log_url("/index")
 
 
 @pytest.mark.parametrize(
@@ -381,7 +374,7 @@ class TestASGIRequestEvent:
             scheme="http",
             headers=[
                 (b"host", b"testserver"),
-                (b"x-forwarded-for", b"203.0.113.9"),
+                (b"x-forwarded-for", b"203.0.113.9, 10.0.0.1"),
             ],
             query_string="",
         )
@@ -436,6 +429,26 @@ class TestWSGIRequestEvent:
         assert resp.status_code == 200
 
         assert RequestEvent.objects.get(user=user)
+
+    def test_admin_url_is_not_logged(self, client):
+        assert RequestEvent.objects.count() == 0
+
+        resp = client.get(reverse("admin:index"))
+        assert resp.status_code == 302
+        assert RequestEvent.objects.count() == 0
+
+    def test_remote_addr_from_forwarded_header(self, client, settings):
+        settings.DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER = "HTTP_X_FORWARDED_FOR"
+        assert RequestEvent.objects.count() == 0
+
+        resp = client.get(
+            reverse("test_app:index"),
+            HTTP_X_FORWARDED_FOR="203.0.113.9, 10.0.0.1",
+        )
+        assert resp.status_code == 200
+
+        event = RequestEvent.objects.get(url=reverse("test_app:index"))
+        assert event.remote_ip == "203.0.113.9"
 
 
 @pytest.mark.django_db
