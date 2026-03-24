@@ -12,6 +12,7 @@ from pytest_django.asserts import assertInHTML
 
 from easyaudit.middleware.easyaudit import clear_request, set_current_user
 from easyaudit.models import CRUDEvent, RequestEvent
+from easyaudit.signals.request_signals import should_log_url
 from tests.test_app.models import (
     BigIntForeignKeyModel,
     BigIntM2MModel,
@@ -38,6 +39,12 @@ def test_no_issues(capsys: pytest.CaptureFixture):
 
     captured: str = capsys.readouterr().out
     assert "System check identified no issues" in captured
+
+
+def test_should_log_url_defaults():
+    assert not should_log_url("/admin/easyaudit/requestevent/")
+    assert not should_log_url("/favicon.ico")
+    assert should_log_url("/index")
 
 
 @pytest.mark.parametrize(
@@ -346,6 +353,45 @@ class TestASGIRequestEvent:
         assert event.remote_ip == "127.0.0.1"
 
     async def test_remote_addr_another(self, async_client):
+        assert await RequestEvent.objects.acount() == 0
+
+        resp = await async_client.request(
+            method="GET",
+            path=str(reverse("test_app:index")),
+            server=("127.0.0.1", "80"),
+            client=("10.0.0.1", 111),
+            scheme="http",
+            headers=[(b"host", b"testserver")],
+            query_string="",
+        )
+        assert resp.status_code == 200
+
+        event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
+        assert event.remote_ip == "10.0.0.1"
+
+    async def test_remote_addr_from_configured_header(self, async_client, settings):
+        settings.DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER = "HTTP_X_FORWARDED_FOR"
+        assert await RequestEvent.objects.acount() == 0
+
+        resp = await async_client.request(
+            method="GET",
+            path=str(reverse("test_app:index")),
+            server=("127.0.0.1", "80"),
+            client=("10.0.0.1", 111),
+            scheme="http",
+            headers=[
+                (b"host", b"testserver"),
+                (b"x-forwarded-for", b"203.0.113.9"),
+            ],
+            query_string="",
+        )
+        assert resp.status_code == 200
+
+        event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
+        assert event.remote_ip == "203.0.113.9"
+
+    async def test_remote_addr_falls_back_when_header_missing(self, async_client, settings):
+        settings.DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER = "HTTP_X_FORWARDED_FOR"
         assert await RequestEvent.objects.acount() == 0
 
         resp = await async_client.request(
