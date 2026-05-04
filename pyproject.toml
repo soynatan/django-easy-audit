@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "django-easy-audit"
-version = "1.3.8"
+version = "1.3.8.post1"
 description = "Yet another Django audit log app, hopefully the simplest one."
 license = "GPL3"
 authors = ["Natán Calzolari <natancalzolari@gmail.com>"]
 readme = "README.md"
-homepage = "https://github.com/soynatan/django-easy-audit"
-repository = "https://github.com/soynatan/django-easy-audit"
+homepage = "https://github.com/plentific/pl-django-easy-audit"
+repository = "https://github.com/plentific/pl-django-easy-audit"
 documentation = "https://github.com/soynatan/django-easy-audit/wiki"
 classifiers = [
     "Environment :: Plugins",
@@ -58,6 +58,11 @@ addopts = [
 
 [tool.ruff]
 extend-exclude = ["migrations"]
+line-length = 92
+target-version = "py39"
+show-fixes = true
+
+[tool.ruff.lint]
 ignore = [
     "D1",     # Missing docstrings
     "D203",   # Docstrings on class definitions not preceded by a blank line
@@ -65,8 +70,10 @@ ignore = [
     "D407",   # Dashed underline after doc section (not compatible with google style)
     "DJ008",  # Model does not define `__str__` method
     "RUF012", # Mutable default values in class attributes
+    "PLC0415", # Import inside function (lazy load / avoid circular)
+    "PLE0704", # Bare raise (re-raise from helper called in except)
+    "ISC001",  # Conflicts with ruff formatter; disable to avoid unexpected behavior
 ]
-line-length = 92
 select = [ # https://docs.astral.sh/ruff/rules
     "F",   # pyflakes
     "E",   # pycodestyle
@@ -95,12 +102,9 @@ select = [ # https://docs.astral.sh/ruff/rules
     "PL",  # pylint
     "RUF", # ruff
 ]
-show-fixes = true
-target-version = "py39"
+[tool.ruff.lint.per-file-ignores]
+"**/test_*.py" = ["PLR2004", "S101", "S106"]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
-
-[tool.ruff.per-file-ignores]
-"**/test_*.py" = ["PLR2004", "S101", "S106"]

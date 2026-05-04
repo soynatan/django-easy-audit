@@ -115,12 +115,13 @@ class EasyAuditModelAdmin(admin.ModelAdmin):
                 try:
                     n = modeladmin.model._base_manager.count()
                     truncate_table(modeladmin.model)
+                    msg = _("Successfully removed {} rows").format(n)
                     modeladmin.message_user(
-                        request, _("Successfully removed %d rows" % n), messages.SUCCESS
+                        request, msg, messages.SUCCESS
                     )
                 except Exception as e:
                     modeladmin.message_user(
-                        request, _("ERROR") + ": %r" % e, messages.ERROR
+                        request, _("ERROR") + f": {e!r}", messages.ERROR
                     )
             else:
                 modeladmin.message_user(
