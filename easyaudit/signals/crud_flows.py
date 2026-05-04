@@ -21,7 +21,7 @@ audit_logger = import_string(LOGGING_BACKEND)()
 
 
 def get_current_user_details():
-    user_id = ""
+    user_id = None
     user_pk_as_string = ""
 
     with contextlib.suppress(Exception):
