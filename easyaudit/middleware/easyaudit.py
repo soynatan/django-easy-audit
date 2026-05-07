@@ -3,7 +3,8 @@ import contextlib
 from typing import Callable
 
 from asgiref.local import Local
-from asgiref.sync import iscoroutinefunction, markcoroutinefunction
+from asgiref.sync import iscoroutinefunction, markcoroutinefunction, sync_to_async
+from django.db import transaction
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 
@@ -58,8 +59,7 @@ class EasyAuditMiddleware:
         _thread_locals.request = request
         response = self.get_response(request)
 
-        with contextlib.suppress(AttributeError):
-            del _thread_locals.request
+        self._register_commit_callback(request, response)
 
         return response
 
@@ -68,7 +68,14 @@ class EasyAuditMiddleware:
 
         response = await self.get_response(request)
 
-        with contextlib.suppress(AttributeError):
-            del _thread_locals.request
+        await sync_to_async(self._register_commit_callback)(request, response)
 
         return response
+
+    def _register_commit_callback(self, request, response):
+        transaction.on_commit(lambda: self._thread_cleanup(request, response))
+
+    def _thread_cleanup(self, request, response):
+        # Must happen after all signals are processed, hence the use of on_commit
+        with contextlib.suppress(AttributeError):
+            del _thread_locals.request

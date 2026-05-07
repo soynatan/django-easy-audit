@@ -1,12 +1,11 @@
 import contextlib
-import json
 import logging
+from uuid import UUID
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.utils import timezone
 from django.utils.module_loading import import_string
@@ -97,10 +96,8 @@ def m2m_changed_crud_flow(  # noqa: PLR0913
         if action == "post_clear":
             changed_fields = []
         else:
-            changed_fields = json.dumps(
-                {get_m2m_field_name(model, instance): list(pk_set)},
-                cls=DjangoJSONEncoder,
-            )
+            pks = [] if pk_set is None else [format_primary_key(pk) for pk in pk_set]
+            changed_fields = {get_m2m_field_name(model, instance): pks}
         log_event(
             event_type,
             instance,
@@ -123,3 +120,9 @@ def post_delete_crud_flow(instance, object_id, object_json_repr):
 
     except Exception:
         handle_flow_exception(instance, "post_delete")
+
+
+def format_primary_key(pk):
+    if isinstance(pk, UUID):
+        return str(pk)
+    return pk
