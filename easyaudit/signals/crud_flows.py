@@ -96,11 +96,7 @@ def m2m_changed_crud_flow(  # noqa: PLR0913
         if action == "post_clear":
             changed_fields = []
         else:
-            pks = (
-                []
-                if pk_set is None
-                else [format_primary_key(pk) for pk in pk_set]
-            )
+            pks = [] if pk_set is None else [format_primary_key(pk) for pk in pk_set]
             changed_fields = {get_m2m_field_name(model, instance): pks}
         log_event(
             event_type,
