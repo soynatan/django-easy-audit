@@ -1,6 +1,5 @@
 import contextlib
 import logging
-from collections.abc import Iterable
 from uuid import UUID
 
 from django.conf import settings
@@ -97,12 +96,12 @@ def m2m_changed_crud_flow(  # noqa: PLR0913
         if action == "post_clear":
             changed_fields = []
         else:
-            pks = pk_set
-            if isinstance(pks, Iterable):
-                pks = (format_primary_key(pk) for pk in pks)
-            else:
-                pks = format_primary_key(pks)
-            changed_fields = {get_m2m_field_name(model, instance): list(pks)}
+            pks = (
+                []
+                if pk_set is None
+                else [format_primary_key(pk) for pk in pk_set]
+            )
+            changed_fields = {get_m2m_field_name(model, instance): pks}
         log_event(
             event_type,
             instance,
