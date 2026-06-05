@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.utils import timezone
 
 
 class Model(models.Model):
@@ -59,3 +60,35 @@ class Tag(models.Model):
 class Article(models.Model):
     title = models.CharField(max_length=200)
     tags = models.ManyToManyField(Tag, blank=True)
+
+
+class MetadataAModel(models.Model):
+    name = models.CharField(max_length=50, default="metadata A")
+
+
+class MetadataBModel(models.Model):
+    name = models.CharField(max_length=50, default="metadata B")
+
+    model_a = models.ForeignKey(MetadataAModel, on_delete=models.CASCADE)
+
+    def get_easyaudit_metadata(self, changed_fields):
+        metadata = {"model_a_id": self.model_a_id}
+
+        if changed_fields and "name" in changed_fields:
+            metadata.update({"last_name_change": str(timezone.now())})
+
+        return metadata
+
+
+class MetadataCModel(models.Model):
+    EASY_AUDIT_METADATA_METHOD = "fetch_metadata"
+
+    name = models.CharField(max_length=50, default="metadata C")
+
+    model_b = models.ForeignKey(MetadataBModel, on_delete=models.CASCADE)
+
+    def fetch_metadata(self, *args, **kwargs):
+        return {
+            "model_a_id": self.model_b.model_a_id,
+            "model_b_id": self.model_b.id,
+        }

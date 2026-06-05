@@ -48,6 +48,7 @@ class CRUDEvent(models.Model):
     changed_fields = models.JSONField(
         null=True, blank=True, verbose_name=_("Changed fields")
     )
+    metadata = models.JSONField(null=True, blank=True, verbose_name=_("Metadata"))
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,

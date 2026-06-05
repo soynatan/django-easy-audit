@@ -7,6 +7,23 @@ from django.utils import timezone
 from django.utils.encoding import smart_str
 
 
+def default_get_datetimefield_value(obj, field):
+    # DateTimeFields are timezone-aware, so we need to convert the field
+    # to its naive form before we can accurately compare them for changes.
+    try:
+        value = field.to_python(getattr(obj, field.name, None))
+        if value is not None and settings.USE_TZ and not timezone.is_naive(value):
+            value = timezone.make_naive(value, timezone=dt.timezone.utc)
+    except ObjectDoesNotExist:
+        value = field.default if field.default is not NOT_PROVIDED else None
+
+    return value
+
+
+RESOLVER_MAP = getattr(settings, "DJANGO_EASY_AUDIT_FIELD_VALUE_RESOLVER_MAP", {})
+RESOLVER_MAP.setdefault(DateTimeField, default_get_datetimefield_value)
+
+
 def get_field_value(obj, field):
     """Get the value of a given model instance field.
 
@@ -17,20 +34,13 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
-    if isinstance(field, DateTimeField):
-        # DateTimeFields are timezone-aware, so we need to convert the field
-        # to its naive form before we can accurately compare them for changes.
-        try:
-            value = field.to_python(getattr(obj, field.name, None))
-            if value is not None and settings.USE_TZ and not timezone.is_naive(value):
-                value = timezone.make_naive(value, timezone=dt.timezone.utc)
-        except ObjectDoesNotExist:
-            value = field.default if field.default is not NOT_PROVIDED else None
-    else:
-        try:
-            value = smart_str(getattr(obj, field.name, None))
-        except ObjectDoesNotExist:
-            value = field.default if field.default is not NOT_PROVIDED else None
+    try:
+        for cls, resolver in RESOLVER_MAP.items():
+            if isinstance(field, cls):
+                return resolver(obj, field)
+        value = smart_str(getattr(obj, field.name, None))
+    except ObjectDoesNotExist:
+        value = field.default if field.default is not NOT_PROVIDED else None
 
     return value
 
@@ -84,3 +94,27 @@ def should_propagate_exceptions():
     :rtype: bool
     """
     return getattr(settings, "DJANGO_EASY_AUDIT_PROPAGATE_EXCEPTIONS", False)
+
+
+def get_model_queryset(model):
+    queryset_method_name = getattr(
+        model, "EASY_AUDIT_QUERYSET_METHOD", "get_easyaudit_queryset"
+    )
+    queryset_method = getattr(model, queryset_method_name, None)
+
+    if callable(queryset_method):
+        return queryset_method()
+
+    return model.objects.all()
+
+
+def get_instance_metadata(instance, changed_fields=None):
+    metadata_method_name = getattr(
+        instance, "EASY_AUDIT_METADATA_METHOD", "get_easyaudit_metadata"
+    )
+    metadata_method = getattr(instance, metadata_method_name, None)
+
+    if callable(metadata_method):
+        return metadata_method(changed_fields)
+
+    return None

@@ -18,6 +18,9 @@ from tests.test_app.models import (
     BigIntModel,
     ForeignKeyModel,
     M2MModel,
+    MetadataAModel,
+    MetadataBModel,
+    MetadataCModel,
     Model,
     UUIDForeignKeyModel,
     UUIDM2MModel,
@@ -237,6 +240,47 @@ class TestAuditUUIDModels(TestAuditModels):
     @pytest.fixture
     def m2m_model(self):
         return UUIDM2MModel
+
+
+@pytest.mark.django_db
+class TestMetadataModels:
+    def test_metadata_is_populated(self):
+        obj_a = MetadataAModel.objects.create()
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj_a.id,
+            content_type=ContentType.objects.get_for_model(MetadataAModel),
+            metadata__isnull=True,
+        )
+        assert crud_event_qs.count() == 1
+
+        obj_b = MetadataBModel.objects.create(model_a=obj_a)
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj_b.id,
+            content_type=ContentType.objects.get_for_model(MetadataBModel),
+            metadata={"model_a_id": obj_a.id},
+        )
+        assert crud_event_qs.count() == 1
+
+        obj_b.name = "Name updated"
+        obj_b.save()
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj_b.id,
+            content_type=ContentType.objects.get_for_model(MetadataBModel),
+            metadata__model_a_id=obj_a.id,
+            metadata__last_name_change__isnull=False,
+        )
+        assert crud_event_qs.count() == 1
+
+        obj_c = MetadataCModel.objects.create(model_b=obj_b)
+        crud_event_qs = CRUDEvent.objects.filter(
+            object_id=obj_c.id,
+            content_type=ContentType.objects.get_for_model(MetadataCModel),
+            metadata={"model_a_id": obj_a.id, "model_b_id": obj_b.id},
+        )
+        assert crud_event_qs.count() == 1
+
+        crud_event_qs = CRUDEvent.objects.filter(metadata__model_a_id=obj_a.id)
+        assert crud_event_qs.count() == 3
 
 
 class TestAuditBigIntModels(TestAuditModels):
