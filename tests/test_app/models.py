@@ -57,6 +57,15 @@ class Tag(models.Model):
     name = models.CharField(max_length=50)
 
 
+class Place(models.Model):
+    name = models.CharField(max_length=50)
+    tags = models.ManyToManyField(Tag, blank=True)
+
+
+class Restaurant(Place):
+    pass
+
+
 class Article(models.Model):
     title = models.CharField(max_length=200)
     tags = models.ManyToManyField(Tag, blank=True)

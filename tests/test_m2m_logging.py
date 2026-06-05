@@ -1,7 +1,7 @@
 import pytest
 
 from easyaudit.models import CRUDEvent
-from tests.test_app.models import Article, Tag
+from tests.test_app.models import Article, Restaurant, Tag
 
 
 @pytest.mark.django_db
@@ -24,3 +24,17 @@ def test_m2m_logging_full():
     article.tags.add(tag1, tag2)
     article.tags.clear()
     assert CRUDEvent.objects.filter(event_type=CRUDEvent.M2M_CLEAR).exists()
+
+
+@pytest.mark.django_db
+def test_m2m_logging_multi_table_inheritance():
+    restaurant = Restaurant.objects.create(name="Test Restaurant")
+    tag = Tag.objects.create(name="django")
+
+    CRUDEvent.objects.all().delete()
+
+    restaurant.tags.add(tag)
+
+    event = CRUDEvent.objects.get(event_type=CRUDEvent.M2M_ADD)
+    assert "tags" in event.changed_fields
+    assert str(tag.pk) in event.changed_fields["tags"] or tag.pk in event.changed_fields["tags"]
