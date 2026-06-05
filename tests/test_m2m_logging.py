@@ -37,4 +37,5 @@ def test_m2m_logging_multi_table_inheritance():
 
     event = CRUDEvent.objects.get(event_type=CRUDEvent.M2M_ADD)
     assert "tags" in event.changed_fields
-    assert str(tag.pk) in event.changed_fields["tags"] or tag.pk in event.changed_fields["tags"]
+    tag_pks = event.changed_fields["tags"]
+    assert tag.pk in tag_pks or str(tag.pk) in tag_pks
