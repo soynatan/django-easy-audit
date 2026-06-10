@@ -120,7 +120,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                     pre_save_crud_flow,
                     instance=instance,
                     object_json_repr=object_json_repr,
-                    changed_fields=json.dumps(delta),
+                    changed_fields=delta,
                 )
 
                 if getattr(settings, "TEST", False):
