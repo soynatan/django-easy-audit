@@ -44,7 +44,7 @@ def log_event(event_type, instance, object_id, object_json_repr, **kwargs):
                 "event_type": event_type,
                 "object_id": object_id,
                 "object_json_repr": object_json_repr or "",
-                "object_repr": str(instance),
+                "object_repr": get_object_repr(instance),
                 "user_id": user_id,
                 "user_pk_as_string": user_pk_as_string,
                 **kwargs,
@@ -126,3 +126,9 @@ def format_primary_key(pk):
     if isinstance(pk, UUID):
         return str(pk)
     return pk
+
+
+def get_object_repr(instance):
+    with contextlib.suppress(Exception):
+        return str(instance)
+    return ""

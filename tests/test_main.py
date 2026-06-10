@@ -191,6 +191,23 @@ class TestAuditModels:
         )
         assert crud_event_qs.count() == 2
 
+    def test_delete_logs_event_when_str_raises(self, model, monkeypatch):
+        obj = model.objects.create()
+        obj_id = obj.pk
+
+        def _raise_str(self):
+            raise ValueError("broken object repr")
+
+        monkeypatch.setattr(model, "__str__", _raise_str)
+        obj.delete()
+
+        crud_event = CRUDEvent.objects.get(
+            object_id=obj_id,
+            content_type=ContentType.objects.get_for_model(obj),
+            event_type=CRUDEvent.DELETE,
+        )
+        assert crud_event.object_repr == ""
+
     @pytest.mark.django_db(transaction=True)
     def test_delete_transaction(self, model, settings):
         settings.TEST = False
