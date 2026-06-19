@@ -362,6 +362,45 @@ class TestASGIRequestEvent:
         event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
         assert event.remote_ip == "10.0.0.1"
 
+    async def test_remote_addr_from_configured_header(self, async_client, settings):
+        settings.DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER = "HTTP_X_FORWARDED_FOR"
+        assert await RequestEvent.objects.acount() == 0
+
+        resp = await async_client.request(
+            method="GET",
+            path=str(reverse("test_app:index")),
+            server=("127.0.0.1", "80"),
+            client=("10.0.0.1", 111),
+            scheme="http",
+            headers=[
+                (b"host", b"testserver"),
+                (b"x-forwarded-for", b"203.0.113.9, 10.0.0.1"),
+            ],
+            query_string="",
+        )
+        assert resp.status_code == 200
+
+        event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
+        assert event.remote_ip == "203.0.113.9"
+
+    async def test_remote_addr_falls_back_when_header_missing(self, async_client, settings):
+        settings.DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER = "HTTP_X_FORWARDED_FOR"
+        assert await RequestEvent.objects.acount() == 0
+
+        resp = await async_client.request(
+            method="GET",
+            path=str(reverse("test_app:index")),
+            server=("127.0.0.1", "80"),
+            client=("10.0.0.1", 111),
+            scheme="http",
+            headers=[(b"host", b"testserver")],
+            query_string="",
+        )
+        assert resp.status_code == 200
+
+        event = await RequestEvent.objects.aget(url=reverse("test_app:index"))
+        assert event.remote_ip == "10.0.0.1"
+
     async def test_middleware_is_async_capable(self, async_client, caplog, settings):
         """Test for async capability of EasyAuditMiddleware.
 
@@ -390,6 +429,26 @@ class TestWSGIRequestEvent:
         assert resp.status_code == 200
 
         assert RequestEvent.objects.get(user=user)
+
+    def test_admin_url_is_not_logged(self, client):
+        assert RequestEvent.objects.count() == 0
+
+        resp = client.get(reverse("admin:index"))
+        assert resp.status_code == 302
+        assert RequestEvent.objects.count() == 0
+
+    def test_remote_addr_from_forwarded_header(self, client, settings):
+        settings.DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER = "HTTP_X_FORWARDED_FOR"
+        assert RequestEvent.objects.count() == 0
+
+        resp = client.get(
+            reverse("test_app:index"),
+            HTTP_X_FORWARDED_FOR="203.0.113.9, 10.0.0.1",
+        )
+        assert resp.status_code == 200
+
+        event = RequestEvent.objects.get(url=reverse("test_app:index"))
+        assert event.remote_ip == "203.0.113.9"
 
 
 @pytest.mark.django_db
