@@ -4,7 +4,7 @@ from importlib import import_module
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
 from django.contrib.auth import get_user_model
-from django.contrib.sessions.models import Session
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.signals import request_started
 from django.http.cookie import SimpleCookie
 from django.utils import timezone
@@ -75,7 +75,7 @@ def request_started_handler(sender, **kwargs):
 
             try:
                 session = session_engine.SessionStore(session_key=session_id).load()
-            except Session.DoesNotExist:
+            except ObjectDoesNotExist:
                 session = None
 
             if session and AUTH_SESSION_KEY in session:
