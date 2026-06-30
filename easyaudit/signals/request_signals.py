@@ -1,4 +1,5 @@
 import re
+from http.cookies import SimpleCookie
 from importlib import import_module
 
 from django.conf import settings
@@ -6,7 +7,6 @@ from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
 from django.core.signals import request_started
-from django.http.cookie import SimpleCookie
 from django.utils import timezone
 from django.utils.module_loading import import_string
 

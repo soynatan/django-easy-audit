@@ -160,6 +160,82 @@ Below are some of the settings you may want to use. These should be defined in y
             return crud_info
   ```
 
+## Customising model queryset
+
+Sometimes, you want to customise the queryset method used for fetching a specific instance.
+For example, when using the [django-softdelete](https://django-safedelete.readthedocs.io/en/latest/) package and you want to record the `undelete` actions.
+
+In order to customise the queryset used, add a method named `get_easyaudit_queryset` to your model. The name of the method can be customized per model by setting the `EASY_AUDIT_QUERYSET_METHOD` attribute to the name of the method to use.
+
+The value should be the name of the model method that returns the needed queryset.
+
+Example:
+
+```python
+class MyModel(models.Model):
+    ...
+
+    @classmethod
+    def get_easyaudit_queryset(cls):
+        return cls.objects.all_with_deleted()
+
+
+# Customize the queryset method used by easyaudit
+class MyOtherModel(models.Model):
+    EASY_AUDIT_QUERYSET_METHOD = 'get_scoped_queryset'
+
+    ...
+
+    @classmethod
+    def get_scoped_queryset(cls):
+        return cls.objects.filter(users__count__gt=0, owner__is_active=True)
+```
+
+## Using instance metadata
+
+You can leverage the `CRUDEvent.metadata` JSON field when you want to save some other related data to each change. For example when aggregating the changes across multiple models by some specific business logic.
+To populate this field, you should declare a method on the model that requires it.
+
+The default method name is `get_easyaudit_metadata`, but it can be configured by defining the `EASY_AUDIT_METADATA_METHOD` field on the model.
+The method also accepts `changed_fields` that contains the fields that were changed on the current event.
+
+Example:
+```python
+class ModelA(models.Model):
+    ...
+
+class ModelB(models.Model):
+    parent = models.ForeignKey(ModelA, ...)
+
+    ...
+
+    def get_easyaudit_metadata(self, *args, **kwargs):
+        return dict(model_a_id=self.parent_id)
+
+    ...
+
+
+class ModelC(models.Model):
+    EASY_AUDIT_METADATA_METHOD = "fetch_metadata"
+
+    ...
+
+    parent = models.ForeignKey(ModelB, ...)
+
+    ...
+
+    def fetch_metadata(self, changed_fields):
+        metadata = dict(model_b_id=self.parent_id, model_a_id=self.parent.parent_id)
+
+        if changed_fields:
+          # Update the metadata somehow from the changed_fields
+            ...
+
+        return metadata
+```
+
+With this setup you can now fetch all changes from `ModelB` and `ModelC` related to a specific `ModelA` instance in one query.
+
 ## What does it do
 
 Django Easy Audit uses [Django signals](https://docs.djangoproject.com/en/dev/topics/signals/)

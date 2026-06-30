@@ -18,7 +18,7 @@ from easyaudit.settings import (
     UNREGISTERED_CLASSES,
     WATCH_MODEL_EVENTS,
 )
-from easyaudit.utils import model_delta, should_propagate_exceptions
+from easyaudit.utils import get_model_queryset, model_delta, should_propagate_exceptions
 
 from .crud_flows import (
     m2m_changed_crud_flow,
@@ -99,7 +99,8 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
             # created or updated?
             delta = {}
             if not created:
-                old_model = sender.objects.get(pk=instance.pk)
+                queryset = get_model_queryset(sender)
+                old_model = queryset.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
 
                 if not delta and getattr(
@@ -120,7 +121,7 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
                     pre_save_crud_flow,
                     instance=instance,
                     object_json_repr=object_json_repr,
-                    changed_fields=json.dumps(delta),
+                    changed_fields=delta,
                 )
 
                 if getattr(settings, "TEST", False):
