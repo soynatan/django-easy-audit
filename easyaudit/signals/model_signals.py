@@ -99,7 +99,11 @@ def pre_save(sender, instance, raw, using, update_fields, **kwargs):
             # created or updated?
             delta = {}
             if not created:
-                old_model = sender.objects.get(pk=instance.pk)
+                # Use `_base_manager` rather than `objects`/`_default_manager`:
+                # the default manager may filter rows out (soft-delete and
+                # similar patterns), which would raise `DoesNotExist` for a row
+                # that does exist but is currently hidden.
+                old_model = sender._base_manager.get(pk=instance.pk)
                 delta = model_delta(old_model, instance)
 
                 if not delta and getattr(
