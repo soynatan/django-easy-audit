@@ -52,6 +52,22 @@ class BigIntM2MModel(models.Model):
     test_m2m = models.ManyToManyField(BigIntModel)
 
 
+class VisibleOnlyManager(models.Manager):
+    """Manager hiding some rows, the way soft-delete managers do."""
+
+    def get_queryset(self):
+        return super().get_queryset().filter(hidden=False)
+
+
+class HidableModel(models.Model):
+    """Model whose default manager filters rows out. See issue #175."""
+
+    name = models.CharField(max_length=50, default="test data")
+    hidden = models.BooleanField(default=False)
+
+    objects = VisibleOnlyManager()
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=50)
 
