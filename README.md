@@ -63,6 +63,13 @@ Below are some of the settings you may want to use. These should be defined in y
   [Check our wiki](https://github.com/soynatan/django-easy-audit/wiki/Settings#request-auditing)
   for more details on how to use it.
 
+- `DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER`
+
+  Defaults to `REMOTE_ADDR`.
+  Set this to an alternate request header such as `HTTP_X_FORWARDED_FOR` when your
+  application is running behind a proxy and you want request events to record that
+  value instead of the direct client address.
+
 - `DJANGO_EASY_AUDIT_CRUD_DIFFERENCE_CALLBACKS`
 
   May point to a list of callables/string-paths-to-functions-classes in which the application code can determine

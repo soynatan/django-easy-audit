@@ -1,4 +1,5 @@
 import re
+from functools import lru_cache
 from importlib import import_module
 
 from django.conf import settings
@@ -22,51 +23,88 @@ session_engine = import_module(settings.SESSION_ENGINE)
 audit_logger = import_string(LOGGING_BACKEND)()
 
 
+@lru_cache(maxsize=8)
+def _compile_patterns(urls):
+    return tuple(re.compile(url) for url in urls)
+
+
+def _get_registered_url_patterns():
+    return _compile_patterns(tuple(REGISTERED_URLS))
+
+
+def _get_unregistered_url_patterns():
+    return _compile_patterns(tuple(UNREGISTERED_URLS))
+
+
 def should_log_url(url):
     # check if current url is blacklisted
-    for unregistered_url in UNREGISTERED_URLS:
-        pattern = re.compile(unregistered_url)
+    for pattern in _get_unregistered_url_patterns():
         if pattern.match(url):
             return False
 
     # only audit URLs listed in REGISTERED_URLS (if it's set)
-    if len(REGISTERED_URLS) > 0:
-        for registered_url in REGISTERED_URLS:
-            pattern = re.compile(registered_url)
-            if pattern.match(url):
-                return True
-        return False
+    registered_url_patterns = _get_registered_url_patterns()
+    if registered_url_patterns:
+        return any(pattern.match(url) for pattern in registered_url_patterns)
 
     # all good
     return True
 
 
-def request_started_handler(sender, **kwargs):
-    environ = kwargs.get("environ")
-    scope = kwargs.get("scope")
+def _get_remote_addr_header():
+    return getattr(settings, "DJANGO_EASY_AUDIT_REMOTE_ADDR_HEADER", REMOTE_ADDR_HEADER)
+
+
+def _get_asgi_headers(scope):
+    return {
+        key.decode("latin1").lower(): value.decode("latin1")
+        for key, value in scope.get("headers", [])
+    }
+
+
+def _normalize_remote_ip(remote_ip):
+    if remote_ip is None:
+        return None
+
+    return remote_ip.split(",", maxsplit=1)[0].strip()
+
+
+def _get_asgi_remote_ip(scope, headers):
+    remote_addr_header = _get_remote_addr_header()
+    if remote_addr_header != "REMOTE_ADDR":
+        asgi_header_name = (
+            remote_addr_header.removeprefix("HTTP_").lower().replace("_", "-")
+        )
+        remote_ip = _normalize_remote_ip(headers.get(asgi_header_name))
+        if remote_ip:
+            return remote_ip
+
+    return _normalize_remote_ip(next(iter(scope.get("client", ("0.0.0.0", 0)))))  # noqa: S104
+
+
+def _get_request_details(environ, scope):
     if environ:
-        path = environ["PATH_INFO"]
-        cookie_string = environ.get("HTTP_COOKIE")
-        remote_ip = environ.get(REMOTE_ADDR_HEADER, None)
-        method = environ["REQUEST_METHOD"]
-        query_string = environ["QUERY_STRING"]
+        return {
+            "cookie_string": environ.get("HTTP_COOKIE"),
+            "method": environ["REQUEST_METHOD"],
+            "path": environ["PATH_INFO"],
+            "query_string": environ["QUERY_STRING"],
+            "remote_ip": _normalize_remote_ip(environ.get(_get_remote_addr_header())),
+        }
 
-    else:
-        method = scope.get("method")
-        path = scope.get("path")
-        headers = dict(scope.get("headers"))
-        cookie_string = headers.get(b"cookie")
-        if isinstance(cookie_string, bytes):
-            cookie_string = cookie_string.decode("utf-8")
-        remote_ip = next(iter(scope.get("client", ("0.0.0.0", 0))))  # noqa: S104
-        query_string = scope.get("query_string")
+    headers = _get_asgi_headers(scope)
+    return {
+        "cookie_string": headers.get("cookie"),
+        "method": scope.get("method"),
+        "path": scope.get("path"),
+        "query_string": scope.get("query_string"),
+        "remote_ip": _get_asgi_remote_ip(scope, headers),
+    }
 
-    if not should_log_url(path):
-        return
 
+def _get_user_from_cookie(cookie_string):
     user = None
-    # get the user from cookies
-    if not user and cookie_string:
+    if cookie_string:
         cookie = SimpleCookie()
         cookie.load(cookie_string)
         session_cookie_name = settings.SESSION_COOKIE_NAME
@@ -85,14 +123,28 @@ def request_started_handler(sender, **kwargs):
                 except Exception:
                     user = None
 
+    return user
+
+
+def request_started_handler(sender, **kwargs):
+    request_details = _get_request_details(
+        kwargs.get("environ"),
+        kwargs.get("scope") or {},
+    )
+    path = request_details["path"]
+    if not should_log_url(path):
+        return
+
+    user = _get_user_from_cookie(request_details["cookie_string"])
+
     # may want to wrap this in an atomic transaction later
     audit_logger.request(
         {
             "url": path,
-            "method": method,
-            "query_string": query_string,
+            "method": request_details["method"],
+            "query_string": request_details["query_string"],
             "user_id": getattr(user, "id", None),
-            "remote_ip": remote_ip,
+            "remote_ip": request_details["remote_ip"],
             "datetime": timezone.now(),
         }
     )
