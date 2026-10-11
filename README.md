@@ -63,6 +63,35 @@ Below are some of the settings you may want to use. These should be defined in y
   [Check our wiki](https://github.com/soynatan/django-easy-audit/wiki/Settings#request-auditing)
   for more details on how to use it.
 
+
+- `DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS`
+
+  By default the user of a request event is read from the session cookie when the
+  request starts. Projects that authenticate inside the view, such as Django REST
+  framework with token or JWT authentication, get request events with no user.
+
+  Set this to an ordered list of adapters to record those users as well. Each adapter
+  is asked for the request's user in turn and the first to name one wins:
+
+  ```python
+  DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [
+      "easyaudit.request_auth.RequestAuthAdapter",
+      "easyaudit.request_auth.SessionAuthAdapter",
+  ]
+  ```
+
+  - `SessionAuthAdapter` reads the session cookie, as the default behavior does.
+  - `RequestAuthAdapter` returns `request.user` when the view left a credential on
+    `request.auth`, which Django REST framework does for token-style authenticators.
+  - An adapter of your own is a class with a `get_user(request)` method returning a
+    user or `None`. List items can be classes or dotted paths.
+
+  When this setting is defined, the request event is written by `EasyAuditMiddleware`
+  after the response, not when the request starts, because the view has to run before
+  its authentication result is known. Two consequences: a request is only logged if it
+  reaches `EasyAuditMiddleware`, so list it before any middleware that can return a
+  response early, and the event's `datetime` is the time the response was produced.
+
 - `DJANGO_EASY_AUDIT_CRUD_DIFFERENCE_CALLBACKS`
 
   May point to a list of callables/string-paths-to-functions-classes in which the application code can determine
