@@ -90,12 +90,16 @@ Below are some of the settings you may want to use. These should be defined in y
     session cookie.
   - `RequestAuthAdapter` returns `request.user` when the view left a credential on
     `request.auth`, which Django REST framework does for token-style authenticators.
-  - An adapter of your own is a class with a `get_user(request)` method returning a
-    user or `None`. List items can be classes or dotted paths.
+  - An adapter of your own subclasses `easyaudit.request_auth.BaseAuthAdapter` and
+    implements `get_user(request)`, returning a user or `None`. Subclassing is a
+    convenience: any class with that method works. A listed adapter without it raises
+    `ImproperlyConfigured` on the first request. List items can be classes or dotted
+    paths.
 
   Each adapter has a `requires_response` attribute saying whether it needs the view to
-  have run. `SessionAuthAdapter` does not; `RequestAuthAdapter` does, and so does an
-  adapter that does not say. If no listed adapter requires the response, the request
+  have run. It is `True` on `BaseAuthAdapter` and `RequestAuthAdapter`, and `False` on
+  `SessionAuthAdapter`; set it to `False` on an adapter that only reads the incoming
+  request. If no listed adapter requires the response, the request
   event is written as the request starts. If any does, the event is written by
   `EasyAuditMiddleware` after the response, with two consequences: a request is only
   logged if it reaches `EasyAuditMiddleware`, so list it before any middleware that

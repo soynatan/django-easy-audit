@@ -1,10 +1,12 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ImproperlyConfigured
 from django.test import RequestFactory
 from django.urls import reverse
 
 from easyaudit.models import RequestEvent
 from easyaudit.request_auth import (
+    BaseAuthAdapter,
     RequestAuthAdapter,
     SessionAuthAdapter,
     get_request_user,
@@ -234,3 +236,43 @@ class TestAdapters:
         settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [First, Second, Third]
 
         assert get_request_user(RequestFactory().get("/")) == user
+
+    def test_base_adapter_defaults_to_requiring_the_response(self):
+        class TokenAdapter(BaseAuthAdapter):
+            def get_user(self, request):
+                return None
+
+        assert TokenAdapter.requires_response is True
+        assert SessionAuthAdapter.requires_response is False
+        assert RequestAuthAdapter.requires_response is True
+
+    def test_adapter_without_get_user_is_refused(self, settings, client):
+        class NoGetUser:
+            def get_usr(self, request):
+                return None
+
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [NoGetUser]
+
+        with pytest.raises(ImproperlyConfigured, match="NoGetUser"):
+            client.get(reverse("test_app:index"))
+
+    def test_base_adapter_subclass_must_override_get_user(self, settings, client):
+        class Forgot(BaseAuthAdapter):
+            pass
+
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [Forgot]
+
+        with pytest.raises(ImproperlyConfigured, match="Forgot"):
+            client.get(reverse("test_app:index"))
+
+    def test_misconfigured_adapter_is_not_silenced(self, settings, client):
+        """A bad adapter fails the request even when logging errors are swallowed."""
+
+        class NoGetUser:
+            pass
+
+        settings.DJANGO_EASY_AUDIT_PROPAGATE_EXCEPTIONS = False
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [NoGetUser]
+
+        with pytest.raises(ImproperlyConfigured):
+            client.get(reverse("test_app:index"))

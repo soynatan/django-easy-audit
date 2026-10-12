@@ -13,6 +13,7 @@ from importlib import import_module
 from django.conf import settings
 from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 
 DEFAULT_ADAPTERS = ["easyaudit.request_auth.SessionAuthAdapter"]
@@ -39,7 +40,26 @@ def get_session_user(session_key):
     return None
 
 
-class SessionAuthAdapter:
+class BaseAuthAdapter:
+    """Base class for request auth adapters.
+
+    Subclassing is a convenience, not a requirement: any class with a
+    ``get_user(request)`` method can be listed in
+    ``DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS``.
+    """
+
+    # Whether the adapter needs the view to have run. When any listed adapter does,
+    # the request is logged after the response instead of as it starts.
+    requires_response = True
+
+    def get_user(self, request):
+        """Return the user behind the request, or None."""
+        raise NotImplementedError(
+            f"{type(self).__name__} must implement get_user(request)."
+        )
+
+
+class SessionAuthAdapter(BaseAuthAdapter):
     """The user logged in to the session named by the request's session cookie.
 
     Reads the cookie and loads the session directly instead of going through
@@ -56,7 +76,7 @@ class SessionAuthAdapter:
         return get_session_user(session_key)
 
 
-class RequestAuthAdapter:
+class RequestAuthAdapter(BaseAuthAdapter):
     """The user a view authenticated with a credential it left on ``request.auth``.
 
     Django REST framework authenticates inside the view and writes the result
@@ -83,7 +103,16 @@ class RequestAuthAdapter:
 def _load_adapter(adapter):
     if isinstance(adapter, str):
         adapter = import_string(adapter)
-    return adapter()
+    instance = adapter()
+
+    get_user = getattr(type(instance), "get_user", None)
+    if not callable(get_user) or get_user is BaseAuthAdapter.get_user:
+        raise ImproperlyConfigured(
+            f"{adapter.__module__}.{adapter.__qualname__}, listed in "
+            "DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS, does not implement "
+            "get_user(request)."
+        )
+    return instance
 
 
 def get_adapters():
@@ -94,8 +123,8 @@ def get_adapters():
 def adapters_require_response():
     """Whether any configured adapter needs the view to have run.
 
-    An adapter that does not say is assumed to: after the response everything an
-    adapter could read is on the request, so that is the safe reading.
+    An adapter that does not say is assumed to, as `BaseAuthAdapter` assumes: after
+    the response everything an adapter could read is on the request.
     """
     return any(getattr(adapter, "requires_response", True) for adapter in get_adapters())
 
