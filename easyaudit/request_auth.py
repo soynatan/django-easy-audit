@@ -1,11 +1,10 @@
 """Work out which user is behind a request, for ``RequestEvent``.
 
-By default the user is read from the session cookie when the request starts, which
-is all that is known before any view runs. Projects that authenticate inside the
-view (Django REST framework and similar) can list adapters in
-``DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS``; the request is then logged by
-``EasyAuditMiddleware`` after the response, when the result of authentication is
-available on the request.
+``DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS`` lists the adapters asked for a request's
+user; the first to name one wins. An adapter says whether it needs the view to have
+run through ``requires_response``. When none does, the request is logged as it
+starts. When any does, ``EasyAuditMiddleware`` logs it after the response instead,
+when the result of the view's authentication is available on the request.
 """
 
 from functools import cache
@@ -15,6 +14,8 @@ from django.conf import settings
 from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
 from django.contrib.auth import get_user_model
 from django.utils.module_loading import import_string
+
+DEFAULT_ADAPTERS = ["easyaudit.request_auth.SessionAuthAdapter"]
 
 
 def get_session_user(session_key):
@@ -46,6 +47,8 @@ class SessionAuthAdapter:
     accessed, which makes Django add ``Vary: Cookie`` to the response.
     """
 
+    requires_response = False
+
     def get_user(self, request):
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
         if not session_key:
@@ -63,6 +66,8 @@ class RequestAuthAdapter:
     authentication and for a rejected credential.
     """
 
+    requires_response = True
+
     def get_user(self, request):
         if getattr(request, "auth", None) is None:
             return None
@@ -74,11 +79,6 @@ class RequestAuthAdapter:
         return user
 
 
-def adapters_configured():
-    """Whether the project has set ``DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS``."""
-    return getattr(settings, "DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS", None) is not None
-
-
 @cache
 def _load_adapter(adapter):
     if isinstance(adapter, str):
@@ -86,10 +86,24 @@ def _load_adapter(adapter):
     return adapter()
 
 
+def get_adapters():
+    paths = getattr(settings, "DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS", DEFAULT_ADAPTERS)
+    return [_load_adapter(path) for path in paths]
+
+
+def adapters_require_response():
+    """Whether any configured adapter needs the view to have run.
+
+    An adapter that does not say is assumed to: after the response everything an
+    adapter could read is on the request, so that is the safe reading.
+    """
+    return any(getattr(adapter, "requires_response", True) for adapter in get_adapters())
+
+
 def get_request_user(request):
     """Return the user from the first configured adapter that names one, or None."""
-    for adapter in settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS:
-        user = _load_adapter(adapter).get_user(request)
+    for adapter in get_adapters():
+        user = adapter.get_user(request)
         if user is not None:
             return user
     return None

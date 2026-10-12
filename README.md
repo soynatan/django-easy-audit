@@ -66,12 +66,18 @@ Below are some of the settings you may want to use. These should be defined in y
 
 - `DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS`
 
-  By default the user of a request event is read from the session cookie when the
-  request starts. Projects that authenticate inside the view, such as Django REST
-  framework with token or JWT authentication, get request events with no user.
+  An ordered list of adapters that work out which user made a request. Each is asked
+  in turn and the first to name a user wins. The default is the session adapter alone:
 
-  Set this to an ordered list of adapters to record those users as well. Each adapter
-  is asked for the request's user in turn and the first to name one wins:
+  ```python
+  DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [
+      "easyaudit.request_auth.SessionAuthAdapter",
+  ]
+  ```
+
+  That reads the session cookie, so a request authenticated inside the view, such as
+  Django REST framework with token or JWT authentication, is logged with no user. To
+  record those users as well, add the request-auth adapter:
 
   ```python
   DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [
@@ -80,17 +86,21 @@ Below are some of the settings you may want to use. These should be defined in y
   ]
   ```
 
-  - `SessionAuthAdapter` reads the session cookie, as the default behavior does.
+  - `SessionAuthAdapter` returns the user logged in to the session named by the
+    session cookie.
   - `RequestAuthAdapter` returns `request.user` when the view left a credential on
     `request.auth`, which Django REST framework does for token-style authenticators.
   - An adapter of your own is a class with a `get_user(request)` method returning a
     user or `None`. List items can be classes or dotted paths.
 
-  When this setting is defined, the request event is written by `EasyAuditMiddleware`
-  after the response, not when the request starts, because the view has to run before
-  its authentication result is known. Two consequences: a request is only logged if it
-  reaches `EasyAuditMiddleware`, so list it before any middleware that can return a
-  response early, and the event's `datetime` is the time the response was produced.
+  Each adapter has a `requires_response` attribute saying whether it needs the view to
+  have run. `SessionAuthAdapter` does not; `RequestAuthAdapter` does, and so does an
+  adapter that does not say. If no listed adapter requires the response, the request
+  event is written as the request starts. If any does, the event is written by
+  `EasyAuditMiddleware` after the response, with two consequences: a request is only
+  logged if it reaches `EasyAuditMiddleware`, so list it before any middleware that
+  can return a response early, and the event's `datetime` is the time the response
+  was produced.
 
 - `DJANGO_EASY_AUDIT_CRUD_DIFFERENCE_CALLBACKS`
 

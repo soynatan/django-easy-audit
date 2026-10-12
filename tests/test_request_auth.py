@@ -29,7 +29,7 @@ def token_header(username):
 
 @pytest.mark.django_db
 class TestDefaultRequestAuth:
-    """With the setting untouched, nothing about request logging changes."""
+    """The default adapter is the session one, and the event is written up front."""
 
     def test_session_user_is_recorded(self, user, client):
         client.force_login(user)
@@ -75,14 +75,6 @@ class TestConfiguredRequestAuth:
 
         assert RequestEvent.objects.get().user is None
 
-    def test_session_adapter_alone_ignores_the_token(
-        self, settings, user, client, username
-    ):
-        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [SESSION_ADAPTER]
-        client.get(reverse("test_app:token-auth"), **token_header(username))
-
-        assert RequestEvent.objects.get().user is None
-
     def test_event_is_written_once_after_the_view_runs(self, adapters, client):
         resp = client.get(reverse("test_app:count-request-events"))
 
@@ -116,6 +108,54 @@ class TestConfiguredRequestAuth:
         assert "Cookie" not in resp.get("Vary", "")
 
 
+@pytest.mark.django_db
+class TestWriteTiming:
+    """The event is written after the response only if an adapter needs that."""
+
+    def test_session_adapter_alone_writes_before_the_view(self, settings, client):
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [SESSION_ADAPTER]
+        resp = client.get(reverse("test_app:count-request-events"))
+
+        assert resp.content == b"1"
+        assert RequestEvent.objects.count() == 1
+
+    def test_session_adapter_alone_ignores_the_token(
+        self, settings, user, client, username
+    ):
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [SESSION_ADAPTER]
+        client.get(reverse("test_app:token-auth"), **token_header(username))
+
+        assert RequestEvent.objects.get().user is None
+
+    def test_adapter_that_does_not_say_is_run_after_the_view(
+        self, settings, user, client, username
+    ):
+        class ReadsTheViewsUser:
+            def get_user(self, request):
+                return request.user if request.user.is_authenticated else None
+
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [ReadsTheViewsUser]
+        resp = client.get(reverse("test_app:token-auth"), **token_header(username))
+        assert resp.status_code == 200
+
+        assert RequestEvent.objects.get().user == user
+
+    def test_early_adapter_is_given_a_request(self, settings, client):
+        seen = []
+
+        class Early:
+            requires_response = False
+
+            def get_user(self, request):
+                seen.append((request.method, request.path, request.COOKIES.get("a")))
+
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [Early]
+        client.cookies["a"] = "1"
+        client.get(reverse("test_app:index"))
+
+        assert seen == [("GET", reverse("test_app:index"), "1")]
+
+
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
 class TestConfiguredRequestAuthASGI:
@@ -136,6 +176,20 @@ class TestConfiguredRequestAuthASGI:
 
         event = await RequestEvent.objects.aget()
         assert event.user_id is None
+
+    async def test_early_adapter_is_given_a_request(self, settings, async_client):
+        seen = []
+
+        class Early:
+            requires_response = False
+
+            def get_user(self, request):
+                seen.append((request.method, request.path))
+
+        settings.DJANGO_EASY_AUDIT_REQUEST_AUTH_ADAPTERS = [Early]
+        await async_client.get(reverse("test_app:index"))
+
+        assert seen == [("GET", reverse("test_app:index"))]
 
 
 @pytest.mark.django_db
