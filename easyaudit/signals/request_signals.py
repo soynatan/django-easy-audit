@@ -1,15 +1,13 @@
 import re
-from importlib import import_module
+from io import BytesIO
 
-from django.conf import settings
-from django.contrib.auth import SESSION_KEY as AUTH_SESSION_KEY
-from django.contrib.auth import get_user_model
-from django.contrib.sessions.models import Session
+from django.core.handlers.asgi import ASGIRequest
+from django.core.handlers.wsgi import WSGIRequest
 from django.core.signals import request_started
-from django.http.cookie import SimpleCookie
 from django.utils import timezone
 from django.utils.module_loading import import_string
 
+from easyaudit.request_auth import adapters_require_response, get_request_auth
 from easyaudit.settings import (
     LOGGING_BACKEND,
     REGISTERED_URLS,
@@ -18,7 +16,6 @@ from easyaudit.settings import (
     WATCH_REQUEST_EVENTS,
 )
 
-session_engine = import_module(settings.SESSION_ENGINE)
 audit_logger = import_string(LOGGING_BACKEND)()
 
 
@@ -41,12 +38,10 @@ def should_log_url(url):
     return True
 
 
-def request_started_handler(sender, **kwargs):
-    environ = kwargs.get("environ")
-    scope = kwargs.get("scope")
+def get_request_details(environ=None, scope=None):
+    """Return the request details to log, from a WSGI environ or an ASGI scope."""
     if environ:
         path = environ["PATH_INFO"]
-        cookie_string = environ.get("HTTP_COOKIE")
         remote_ip = environ.get(REMOTE_ADDR_HEADER, None)
         method = environ["REQUEST_METHOD"]
         query_string = environ["QUERY_STRING"]
@@ -54,48 +49,60 @@ def request_started_handler(sender, **kwargs):
     else:
         method = scope.get("method")
         path = scope.get("path")
-        headers = dict(scope.get("headers"))
-        cookie_string = headers.get(b"cookie")
-        if isinstance(cookie_string, bytes):
-            cookie_string = cookie_string.decode("utf-8")
         remote_ip = next(iter(scope.get("client", ("0.0.0.0", 0))))  # noqa: S104
         query_string = scope.get("query_string")
 
-    if not should_log_url(path):
-        return
+    return {
+        "url": path,
+        "method": method,
+        "query_string": query_string,
+        "remote_ip": remote_ip,
+    }
 
-    user = None
-    # get the user from cookies
-    if not user and cookie_string:
-        cookie = SimpleCookie()
-        cookie.load(cookie_string)
-        session_cookie_name = settings.SESSION_COOKIE_NAME
-        if session_cookie_name in cookie:
-            session_id = cookie[session_cookie_name].value
 
-            try:
-                session = session_engine.SessionStore(session_key=session_id).load()
-            except Session.DoesNotExist:
-                session = None
-
-            if session and AUTH_SESSION_KEY in session:
-                user_id = session.get(AUTH_SESSION_KEY)
-                try:
-                    user = get_user_model().objects.get(id=user_id)
-                except Exception:
-                    user = None
+def log_request(details, request):
+    user, auth_method = get_request_auth(request)
 
     # may want to wrap this in an atomic transaction later
     audit_logger.request(
         {
-            "url": path,
-            "method": method,
-            "query_string": query_string,
+            **details,
             "user_id": getattr(user, "id", None),
-            "remote_ip": remote_ip,
+            "auth_method": auth_method,
             "datetime": timezone.now(),
         }
     )
+
+
+def request_started_handler(sender, **kwargs):
+    # An adapter that needs the view to have run cannot answer yet, so
+    # EasyAuditMiddleware logs the request after the response instead.
+    if adapters_require_response():
+        return
+
+    environ = kwargs.get("environ")
+    scope = kwargs.get("scope")
+    details = get_request_details(environ=environ, scope=scope)
+    if not should_log_url(details["url"]):
+        return
+
+    # The signal carries no request object, so build one for the adapters.
+    request = WSGIRequest(environ) if environ else ASGIRequest(scope, BytesIO())
+    log_request(details, request)
+
+
+def log_request_after_response(request):
+    """Log a request from the middleware, once the view has authenticated it."""
+    environ = getattr(request, "environ", None)
+    scope = getattr(request, "scope", None)
+    if not environ and not scope:
+        return
+
+    details = get_request_details(environ=environ, scope=scope)
+    if not should_log_url(details["url"]):
+        return
+
+    log_request(details, request)
 
 
 if WATCH_REQUEST_EVENTS:

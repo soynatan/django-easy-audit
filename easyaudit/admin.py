@@ -156,7 +156,7 @@ class LoginEventAdmin(EasyAuditModelAdmin):
 
 # Request events
 class RequestEventAdmin(EasyAuditModelAdmin):
-    list_display = ["datetime", "user_link", "method", "url", "remote_ip"]
+    list_display = ["datetime", "user_link", "auth_method", "method", "url", "remote_ip"]
     date_hierarchy = "datetime"
     list_filter = REQUEST_EVENT_LIST_FILTER
     search_fields = REQUEST_EVENT_SEARCH_FIELDS
@@ -165,6 +165,7 @@ class RequestEventAdmin(EasyAuditModelAdmin):
         "method",
         "query_string",
         "get_user",
+        "auth_method",
         "remote_ip",
         "datetime",
     ]

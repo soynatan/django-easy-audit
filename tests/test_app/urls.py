@@ -6,6 +6,12 @@ app_name = "test_easyaudit"
 
 urlpatterns = [
     re_path("index", views.index, name="index"),
+    re_path(
+        "count-request-events",
+        views.count_request_events_view,
+        name="count-request-events",
+    ),
+    re_path("token-auth", views.token_auth_view, name="token-auth"),
     re_path("create-obj", views.create_obj_view, name="create-obj"),
     re_path("update-obj", views.update_obj_view, name="update-obj"),
     re_path("create-uuid-obj", views.create_uuid_obj_view, name="create-uuid-obj"),

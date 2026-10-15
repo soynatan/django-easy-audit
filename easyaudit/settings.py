@@ -173,6 +173,7 @@ REQUEST_EVENT_LIST_FILTER = getattr(
     "DJANGO_EASY_AUDIT_REQUEST_EVENT_LIST_FILTER",
     [
         "method",
+        "auth_method",
         "user",
         "datetime",
     ],

@@ -130,6 +130,11 @@ class RequestEvent(models.Model):
     remote_ip = models.CharField(
         max_length=50, default="", db_index=True, verbose_name=_("Remote IP")
     )
+    # NULL, not "", for a request that did not authenticate: adding a nullable column
+    # with no default rewrites no rows on any backend, and this table is large.
+    auth_method = models.CharField(  # noqa: DJ001
+        max_length=32, null=True, blank=True, verbose_name=_("Auth method")
+    )
     datetime = models.DateTimeField(
         auto_now_add=True, db_index=True, verbose_name=_("Date time")
     )
