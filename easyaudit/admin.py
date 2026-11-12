@@ -63,6 +63,7 @@ class CRUDEventAdmin(EasyAuditModelAdmin):
     date_hierarchy = "datetime"
     list_filter = CRUD_EVENT_LIST_FILTER
     search_fields = CRUD_EVENT_SEARCH_FIELDS
+    raw_id_fields = ["user"]
     readonly_fields = [
         "event_type",
         "object_id",
@@ -132,6 +133,7 @@ class LoginEventAdmin(EasyAuditModelAdmin):
     date_hierarchy = "datetime"
     list_filter = LOGIN_EVENT_LIST_FILTER
     search_fields = LOGIN_EVENT_SEARCH_FIELDS
+    raw_id_fields = ["user"]
     readonly_fields = [
         "login_type",
         "get_username",
@@ -160,6 +162,7 @@ class RequestEventAdmin(EasyAuditModelAdmin):
     date_hierarchy = "datetime"
     list_filter = REQUEST_EVENT_LIST_FILTER
     search_fields = REQUEST_EVENT_SEARCH_FIELDS
+    raw_id_fields = ["user"]
     readonly_fields = [
         "url",
         "method",
