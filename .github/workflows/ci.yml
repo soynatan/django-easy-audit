@@ -19,22 +19,15 @@ jobs:
       fail-fast: true
       max-parallel: 4
       matrix:
-        python-version: [3.9, '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
         django-version: [4.2, '5.0', 5.1, 5.2]
         exclude:
           # Django 4.2 only supports Python 3.8 to 3.12.
           - python-version: 3.13
             django-version: 4.2
           # Django 5.0 only supports Python 3.10 to 3.12.
-          - python-version: 3.9
-            django-version: 5.0
           - python-version: 3.13
             django-version: 5.0
-          # Django 5.1 and 5.2 only support Python 3.10 to 3.13.
-          - python-version: 3.9
-            django-version: 5.1
-          - python-version: 3.9
-            django-version: 5.2
 
     steps:
       - name: Checkout ${{ github.repository }}
@@ -46,20 +39,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # Poetry 2.3+ requires Python 3.10+. Use 1.8.x when testing on 3.9.
-      - name: Set Poetry version
-        id: poetry-version
-        run: |
-          if [ "${{ matrix.python-version }}" = "3.9" ]; then
-            echo "version=1.8.3" >> $GITHUB_OUTPUT
-          else
-            echo "version=latest" >> $GITHUB_OUTPUT
-          fi
-
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
-          version: ${{ steps.poetry-version.outputs.version }}
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
