@@ -21,7 +21,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -32,7 +31,7 @@ classifiers = [
 packages = [{ include = "easyaudit" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 django = ">=4.2,<7"
 
 [tool.poetry.group.dev.dependencies]
@@ -62,7 +61,7 @@ addopts = [
 [tool.ruff]
 extend-exclude = ["migrations"]
 line-length = 92
-target-version = "py39"
+target-version = "py310"
 show-fixes = true
 
 [tool.ruff.lint]

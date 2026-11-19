@@ -1,6 +1,6 @@
 # makes easy-audit thread-safe
 import contextlib
-from typing import Callable
+from collections.abc import Callable
 
 from asgiref.local import Local
 from asgiref.sync import iscoroutinefunction, markcoroutinefunction, sync_to_async
