@@ -18,7 +18,7 @@ def get_model_list(class_list):
     If an item is already a class, it ignores it.
     """
     for idx, item in enumerate(class_list):
-        if isinstance(item, (str,)):
+        if isinstance(item, str):
             model_class = apps.get_model(item)
             class_list[idx] = model_class
 
